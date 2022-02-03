@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="common">
+	<!-- 일반 로그인 -->
+	<select id="actionLogin" parameterType="cubox.admin.main.service.vo.LoginVO" resultType="cubox.admin.main.service.vo.LoginVO">
+		select	tsu.fsiteid
+			,	tsu.fpasswdyn
+			,	tsu.fkind3
+			,	tsu.femergency
+			,	(SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' and fkind2 = 'centercd' and fkind3 = tsu.fkind3) AS fvalue
+			,	tsu.fname
+			,	tsu.flastaccdt
+			,	tsu.flastaccip
+			,	tsu.fauthcd
+			,	tsu.fuid
+			,	tum.funm
+			,	tum.fpartnm1
+			,	tum.fpartnm2
+			,	tum.fpartnm3
+			,	tum.fpartcd1
+			,	tum.fpartcd2
+			,	tum.fpartcd3
+			,	tum.ftel
+			,	tum.hp_no
+			,	datediff(now(), tsu.fpasswdmodt) as fdatediff
+			,	tsu.author_id
+			,	(select at2.author_nm from author_tb at2 where at2.author_id = tsu.author_id ) author_nm
+			,	tsu.site_id
+			,	(select st.site_nm from site_tb st where st.site_id = tsu.site_id) as site_nm
+		  from	tsiteuser tsu
+		  left	outer join tuserinfo_main tum on tsu.fuid = tum.fuid and tsu.site_id = tum.fpartcd1
+		 where	tsu.fsiteid = #{fsiteid}
+		   and	tsu.fpasswd = #{fpasswd}
+		   and	tsu.fuseyn = 'Y'
+	</select>
+
+	<!-- 마지막접속일 -->
+	<update id="lastConnect" parameterType="cubox.admin.main.service.vo.LoginVO">
+		update  tsiteuser
+		   set 	flastaccdt = now()
+		   	,	flastaccip = #{flastaccip}
+		 where	fsiteid = #{fsiteid}
+	</update>
+
+	<!-- 코드가져오기 -->
+	<select id="getCodeList" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO" >
+    	select	fkind1, fkind2, fkind3, fuseyn, fvalue,
+    			concat(substr(fkind3 , 1, 1),  lower(substr(fkind3, 2))) as objName
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fuseyn = 'Y'
+         order by forder, fvalue asc
+    </select>
+
+    <!-- 코드가져오기 -->
+	<select id="getCodeList2" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO" >
+    	select	fkind1, fkind2, fkind3, fuseyn, fvalue
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fuseyn = 'Y'
+         order by forder, fkind3 asc
+    </select>
+
+    <!-- 코드값가져오기 (fvalue) -->
+	<select id="getCodeValue" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="String" >
+    	select	fvalue
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fkind3 = #{fkind3}
+           and	fuseyn = 'Y'
+    </select>
+
+    <!-- 코드명가져오기 (fkind3) -->
+	<select id="getCodeKind3" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="String" >
+    	select	fkind3
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fvalue = #{fvalue}
+           and	fuseyn = 'Y'
+    </select>
+
+    <!-- 센터콤보가져오기 -->
+	<select id="getCenterCodeList" parameterType="siteVO" resultType="siteVO" >
+    	select
+         	site_id as siteId,
+         	site_nm as siteNm,
+         	site_desc as siteDesc
+         from site_tb st
+         where use_yn = 'Y'
+         <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(siteId)">
+		   and	site_id = #{siteId}
+		</if>
+		order by sort_ordr
+    </select>
+    
+    <select id="getSiteCodeList" parameterType="siteVO" resultType="siteVO" >
+    	select
+         	site_id as siteId,
+         	site_nm as siteNm,
+         	site_desc as siteDesc
+         from site_tb st
+         where use_yn = 'Y'
+		order by sort_ordr
+    </select>
+    
+    
+
+    <!-- sys로그저장  -->
+	<insert id="sysLogSave" parameterType="cubox.admin.main.service.vo.SysLogVO" >
+		insert	into	tsyslog
+						(
+							fevttm, fsiteid, fsyscode, fdetail, fcnntip
+						)
+			  values 	(
+			  				now(), #{fsiteid}, #{fsyscode}, #{fdetail}, #{fcnntip}
+						)
+	</insert>
+
+	<insert id="tcsidxSave" parameterType="String" >
+    	insert	into	tcsidx
+    					(
+    						fcode, fwdt
+    					)
+    			values	(
+    						#{fcode}, now(3)
+    					)
+    </insert>
+
+    <select id="getFsidx" parameterType="String" resultType="String" >
+    	select	concat(fwdt, '_', lpad(fidx,'9','0')) as fsidx
+		  from	tcsidx
+		 where 	fcode = #{fcode}
+		 order by fidx desc
+		 limit 1
+    </select>
+
+    <select id="getCodeFullList" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO">
+    	select	fkind1, fkind2, fkind3, fuseyn, fvalue, forder, fdoc
+          from	tcommcd
+         where	1=1
+         <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fkind1)">
+         	and	fkind1 = #{fkind1}
+         </if>
+         <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fkind2)">
+         	and	fkind2 = #{fkind2}
+         </if>
+         <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fkind3)">
+         	and	UPPER(fkind3) LIKE concat ('%',UPPER(#{fkind3}),'%')
+         </if>
+         <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fvalue)">
+         	and	UPPER(fvalue) LIKE concat ('%',UPPER(#{fvalue}),'%')
+         </if>
+         <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuseyn)">
+         	and	fuseyn = #{fuseyn}
+         </if>
+         order by fkind1, fkind2, forder, fkind3
+    </select>
+
+    <select id="getCodeFkind1List" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO">
+		select distinct fkind1 
+		  from tcommcd
+		 order by fkind1
+    </select>
+
+    <select id="getCodeFkind2List" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO">
+    	select	fkind2
+          from	tcommcd
+         where	fuseyn = 'Y'
+         group by fkind2
+         order by fkind2
+    </select>
+    
+    <select id="getCodeFkind2List2" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO">
+		select distinct fkind2
+		  from tcommcd
+		 where fkind1 = #{fkind1}
+		 order by fkind2
+    </select>      
+
+    <select id="getFkind3Cnt" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="int">
+    	select	count(fkind3) as fkind3
+          from	tcommcd
+         where	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fkind3 = #{fkind3}
+    </select>
+
+    <insert id="insertCode" parameterType="cubox.admin.main.service.vo.CodeVO">
+    	insert	into	tcommcd
+						(
+							fkind1, fkind2, fkind3, fuseyn, fvalue, fregdt, forder
+						)
+			  values 	(
+			  				#{fkind1}, #{fkind2}, #{fkind3}, 'Y', #{fvalue}, now(3), #{forder}
+						)
+    </insert>
+
+    <update id="updateCode" parameterType="cubox.admin.main.service.vo.CodeVO" >
+		update tcommcd set
+			fkind3 = #{fkind3},
+			fvalue = #{fvalue},
+			fuseyn = 'Y',
+			fregdt = now(3),
+			forder = #{forder}
+		where fkind1 = #{fkind1}
+		  and fkind2 = #{fkind2}
+		  and fkind3 = nvl(#{fkind3_org}, #{fkind3})
+		  and fuseyn = #{fuseyn}
+	</update>
+
+	<update id="updateCodeUseYn" parameterType="cubox.admin.main.service.vo.CodeVO" >
+		update tcommcd set
+			fuseyn = #{fuseyn},
+			fregdt = now(3)
+		where fkind1 = #{fkind1}
+		  and fkind2 = #{fkind2}
+		  and fkind3 = #{fkind3}
+	</update>
+
+	<!-- 코드3 최대값 가져오기 (fkind3) -->
+	<select id="getMaxCodeFkind3" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="String" >
+    	select	MAX(fkind3) AS fkind3
+          from	tcommcd
+         where	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+    </select>
+
+    <!-- 어제 오늘날짜, 현재시간가져오기 -->
+    <select id="getDateTime" resultType="cubox.admin.main.service.vo.DateTimeVO" >
+    	select  date_format(date_add(NOW(), interval-1 DAY), '%Y-%m-%d') AS yesterday
+		    ,   date_format(NOW(), '%Y-%m-%d') AS today
+		    ,   date_format(NOW(), '%H:%i:%s') AS currenttime
+    </select>
+
+
+    <update id="updateGroupAuthUseYn" parameterType="authorVO" >
+		update author_tb set
+			use_yn = #{useYn},
+			modify_dt = now(3)
+		where author_id = #{authorId}
+	</update>
+
+	<update id="updateAuth" parameterType="authorVO">
+	<![CDATA[
+		update author_tb set
+			author_nm = #{authorNm},
+			author_desc = #{authorDesc},  ]]>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(sortOrdr)">
+			sort_ordr = #{sortOrdr},
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@empty(sortOrdr)">
+			sort_ordr = (select max(sort_ordr)+1 from author_tb),
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(useYn)">
+			use_yn = #{useYn},
+		</if>			
+			modify_dt = now(3)
+		where author_id = #{authorId}
+	</update>
+
+	<update id="updateSiteUseYn" parameterType="siteVO" >
+		update site_tb set
+			use_yn = #{useyn},
+			modify_id = #{registId},
+			modify_dt = now(3)
+		where site_id = #{siteId}
+	</update>
+
+
+	<update id="updateSite" parameterType="siteVO">
+		update site_tb set
+			site_nm = #{siteNm},
+			site_desc = #{siteDesc},
+			sort_ordr = #{sortOrdr},
+			modify_id = #{registId},
+			modify_dt = now(3)
+		where site_id = #{siteId}
+	</update>
+
+	<insert id="insertSysMobileLog" parameterType="java.util.HashMap">
+		<selectKey resultType="int" keyProperty="log_id" order="BEFORE">
+    		select IFNULL(max(flogid),0)+ 1 as log_id from tbiomobile_log
+    	</selectKey>
+		insert into tbiomobile_log
+		(flogid, fdt, fuid, fimg, fregdt, fmoddt)
+		values
+		(
+			#{log_id},
+			'T',
+			#{face_id},
+			#{face_img},
+			now(3),
+			now(3)
+		)
+	</insert>
+
+	<update id="sysMobileLogUpdate" parameterType="java.util.HashMap">
+		update tbiomobile_log set
+			fdwnyn = #{download_yn},
+			fmoddt = now(3)
+		where flogid = #{log_id}
+	</update>
+
+	<select id="selectAuthorList" parameterType="authorVO" resultType="authorVO">
+		select
+			at.author_id as authorId,
+			at.author_nm as authorNm,
+			at.sort_ordr as sortOrdr,
+			at.author_desc as authorDesc
+		from author_tb at
+		where at.use_yn = 'Y'
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(authorId)">
+			and author_id = #{authorId}
+		</if>
+	</select>
+
+	<select id="selectMainLogList" resultType="logInfoVO">
+		select l.fevttm
+		     , l.fgid as fgid
+		     , (select device_nm from device_info_tb where device_id = l.fgid) as flname
+		     , if(l.fuid='NULL','-',l.fuid) as fuid
+		     , if(l.funm='NULL','-',l.funm) as funm
+		     , l.fcdno
+		     , l.fevtcd
+		     , case when l.fevtcd in ('0', '39') then '성공' else '실패' end as fvalue1
+		     , (select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue12
+		     , l.fauthtype
+		     , (select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+		     , c.fstatus
+		     , ifnull((select t.fkind3 from tcommcd t where t.fkind1 = 'combo' and t.fkind2  = 'COMBO_Fcardstatus' and t.fvalue = c.fstatus),'-') as cfstatus
+		  from tgatelog l
+		  left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		 where l.fuid = #{ssFuid}
+		</if>
+		 order by fevttm desc
+		 limit 6 offset 0
+	</select>
+	
+	
+	
+	
+	<select id="selectMainLogTotCnt" resultType="int" parameterType="java.util.HashMap">
+		select count(1) as cnt
+		  from tgatelog
+		 where fevttm like CONCAT(date_FORMAT(CURDATE(),'%Y-%m-%d'),'%')
+		<if test='ssAuthorId.equals("00009")'>
+		   and fuid = #{ssFuid}
+		</if>
+	</select>
+
+	<select id="selectMainLogTotUserCnt" resultType="int">
+		select count(distinct fuid) as cnt
+		  from tgatelog
+		 where fevttm like CONCAT(date_FORMAT(CURDATE(),'%Y-%m-%d'),'%')
+		   and fevtcd in ('0', '39')
+	</select>
+
+	<select id="selectMainVisitReqCnt" resultType="int" parameterType="java.util.HashMap">
+		select count(1) from tvisitinfo 
+		 where 1 = 1
+		<if test="@cubox.admin.cmmn.util.CommonUtils@empty(ssAuthorId)">
+		   and 1 = 2
+		</if><!-- 00001:전체관리자, 00005:방문신청(안내실) -->
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssAuthorId)">
+		<choose>
+		<when test='ssAuthorId.equals("00001") or ssAuthorId.equals("00005")'>
+		   and fprogrscd in ('A', 'C')  /* 신청, 승인 */
+		</when>
+		<otherwise>
+		   and fprogrscd = 'A'
+		   and fuid = #{ssFuid}
+		   and fpartcd1 = #{ssSiteId}
+		</otherwise>
+		</choose>
+		</if>
+	</select>
+	
+	<!-- 2021-06-11 메인 출입이력 현황 그래프 쿼리 -->
+	<select id="selectMainLogGraph" resultType="mainStatusVO" parameterType="java.util.HashMap">
+		select date_format(date_add(curdate(), interval -5 day), '%m-%d') as exp_day
+		     , ifnull(cf_tot, 0) as tot_log_cnt
+		     , ifnull(cf_pass, 0) as success_log_cnt
+		     , ifnull(cf_fail, 0) as fail_log_cnt
+		  from (select date_format(fevttm,'%m-%d') fevttm
+		             , count(fevttm) as cf_tot
+		             , sum(case when fevtcd in ('0', '39') then 1 else 0 end) as cf_pass
+		             , sum(case when fevtcd in ('0', '39') then 0 else 1 end) as cf_fail
+		          from tgatelog
+		         where fevttm between date_format(date_add(curdate(), interval -5 day), '%Y-%m-%d') and concat(date_format(date_add(curdate(), interval -5 day), '%Y-%m-%d'), ' 23:59:59.999')
+		        <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		           and fuid = #{ssFuid}
+		        </if> ) t
+		 union all 
+		select date_format(date_add(curdate(), interval -4 day), '%m-%d') as exp_day
+		     , ifnull(cf_tot, 0) as tot_log_cnt
+		     , ifnull(cf_pass, 0) as success_log_cnt
+		     , ifnull(cf_fail, 0) as fail_log_cnt
+		  from (select date_format(fevttm,'%m-%d') fevttm
+		             , count(fevttm) as cf_tot
+		             , sum(case when fevtcd in ('0', '39') then 1 else 0 end) as cf_pass
+		             , sum(case when fevtcd in ('0', '39') then 0 else 1 end) as cf_fail
+		          from tgatelog
+		         where fevttm between date_format(date_add(curdate(), interval -4 day), '%Y-%m-%d') and concat(date_format(date_add(curdate(), interval -4 day), '%Y-%m-%d'), ' 23:59:59.999')
+		        <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		           and fuid = #{ssFuid}
+		        </if> ) t
+		 union all 
+		select date_format(date_add(curdate(), interval -3 day), '%m-%d') as exp_day
+		     , ifnull(cf_tot, 0) as tot_log_cnt
+		     , ifnull(cf_pass, 0) as success_log_cnt
+		     , ifnull(cf_fail, 0) as fail_log_cnt
+		  from (select date_format(fevttm,'%m-%d') fevttm
+		             , count(fevttm) as cf_tot
+		             , sum(case when fevtcd in ('0', '39') then 1 else 0 end) as cf_pass
+		             , sum(case when fevtcd in ('0', '39') then 0 else 1 end) as cf_fail
+		          from tgatelog
+		         where fevttm between date_format(date_add(curdate(), interval -3 day), '%Y-%m-%d') and concat(date_format(date_add(curdate(), interval -3 day), '%Y-%m-%d'), ' 23:59:59.999')
+		        <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		           and fuid = #{ssFuid}
+		        </if> ) t
+		 union all 
+		select date_format(date_add(curdate(), interval -2 day), '%m-%d') as exp_day
+		     , ifnull(cf_tot, 0) as tot_log_cnt
+		     , ifnull(cf_pass, 0) as success_log_cnt
+		     , ifnull(cf_fail, 0) as fail_log_cnt
+		  from (select date_format(fevttm,'%m-%d') fevttm
+		             , count(fevttm) as cf_tot
+		             , sum(case when fevtcd in ('0', '39') then 1 else 0 end) as cf_pass
+		             , sum(case when fevtcd in ('0', '39') then 0 else 1 end) as cf_fail
+		          from tgatelog
+		         where fevttm between date_format(date_add(curdate(), interval -2 day), '%Y-%m-%d') and concat(date_format(date_add(curdate(), interval -2 day), '%Y-%m-%d'), ' 23:59:59.999')
+		        <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		           and fuid = #{ssFuid}
+		        </if> ) t
+		 union all 
+		select date_format(date_add(curdate(), interval -1 day), '%m-%d') as exp_day
+		     , ifnull(cf_tot, 0) as tot_log_cnt
+		     , ifnull(cf_pass, 0) as success_log_cnt
+		     , ifnull(cf_fail, 0) as fail_log_cnt
+		  from (select date_format(fevttm,'%m-%d') fevttm
+		             , count(fevttm) as cf_tot
+		             , sum(case when fevtcd in ('0', '39') then 1 else 0 end) as cf_pass
+		             , sum(case when fevtcd in ('0', '39') then 0 else 1 end) as cf_fail
+		          from tgatelog
+		         where fevttm between date_format(date_add(curdate(), interval -1 day), '%Y-%m-%d') and concat(date_format(date_add(curdate(), interval -1 day), '%Y-%m-%d'), ' 23:59:59.999')
+		        <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		           and fuid = #{ssFuid}
+		        </if> ) t
+		 union all 
+		select date_format(curdate(), '%m-%d') as exp_day
+		     , ifnull(cf_tot, 0) as tot_log_cnt
+		     , ifnull(cf_pass, 0) as success_log_cnt
+		     , ifnull(cf_fail, 0) as fail_log_cnt
+		  from (select date_format(fevttm,'%m-%d') fevttm
+		             , count(fevttm) as cf_tot
+		             , sum(case when fevtcd in ('0', '39') then 1 else 0 end) as cf_pass
+		             , sum(case when fevtcd in ('0', '39') then 0 else 1 end) as cf_fail
+		          from tgatelog
+		         where fevttm between date_format(curdate(), '%Y-%m-%d') and concat(date_format(curdate(), '%Y-%m-%d'), ' 23:59:59.999')
+		        <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(ssFuid)'>
+		           and fuid = #{ssFuid}
+		        </if> ) t
+	</select>
+	
+	<select id="getFloorList" resultType="cubox.admin.main.service.vo.FloorVO">
+		select idx,
+			   floor_nm as floorNm,
+			   floor
+		from floor_management_tb
+		where site_id = #{siteId}
+		  and use_yn = 'Y'
+		order by sort_ordr
+	</select>
+
+</mapper>

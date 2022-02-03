@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="userChgLog">
+	
+	<!-- 2021-07-12 출입자정보  -->
+	<select id="selectUserInfoForLog" parameterType="userInfoVO" resultType="java.util.HashMap">
+		select 'U' chg_cl_cd
+		     , u.fpartcd1
+		     , u.fuid
+		     , u.funm
+		     , c.fcdno
+		     , u.futype
+		     , fn_getcommfkind3('combo', 'COMBO_Futype', u.futype) futypenm
+		     , u.fvisitnum     
+		     , u.fustatus 
+		     , fn_getcommfvalue('combo', 'COMBO_Fustatus', u.fustatus) fustatusnm
+		     , u.fpartnm1 
+		     , u.fpartnm2 
+		     , u.fpartnm3
+		     , u.fetc1 
+		     , u.fetc2
+		  from tuserinfo_main u
+		       inner join tcard_main c on c.fuid = u.fuid
+		 where u.fuid = #{fuid}
+		   and u.fpartcd1 = #{fpartcd1}
+    </select>
+    
+    <!-- 2021-07-12 카드정보  -->
+	<select id="selectCardInfoForLog" parameterType="cardInfoVO" resultType="java.util.HashMap">
+		select 'C' chg_cl_cd
+		     , u.fpartcd1
+		     , c.fuid
+		     , u.funm
+		     , c.fcdno
+		     , c.fsdt
+		     , c.fedt
+		     , c.fstatus
+		     , fn_getcommfkind3('combo', 'COMBO_Fcardstatus', c.fstatus) fstatusnm
+		  from tcard_main c
+		       inner join tuserinfo_main u on c.fuid = u.fuid
+		 where c.fuid = #{fuid}
+		   and c.fcdno = #{fcdno} 
+    </select>	
+    
+    <!-- 2021-07-12 권한정보  -->
+    <select id="selectAuthInfoForLog" parameterType="authorGroupVO" resultType="java.util.HashMap">
+		select 'A' chg_cl_cd
+		     , a.fpartcd1		
+		     , a.fuid
+		     , u.funm
+		     , c.fcdno
+		     , c.fsdt
+		     , c.fedt
+		     , c.fstatus
+		     , fn_getcommfkind3('combo', 'COMBO_Fcardstatus', c.fstatus) fstatusnm
+		     , group_concat(b.author_group_id, '_', b.author_group_nm order by sort_ordr) author_group_list
+		  from user_author_group_tb a
+		       inner join author_group_tb b on b.author_group_id = a.author_group_id
+		       inner join tcard_main c on c.fuid = a.fuid
+		       inner join tuserinfo_main u on u.fpartcd1 = a.fpartcd1 and u.fuid = a.fuid 
+		 where a.fuid = #{fuid} 
+		   and a.fpartcd1 = #{siteId}
+		   and b.use_yn = 'Y'    
+    </select>
+    
+    <!-- 2021-07-12 출입자삭제정보  -->
+    <select id="selectUserDelInfoForLog" parameterType="userInfoVO" resultType="java.util.HashMap">
+		select 'D' chg_cl_cd
+		     , u.fpartcd1
+		     , u.fuid
+		     , c.fcdno
+		     , u.funm 
+		     , u.futype
+		     , fn_getcommfkind3('combo', 'COMBO_Futype', u.futype) futypenm
+		     , u.fvisitnum     
+		     , u.fustatus 
+		     , fn_getcommfvalue('combo', 'COMBO_Fustatus', u.fustatus) fustatusnm
+		     , u.fpartnm1 
+		     , u.fpartnm2 
+		     , u.fpartnm3
+		     , u.fetc1 
+		     , u.fetc2
+		     , c.fsdt
+		     , c.fedt
+		     , c.fstatus
+		     , fn_getcommfkind3('combo', 'COMBO_Fcardstatus', c.fstatus) fstatusnm
+		     , group_concat(b.author_group_id, '_', b.author_group_nm order by sort_ordr) author_group_list
+		  from tuserinfo_main u
+		       inner join tcard_main c on c.fuid = u.fuid
+		       left outer join user_author_group_tb a on a.fpartcd1 = u.fpartcd1 and a.fuid = u.fuid 
+		       left outer join author_group_tb b on b.author_group_id = a.author_group_id
+         where u.fuid = #{fuid}	
+           and u.fpartcd1 = #{fpartcd1}    
+	</select>
+	    
+    <insert id="insertUserChgLog" parameterType="java.util.HashMap">
+    <![CDATA[
+		insert into user_chg_log 
+			( chg_seq
+			, fpartcd1
+			, fuid
+			, funm
+			, fcdno
+			, chg_cl_cd
+			, chg_cnts
+			, chg_resn
+			, cntn_ip
+			, reg_dt
+			, reg_id
+			)
+		values
+			( nextval(user_chg_seq)
+			, #{fpartcd1}
+			, #{fuid}
+			, #{funm}
+			, #{fcdno}
+			, #{chg_cl_cd}
+			, #{chg_cnts}
+			, #{chg_resn}
+			, #{cntn_ip}
+			, current_timestamp()
+			, #{reg_id}
+			)
+	]]>
+    </insert>
+    
+    <sql id="selectUserChgLogColumns"><![CDATA[
+		select u.chg_seq
+		     , u.fpartcd1 
+		     , u.fuid
+		     , u.funm
+		     , u.fcdno
+		     , u.chg_cl_cd
+		     , fn_getcommfvalue('code', 'chg_cl_cd', u.chg_cl_cd) chg_cl_nm
+		     , u.chg_resn		     
+		     , u.chg_cnts
+		     , u.cntn_ip
+		     , date_format(u.reg_dt, '%Y-%m-%d %H:%i') reg_dt 
+		     , u.reg_id 
+		     , t.fname as reg_nm
+    ]]></sql>
+    
+    <sql id="selectUserChgLogFromWhere">
+		  from user_chg_log u
+		       left outer join tsiteuser t on t.fsiteid = u.reg_id<![CDATA[
+		 where u.reg_dt >= str_to_date(#{startDate}, '%Y-%m-%d')
+		   and u.reg_dt <= str_to_date(concat(#{endDate}, ' 23:59:59'), '%Y-%m-%d %H:%i:%S')
+		]]><if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(cntn_ip)'>
+		   and u.cntn_ip like concat('%', #{cntn_ip}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(reg_id)'>
+		   and u.reg_id like concat('%', #{reg_id}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(reg_nm)'>
+		   and t.fname like concat('%', #{reg_nm}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(chg_cl_cd)'>
+		   and u.chg_cl_cd = #{chg_cl_cd}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(funm)'>
+		   and u.funm like concat('%', #{funm}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuid)'>
+		   and u.fuid like concat('%', #{fuid}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)'>
+		   and u.fcdno like concat('%', #{fcdno}, '%')
+		</if>    
+    </sql>
+  
+    <select id="selectUserChgLogList" parameterType="java.util.HashMap" resultType="userChgLogVO">
+		<include refid="selectUserChgLogColumns"/>
+		<include refid="selectUserChgLogFromWhere"/>		       
+		 order by u.chg_seq desc
+		 limit #{srchCnt} offset #{offset}    
+    </select>
+    
+	<select id="selectUserChgLogListCount" parameterType="java.util.HashMap" resultType="int">
+		select count(1)
+		<include refid="selectUserChgLogFromWhere"/>		  
+    </select>
+    
+    <select id="selectUserChgLogInfo" parameterType="java.util.HashMap" resultType="userChgLogVO">
+		<include refid="selectUserChgLogColumns"/>
+		  from user_chg_log u
+		       left outer join tsiteuser t on t.fsiteid = u.reg_id
+		 where chg_seq = #{chg_seq}
+    </select>
+    
+    <select id="selectUserChgLogListExcel" parameterType="java.util.HashMap" resultType="excelVO">
+    	select ${chkValueArray} 
+    	from (
+			<include refid="selectUserChgLogColumns"/>
+			<include refid="selectUserChgLogFromWhere"/>
+			) t
+		order by t.chg_seq desc
+    </select>
+        
+</mapper>

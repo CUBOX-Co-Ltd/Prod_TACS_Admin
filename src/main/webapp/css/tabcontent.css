@@ -1,0 +1,39 @@
+﻿/* Tab Content - menucool.com */
+.tab_box2{ float: left; width: 100% }
+
+.tab_box2 ul.tabs
+{float: left; width: 100% ; margin-bottom: -1px; border-bottom: 1px solid #333
+}
+        
+.tab_box2 ul.tabs li
+{
+  float: left; min-width:150px; font-size:14px; margin-right: -1px; margin-bottom:-1px; 
+}
+        
+.tab_box2 ul.tabs li a
+{float: left;  position: relative; background-color: #fff; padding: 10px 10px 10px 35px; text-align: center; width: 100%; border: 1px solid #ccc;border-bottom: 1px solid #333; color: #666; box-sizing: border-box;
+}
+
+.tab_box2 ul.tabs li a img{ float: left;  position: absolute; left: 15px; top: 7px;}
+
+/*Note: IE8 and earlier doesn't support li:last-child. You have to add another class to the last tab (LI) and specify its border-right as below.*/
+
+  
+        
+.tab_box2 ul.tabs li a:hover
+{
+   
+}
+        
+.tab_box2 ul.tabs li.selected a, .tab_box2 ul.tabs li.selected a:hover
+{
+ float: left;  background-color: #225ccb!important; border: 1px solid #0E43A8;  border-bottom: none; color: #fff;  padding: 10px 10px 10px 35px; z-index: 9
+}
+        
+        
+
+
+.tab_box2 div.tabcontents
+{
+  
+}

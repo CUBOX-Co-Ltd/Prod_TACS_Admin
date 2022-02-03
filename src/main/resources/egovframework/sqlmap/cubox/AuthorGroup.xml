@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="authorGroup">
+
+	<select id="selectAuthorGroupList" parameterType="authorGroupVO" resultType="authorGroupVO" >
+    	select
+	    	ag.author_group_id as authorGroupId,
+	    	ag.author_group_nm as authorGroupNm,
+	    	ag.author_group_desc as authorGroupDesc,
+	    	ag.sort_ordr as sortOrdr,
+	    	ag.use_yn as useYn,
+	    	ag.visit_yn as visitYn,
+	    	ag.emp_yn as empYn,
+	    	(select count(1) from author_group_detail_tb gd where gd.author_group_id = ag.author_group_id) as detailCnt
+    	from author_group_tb ag  
+    	where 1=1  	 
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(useYn)">
+   			and ag.use_yn = #{useYn}
+   		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(authorGroupId)">
+			and ag.author_group_id = #{authorGroupId}
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(authorGroupNm)">
+			and ag.author_group_nm like concat('%', #{authorGroupNm}, '%')
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuid)">
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(siteId)">
+				and ag.author_group_id not in (
+					select 
+						gt.author_group_id
+					from user_author_group_tb gt
+					where gt.fuid = #{fuid}
+	    	  		  and gt.fpartcd1 = #{siteId} 
+				)
+			</if>
+		</if>
+		order by ag.sort_ordr 
+    </select>
+    
+    <select id="selectUserAuthorGroupList" parameterType="authorGroupVO" resultType="authorGroupVO">
+    	select 
+    		gt.author_group_id as authorGroupId,
+    		ag.author_group_nm as authorGroupNm,
+	    	ag.author_group_desc as authorGroupDesc,
+	    	ag.sort_ordr as sortOrdr,
+	    	ag.use_yn as useYn,
+	    	(select count(1) from author_group_detail_tb gd where gd.author_group_id = ag.author_group_id) as detailCnt
+    	from user_author_group_tb gt
+    	join author_group_tb ag on gt.author_group_id = ag.author_group_id
+    	where gt.fuid = #{fuid}
+    	  and gt.fpartcd1 = #{siteId} 
+    	  and ag.use_yn = 'Y'				<!-- 사용유무를 보여줘야 하는지 ? -->
+		order by ag.sort_ordr
+    </select>
+    
+    <insert id="insertUserAuthGroupLog" parameterType="authorGroupVO">
+    	<selectKey resultType="int" keyProperty="logId" order="BEFORE">
+    		select COALESCE(max(log_id),0)+1 from user_author_group_log
+    	</selectKey>
+    	insert into user_author_group_log
+    		(log_id, log_dt, fuid, fpartcd1, author_group_id, regist_id, regist_dt)
+    	select 
+    		#{logId}, current_timestamp(3), fuid, fpartcd1, author_group_id, regist_id, regist_dt
+    	from user_author_group_tb	
+    	where fuid = #{fuid}
+    	  and fpartcd1 = #{siteId}	
+    </insert>
+    
+    <delete id="deleteUserAuthGroupAll" parameterType="authorGroupVO">
+    	delete from user_author_group_tb
+    	 where fuid = #{fuid}
+    	   and fpartcd1 = #{siteId}
+	</delete>
+    
+    <delete id="deleteUserAuthGroup" parameterType="authorGroupVO">
+    	delete from user_author_group_tb
+    	where fuid = #{fuid}
+    	  and fpartcd1 = #{siteId}	
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(groupArray)">
+			and author_group_id not in
+	    	 <foreach collection="groupArray" item="grpCd" open="(" close=")" separator=",">
+	    	 	#{grpCd}
+	    	 </foreach>
+		</if>   
+    </delete>
+    
+    <!-- 2021-01-20 권한 그룹 사용안함 처리시 사용자의 권한 그룹 삭제 -->
+	<delete id="deleteUserAuthGroupInfo" parameterType="authorGroupVO">
+		delete from user_author_group_tb
+		 where fuid = #{fuid}
+		   and fpartcd1 = #{siteId}
+		   and author_group_id = #{authorGroupId}
+	</delete>
+	
+	<!-- 2021-02-04 출입자 사용안함 처리 -->
+	<delete id="deleteUserAuthGroupInfoNotUsed" parameterType="java.util.HashMap">
+		delete from user_author_group_tb
+		 where fuid = #{fuid}
+		   and fpartcd1 = #{fpartcd1}
+	</delete>
+	
+	<!-- 2021-02-04 출입자 사용안함 처리 -->
+	<update id="deleteSyncDeviceNotUsed" parameterType="java.util.HashMap">
+		update sync_device
+		   set STATUS = 'Q'
+		     , CUD_TYPE = 'D'
+		     , UPDATE_DT = now(3)
+		 where FUID = #{fuid}
+	</update>
+
+    <select id="totalUserAuthGroup" parameterType="authorGroupVO" resultType="int">
+    	select count(*)
+    	from user_author_group_tb
+    	where fuid = #{fuid}
+    	  and fpartcd1 = #{siteId}
+    	  and author_group_id = #{authorGroupId}
+    </select>
+    
+    <insert id="insertUserAuthGroup" parameterType="authorGroupVO">
+    	insert into user_author_group_tb
+    	(fuid, fpartcd1, author_group_id, regist_id, regist_dt)
+    	values
+    	(#{fuid}, #{siteId}, #{authorGroupId}, #{registId}, now(3))
+    </insert>
+    
+    <insert id="insertUserAuthGroupList" parameterType="authorGroupVO">
+    	insert into user_author_group_tb
+    	(fuid, fpartcd1, author_group_id, regist_id, regist_dt)
+		select #{fuid}, #{siteId}, author_group_id, #{registId}, now(3)
+		  from author_group_tb a
+		 where author_group_id in <foreach collection="groupArray" item="group_id" open="(" close=")" separator=",">#{group_id}</foreach>
+    </insert>    
+    
+    <select id="deleteSyncDeviceList" parameterType="authorGroupVO" resultType="syncDeviceVO">
+    	select 
+    		mst.device_no as deviceNo, /*dt.fgid, mst.flname*/
+    		#{fuid} fuid,
+    		'D' cudType     		
+		from author_group_detail_tb dt 		
+		join device_info_tb mst on dt.fgid = mst.device_id
+		where dt.use_yn = 'Y'
+		  and mst.use_yn = 'Y'
+		  and dt.author_group_id in (
+			select 
+				gt.author_group_id 
+			from user_author_group_tb gt
+			join author_group_tb agt on gt.author_group_id = agt.author_group_id
+			where agt.use_yn = 'Y'
+			  and gt.fuid = #{fuid}
+			  and gt.fpartcd1 = #{siteId}
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(groupArray)">
+				and gt.author_group_id not in
+		    	 <foreach collection="groupArray" item="grpCd" open="(" close=")" separator=",">
+		    	 	#{grpCd}
+		    	 </foreach>
+			</if>
+		)
+		group by mst.device_no
+    </select>
+    
+    <select id="addSyncDeviceList" parameterType="authorGroupVO" resultType="syncDeviceVO">
+    	select 
+    		mst.device_no as deviceNo, /*dt.fgid, mst.flname*/
+    		#{fuid} fuid,
+    		'C' cudType     		
+		from author_group_detail_tb dt 		
+		join device_info_tb mst on dt.fgid = mst.device_id
+		where dt.use_yn = 'Y'
+		  and mst.use_yn = 'Y'
+		  and dt.author_group_id in (
+			select 
+				gt.author_group_id 
+			from user_author_group_tb gt
+			join author_group_tb agt on gt.author_group_id = agt.author_group_id
+			where agt.use_yn = 'Y'
+			  and gt.fuid = #{fuid}
+			  and gt.fpartcd1 = #{siteId}
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(groupArray)">
+				and gt.author_group_id in
+		    	 <foreach collection="groupArray" item="grpCd" open="(" close=")" separator=",">
+		    	 	#{grpCd}
+		    	 </foreach>
+			</if>
+		)
+		group by mst.device_no
+    </select>
+    
+    <select id="selectSyncDeviceCount" parameterType="syncDeviceVO" resultType="int">
+    	select count(*)
+    	from sync_device
+    	where device_no = #{deviceNo}
+    	  and fuid = #{fuid} 
+    </select>
+    
+    <update id="updateSyncDevice" parameterType="syncDeviceVO">
+    	update sync_device set
+    		update_dt = now(3),
+    		status = 'Q', 
+    		cud_type = #{cudType}
+    	where device_no = #{deviceNo}
+    	  and fuid = #{fuid}
+    </update>
+    
+    <insert id="insertSyncDevice" parameterType="syncDeviceVO">
+    	insert into sync_device
+    	(device_no, fuid, create_dt, update_dt, status, cud_type)
+    	values
+    	(#{deviceNo}, #{fuid}, now(3), now(3), 'Q', #{cudType})
+    </insert>
+    
+    <!-- 2021-01-20 권한 그룹 변경시 권한을 소유한 사용자 조회 -->
+    <select id="selectUserListForAuthorGroup" parameterType="authorGroupDetailVO" resultType="authorGroupVO">
+		select fuid, fpartcd1 as siteId 
+		  from user_author_group_tb 
+		 where author_group_id = #{authorGroupId}
+		   and fpartcd1 = #{siteId}    
+    </select>    
+    
+    <!-- 2021-01-20 사용자 권한 변경시 장비 동기화 처리 -->
+    <insert id="insertSyncDeviceByFuid" parameterType="authorGroupVO">
+		insert into sync_device  /*[AuthorGroup.insertSyncDeviceByFuid] */
+		            ( device_no
+		            , fuid
+		            , create_dt
+		            , update_dt
+		            , status
+		            , cud_type
+		            )
+		select ta2.device_no
+		     , ta2.fuid
+		     , now(3) as create_dt
+		     , now(3) as update_dt
+		     , 'Q'   as status
+		     , ta2.cf_cud_type
+		  from (select tb.device_no
+		             , tb.fuid
+		             , tb.cf_cud_type
+		          from (select device_no, #{fuid} as fuid,  min(cd_type) as cf_cud_type
+		                  from (select a.author_group_id , a.author_group_nm
+		                             , u.author_group_id as auth_grp_id
+		                             , nvl2(u.author_group_id, 'C', 'D') as cd_type
+		                             , d.fgid , g.device_nm , g.device_no
+		                          from author_group_tb a
+		                               inner join user_author_group_tb   u on u.author_group_id = a.author_group_id and u.fuid = #{fuid} and u.fpartcd1 = #{siteId}
+		                               inner join author_group_detail_tb d on d.author_group_id = a.author_group_id
+		                               inner join device_info_tb         g on g.device_id = d.fgid  and g.site_id = #{siteId}
+		                         where a.use_yn = 'Y'
+		                           and g.use_yn = 'Y'
+		                       ) ta
+		                 group by device_no
+		               ) tb
+		         where not exists (select 1
+		                             from sync_device sd
+		                            where tb.device_no = sd.device_no
+		                              and tb.fuid = sd.fuid 
+		                              and tb.cf_cud_type = sd.cud_type)
+		       ) ta2
+		on duplicate key
+		update update_dt = now(3)
+		     , status = 'Q'
+		     , cud_type = ta2.cf_cud_type
+		;
+		
+		update sync_device 
+		   set update_dt = now(3)
+		     , status = 'Q'
+		     , cud_type = 'D'
+		 where (device_no , fuid) in (select device_no, fuid 
+		                                from sync_device sd 
+		                               where fuid = #{fuid}
+		                                 and cud_type = 'C'
+		                                 and (device_no, fuid) not in (select c.device_no, a.fuid
+		                                                                 from user_author_group_tb a 
+		                                                                      inner join author_group_detail_tb b on a.author_group_id = b.author_group_id 
+		                                                                      inner join device_info_tb c on c.device_id = b.fgid and c.site_id = #{siteId}
+		                                                                where a.fuid = #{fuid}
+		                                                                  and a.fpartcd1 = #{siteId})
+		                             )
+		;
+    </insert>
+    
+	<select id="selectAuthorGroupDetail" parameterType="authorGroupDetailVO" resultType="authorGroupDetailVO">
+		select 
+			dt.fgid,
+			dt.author_group_id as authorGroupId,
+			tm.device_nm as flname,
+			tm.device_no as fvname
+		from author_group_detail_tb dt
+		join device_info_tb tm on dt.fgid = tm.device_id 
+		where dt.use_yn = 'Y'
+		and tm.site_id = #{siteId}
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(authorGroupId)">
+		and dt.author_group_id = #{authorGroupId}
+		</if>
+		order by dt.sort_ordr
+	</select>
+    
+    <select id="selectUserSyncDeviceList" parameterType="syncDeviceVO" resultType="syncDeviceVO">
+    	select 
+    		mst.device_no as deviceNo, /*dt.fgid, mst.flname*/
+    		#{fuid} fuid,
+    		'C' cudType     		
+		from author_group_detail_tb dt 		
+		join device_info_tb mst on dt.fgid = mst.device_id
+		where dt.use_yn = 'Y'
+		  and mst.use_yn = 'Y'
+		  and dt.author_group_id in (
+			select 
+				gt.author_group_id 
+			from user_author_group_tb gt
+			join author_group_tb agt on gt.author_group_id = agt.author_group_id
+			where agt.use_yn = 'Y'
+			  and gt.fuid = #{fuid}
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(siteId)">
+				and gt.fpartcd1 = #{siteId}
+			</if>
+		)
+		group by mst.device_no 
+    </select>
+    
+    <select id="selectUserListSyncDeviceList" parameterType="syncDeviceVO" resultType="syncDeviceVO">
+    	select
+    		mst.device_no as deviceNo, /*dt.fgid, mst.flname*/
+    		a.fuid as fuid,
+    		'C' cudType 
+		from user_author_group_tb a
+		join author_group_tb c on a.author_group_id = c.author_group_id
+		join author_group_detail_tb b on c.author_group_id = b.author_group_id
+		join device_info_tb mst on b.fgid = mst.device_id
+		where b.use_yn = 'Y'
+		  and c.use_yn = 'Y'
+		  and mst.use_yn = 'Y'
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuids)">
+			and (a.fuid, a.fpartcd1) in
+	    	 <foreach collection="fuids" item="fud" open="(" close=")" separator=",">
+	    	 	(#{fud.fuid}, #{fud.fpartcd1})
+	    	 </foreach>
+		</if>
+		group by  mst.device_no, a.fuid 
+    </select>
+    
+    <select id="selectTotalDeviceList" parameterType="authorGroupDetailVO" resultType="authorGroupDetailVO">
+		select 
+			mt.device_id as fgid, 
+			mt.device_nm as flname, 
+			mt.device_no as fvname,
+			'' as groupDetailNm,
+			(select st.site_nm from site_tb st where st.site_id = mt.site_id) siteNm
+		from device_info_tb mt
+		where mt.use_yn = 'Y'
+		and mt.site_id = #{siteId}
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(authorGroupId)">
+		and mt.device_id not in (select ad.fgid
+								   from author_group_detail_tb ad
+								  where ad.author_group_id = #{authorGroupId}
+		)
+		</if>
+    </select>
+    
+    <select id="selectAuthorDeviceList" parameterType="authorGroupDetailVO" resultType="authorGroupDetailVO">
+    	select
+    		mt.device_id as fgid, 
+			mt.device_nm as flname, 
+			mt.device_no as fvname,
+			(select st.site_nm from site_tb st where st.site_id = mt.site_id) siteNm
+		from author_group_detail_tb ad 
+		join device_info_tb mt on ad.fgid = mt.device_id
+		where mt.use_yn = 'Y'
+		and mt.site_id =  #{siteId}
+		and ad.author_group_id = #{authorGroupId}
+    </select>
+    
+    <select id="selectAuthorGroup" parameterType="authorGroupVO" resultType="authorGroupVO">
+    	select
+    		gt.author_group_id as authorGroupId,
+    		gt.author_group_nm as authorGroupNm,
+    		gt.author_group_desc as authorGroupDesc,
+    		gt.sort_ordr as sortOrdr,
+    		gt.emp_yn as empYn,
+    		gt.visit_yn as visitYn,
+    		gt.use_yn as useYn
+    	from author_group_tb gt
+    	where gt.author_group_id = #{authorGroupId}
+    </select>
+    
+    <insert id="insertAuthorGroup" parameterType="authorGroupVO">
+    	<selectKey resultType="String" keyProperty="authorGroupId" order="BEFORE">
+    		select LPAD(IFNULL(MAX(CAST(author_group_id AS UNSIGNED INTEGER)),0)+1,5,'0') as authorGroupId from author_group_tb
+    	</selectKey>
+    	insert into author_group_tb (
+    		author_group_id, author_group_nm, author_group_desc, sort_ordr, emp_yn, visit_yn, use_yn, regist_id, modify_id
+    	)	
+    	select #{authorGroupId},
+    		#{authorGroupNm},
+    		#{authorGroupDesc},
+    		(case when #{sortOrdr} = '' or #{sortOrdr} is null then nvl(max(sort_ordr), 0)+1 else #{sortOrdr} end),
+    		#{empYn},
+    		#{visitYn},
+    		'Y',
+    		#{registId},
+    		#{modifyId}
+		from author_group_tb
+    </insert>
+    
+    
+    <insert id="insertAuthorGroupLog" parameterType="authorGroupVO">
+		insert into author_group_log 
+					( log_id
+					, log_dt
+					, author_group_id
+					, author_group_nm
+					, author_group_desc
+					, sort_ordr
+					, emp_yn
+					, visit_yn
+					, use_yn
+					, regist_id
+					, regist_dt
+					, modify_id
+					, modify_dt
+					)
+			   select (select COALESCE(max(log_id),0)+1 from author_group_log)
+			        , current_timestamp(3)
+			        , author_group_id
+					, author_group_nm
+					, author_group_desc
+					, sort_ordr
+					, emp_yn
+					, visit_yn
+					, use_yn
+					, regist_id
+					, regist_dt
+					, modify_id
+					, modify_dt
+				 from author_group_tb
+				where author_group_id = #{authorGroupId}
+    </insert>
+    
+    <update id="updateAuthorGroup" parameterType="authorGroupVO">
+    	update author_group_tb set
+    		author_group_nm = #{authorGroupNm},
+    		author_group_desc = #{authorGroupDesc},
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(sortOrdr)">
+    		sort_ordr = #{sortOrdr},
+    	</if>
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@empty(sortOrdr)">
+    		sort_ordr = (select max(sort_ordr) + 1 from author_group_tb where author_group_id <![CDATA[<>]]> #{authorGroupId}),    	
+    	</if>
+    		emp_yn = #{empYn},
+    		visit_yn = #{visitYn},
+    		modify_id = #{modifyId},
+    		modify_dt = now(3)
+    	where author_group_id = #{authorGroupId}
+    </update>
+    
+    <!-- 2021-01-25 사용여부 수정 처리 따로 분리 -->
+    <update id="updateAuthorGroupUseYn" parameterType="authorGroupVO">
+    	update author_group_tb set
+    		use_yn = #{useYn},
+    		modify_id = #{modifyId},
+    		modify_dt = now(3)
+    	where author_group_id = #{authorGroupId}
+    </update>
+    
+    <!-- 2021-03-16 권한그룹 삭제시 적용단말기 사용안함 처리 -->
+    <update id="updateAuthorGroupDetailUseYn" parameterType="authorGroupDetailVO">
+		update author_group_detail_tb
+		   set use_yn = #{useYn}
+		     , modify_id = #{modifyId}		   
+		     , modify_dt = now(3)
+		 where author_group_id = #{authorGroupId}    
+    </update>
+    
+    <select id="deleteGroupSyncDeviceList" parameterType="authorGroupDetailVO" resultType="syncDeviceVO">
+    	select
+			mst.device_no as deviceNo,		/*dt.fgid, mst.flname*/			
+			a.fuid as fuid,
+			'D' cudType
+		from user_author_group_tb a
+		join author_group_tb c on a.author_group_id = c.author_group_id
+		join author_group_detail_tb b on c.author_group_id = b.author_group_id
+		join device_info_tb mst on b.fgid = mst.device_id
+		where b.use_yn = 'Y'
+		and c.use_yn = 'Y'
+		and mst.use_yn = 'Y'
+		and a.author_group_id = #{authorGroupId}
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceIds)">
+			and b.fgid not in
+	    	 <foreach collection="deviceIds" item="ids" open="(" close=")" separator=",">
+	    	 	#{ids}
+	    	 </foreach>
+		</if>
+		group by mst.device_no, a.fuid	
+    </select>
+    
+    <insert id="insertAuthorGroupDetailLogForDelete" parameterType="authorGroupDetailVO">
+    	<selectKey resultType="int" keyProperty="logId" order="BEFORE">
+    		select COALESCE(max(log_id),0)+1 from author_group_detail_log
+    	</selectKey>   
+    	<include refid="insertAuthorGroupDetailLogColumns" /> 
+    	   where author_group_id = #{authorGroupId}
+    	     and fgid like concat(#{siteId}, '%')
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceIds)">
+			and fgid not in
+	    	 <foreach collection="deviceIds" item="ids" open="(" close=")" separator=",">
+	    	 	#{ids}
+	    	 </foreach>
+		</if>
+    </insert>
+    
+    <delete id="deleteAuthGroupDetail" parameterType="authorGroupDetailVO">
+    	delete from author_group_detail_tb
+    	where author_group_id = #{authorGroupId}
+    	and fgid like concat(#{siteId}, '%')
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceIds)">
+			and fgid not in
+	    	 <foreach collection="deviceIds" item="ids" open="(" close=")" separator=",">
+	    	 	#{ids}
+	    	 </foreach>
+		</if>
+    </delete>
+    
+    <select id="countAuthGroupDetail" parameterType="authorGroupDetailVO" resultType="int">
+    	select 
+    		count(*) 
+    	from author_group_detail_tb dt
+    	where dt.author_group_id = #{authorGroupId}
+    	and dt.fgid = #{fgid}
+    </select>
+    
+    <insert id="insertAuthGroupDetail" parameterType="authorGroupDetailVO">
+    	insert into author_group_detail_tb (
+    		fgid, author_group_id, sort_ordr, use_yn, regist_id, modify_id
+    	) values (
+    		#{fgid},
+    		#{authorGroupId},
+    		#{sortOrdr},
+    		'Y',
+    		#{registId},
+    		#{modifyId}
+    	)    	
+    </insert>
+    
+    
+    <insert id="insertAuthorGroupDetailLogForUpdate" parameterType="authorGroupDetailVO">
+    	<selectKey resultType="int" keyProperty="logId" order="BEFORE">
+    		select COALESCE(max(log_id),0)+1 from author_group_detail_log
+    	</selectKey>    
+    	<include refid="insertAuthorGroupDetailLogColumns" />
+    	where author_group_id = #{authorGroupId}
+    	and fgid = #{fgid}
+    </insert>    
+    
+    <update id="updateAuthGroupDetail" parameterType="authorGroupDetailVO">
+    	update author_group_detail_tb set
+    		sort_ordr = #{sortOrdr},
+    		modify_id = #{modifyId},
+    		modify_dt = current_timestamp(3)
+    	where author_group_id = #{authorGroupId}
+    	and fgid = #{fgid} 
+    </update>
+    
+    <select id="addGroupSyncDeviceList" parameterType="authorGroupDetailVO" resultType="syncDeviceVO">
+    	select
+			mst.device_no as deviceNo,		/*dt.fgid, mst.flname*/			
+			a.fuid as fuid,
+			'D' cudType
+		from user_author_group_tb a
+		join author_group_tb c on a.author_group_id = c.author_group_id
+		join author_group_detail_tb b on c.author_group_id = b.author_group_id
+		join device_info_tb mst on b.fgid = mst.device_id
+		where b.use_yn = 'Y'
+		and c.use_yn = 'Y'
+		and mst.use_yn = 'Y'
+		and a.author_group_id = #{authorGroupId}
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceIds)">
+			and b.fgid in
+	    	 <foreach collection="deviceIds" item="ids" open="(" close=")" separator=",">
+	    	 	#{ids}
+	    	 </foreach>
+		</if>
+		group by mst.device_no, a.fuid	
+    </select>
+    
+    <select id="changeAuthorGroupUseAt" parameterType="authorGroupVO" resultType="String">
+    	select 
+    	 IFNULL(max(case when gt.use_yn = #{useYn} then 'N' else 'Y' end),'N')
+    	from author_group_tb gt
+    	where gt.author_group_id = #{authorGroupId}
+    </select>
+    
+    <sql id="insertAuthorGroupDetailLogColumns"><![CDATA[
+		insert into author_group_detail_log
+					( log_id
+					, log_dt
+					, fgid
+					, author_group_id
+					, sort_ordr
+					, use_yn
+					, regist_id
+					, regist_dt
+					, modify_id
+					, modify_dt
+					)
+			   select #{logId}
+					, current_timestamp(3)
+					, fgid
+					, author_group_id
+					, sort_ordr
+					, use_yn
+					, regist_id
+					, regist_dt
+					, modify_id
+					, modify_dt
+				 from author_group_detail_tb
+    ]]></sql>
+    
+    
+    <select id="selectGateListByAuth" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select b.device_id as fgid
+		     , b.device_no as fvname
+		     , b.device_nm as flname
+		     , b.device_ip as fip
+		     , nvl(b.device_version, concat(b.device_no,' firmware version 0.0')) as fversion 
+		     , a.sort_ordr
+		  from author_group_detail_tb a
+		       inner join device_info_tb b on a.fgid = b.device_id 
+		 where a.use_yn = 'Y'
+		   and b.use_yn = 'Y'
+		   and b.site_id = #{fpartcd1}
+		   and a.author_group_id = #{author_group_id}
+		 order by a.sort_ordr
+    </select>
+    
+    <select id="selectUserListByAuth" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select u.fuid, u.fpartcd1, u.funm
+		     , u.fpartnm1, u.fpartnm2, u.fpartnm3
+		     , hp_no, ftel, fcarno
+		     , fetc1, fetc2 
+		  from author_group_tb a
+		       inner join user_author_group_tb b on b.author_group_id = a.author_group_id 
+		       inner join tuserinfo_main u on u.fuid = b.fuid and u.fpartcd1 = b.fpartcd1 
+		 where a.use_yn = 'Y'
+		   and u.fustatus = 'Y'
+		   and u.fpartcd1 = #{fpartcd1}
+		   and a.author_group_id = #{author_group_id}
+		 order by u.funm    
+    </select>
+    
+    <select id="selectGateListByAuthExcel" parameterType="java.util.HashMap" resultType="cubox.admin.main.service.vo.ExcelVO">
+		select ${chkValueArray} 
+		  from (
+				select b.device_id as fgid
+				     , b.device_no as fvname
+				     , b.device_nm as flname
+				     , b.device_ip as fip
+				     , nvl(b.device_version, concat(b.device_no,' firmware version 0.0')) as fversion 
+				     , a.sort_ordr
+				  from author_group_detail_tb a
+				       inner join device_info_tb b on a.fgid = b.device_id
+				 where a.use_yn = 'Y'
+				   and b.use_yn = 'Y'
+				   and b.site_id = #{fpartcd1}
+				   and a.author_group_id = #{author_group_id}
+			   ) a
+		 order by a.sort_ordr
+    </select>
+    
+	<select id="selectUserListByAuthExcel" parameterType="java.util.HashMap" resultType="cubox.admin.main.service.vo.ExcelVO">
+		select ${chkValueArray} 
+		  from (
+				select u.fuid, u.fpartcd1, u.funm
+				     , u.fpartnm1, u.fpartnm2, u.fpartnm3
+				     , hp_no, ftel, fcarno
+				     , fetc1, fetc2 
+				  from author_group_tb a
+				       inner join user_author_group_tb b on b.author_group_id = a.author_group_id 
+				       inner join tuserinfo_main u on u.fuid = b.fuid and u.fpartcd1 = b.fpartcd1 
+				 where a.use_yn = 'Y'
+				   and u.fustatus = 'Y'
+				   and u.fpartcd1 = #{fpartcd1}
+				   and a.author_group_id = #{author_group_id}
+		       ) a
+		 order by a.funm    
+    </select>    
+    
+    <select id="selectUserAuthGroupForChange" parameterType="authorGroupVO" resultType="java.lang.Integer">
+		select count(1)  /* 권한그룹을 수정했는지 체크 */
+		  from (select author_group_id, count(1) cf_cnt 
+				  from (select author_group_id 
+						  from author_group_tb 
+			          <if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(groupArray)'>
+				         where author_group_id in <foreach collection="groupArray" item="item" index="index" separator="," open="(" close=")">#{item}</foreach>
+			          </if>
+			          <if test='@cubox.admin.cmmn.util.CommonUtils@empty(groupArray)'>
+			             where 1 = 2
+			          </if>
+						 union all
+						select author_group_id 
+						  from user_author_group_tb 
+						 where fuid = #{fuid}
+						   and fpartcd1 = #{siteId}
+						) t
+				 group by author_group_id 
+				 having count(1) <![CDATA[<>]]> 2
+				) t2    
+    </select>
+    
+</mapper>

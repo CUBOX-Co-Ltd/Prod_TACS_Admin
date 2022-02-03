@@ -1,0 +1,131 @@
+.nav, .nav ul, .nav li {
+	list-style: none;
+}
+
+.nav ul {
+	padding: 0;
+	margin: 0 0 0 0px;
+}
+
+.nav {
+	padding: 0px;
+	margin: 0px;
+}
+
+.nav > li {
+	margin: 0px 0 !important;border-bottom: 1px solid #4c61cb; border-top: 1px solid #4c61cb
+}
+
+.nav > li li {
+	padding: 0px;
+}
+
+.nav a {
+	color: #fff!important;
+	display: block;
+	outline: none;
+	text-decoration: none;; background-position:228px center; background-repeat: no-repeat;
+}
+
+.nav a .caret {
+	float: right;
+	width:13px;
+	height: 13px;
+	display: inline-block;
+	vertical-align: top; margin-right: 0px; margin-top: 18px;
+	content: ""; background: url(../img/left_ar2.png);
+}
+
+.nav a:hover .caret {
+	border-top-color: #fff;
+}
+
+.nav li.open > a > .caret {
+	float: right;
+	width:13px;
+	height: 13px;
+	display: inline-block;
+	vertical-align: top; margin-right: 0px; margin-top: 18px;
+	content: ""; background: url(../img/left_ar1.png) ;
+}
+
+.nav li.open > a:hover > .caret {
+	border-bottom-color: #fff;
+}
+
+.nav a:hover, .nav li.active > a {
+	background-color: #2e5bcd;
+	color: #fff;
+}
+
+.nav>a:hover {
+	background-color: #2e5bcd;
+	color: #fff;
+}
+.nav  li.active  {	background-color: #2e5bcd!important;
+}
+
+.nav  li>a {
+	font-size: 12px;
+	line-height:30px;
+	padding: 0px 20px 0px 45px;
+}
+ul.menu2 li a{
+	font-size: 13px;
+	line-height: 40px;
+	 background-color: #213a84;
+}
+ul.menu2 li a:hover{
+	font-size: 13px;
+	line-height: 40px;background-color: #192d69;
+}
+
+ul.menu3 li a{
+	font-size: 13px;
+	line-height: 40px;
+	padding: 0px 0px 0px 30px;  background-color: #ddd
+}
+
+ul.menu2 li a.menu_on{
+	font-size: 13px;
+	line-height: 40px;
+	 background-color: #5384d0;
+}
+
+
+
+ li a.menu_on .ar_icon{ position: absolute; right: 30px; top: 10px;    background:#fff;
+    width :0px;
+    height:0PX;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #f1f1f1; transform:rotate(45deg)
+}
+
+
+.nav > li > a {
+	font-size: 14px;
+	line-height: 45px;
+	padding: 4px 10px 4px 50px;color: #fff!important; box-sizing: border-box;
+	background-repeat: no-repeat!important; background-position: 10px center!important;
+}
+/*
+.nav > li:first-child > a{ background: url("../img/left_icon2.png")!important; background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(2) > a{ background: url("../img/left_icon8.png"); background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(3) > a{ background: url("../img/left_icon5.png"); background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(4) > a{ background: url("../img/left_icon9.png"); background-repeat: no-repeat!important; background-position: 10px center!important; background-size : 23px;
+}
+.nav > li:nth-child(5) > a{ background: url("../img/left_icon5.png"); background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(6) > a{ background: url("../img/left_icon10.png"); background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(7) > a{ background: url("../img/left_icon6.png"); background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(8) > a{ background: url("../img/left_icon7.png"); background-repeat: no-repeat!important; background-position: 10px center!important
+}
+.nav > li:nth-child(9) > a{ background: url("../img/left_icon4.png"); background-repeat: no-repeat!important; background-position: 10px center!important;
+}
+*/
+

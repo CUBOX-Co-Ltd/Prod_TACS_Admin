@@ -1,0 +1,194 @@
+.custom-file {
+	position: relative;
+	display: inline-block;
+	height: 34px;
+	margin-bottom: 0;
+	box-sizing : border-box;
+}
+
+.custom-file-input {
+	position: relative;
+	z-index: 0;
+	width: 100%;
+	height: 34px;
+	margin: 0;
+	opacity: 0;
+	touch-action: manipulation;
+	font-family: inherit;
+	font-size: inheri;
+	line-height: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+
+.custom-file-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    height: 34px;
+    font-weight: 400;
+    line-height: 34px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #495057;
+    cursor: pointer;
+}
+
+.custom-file-label::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: block;
+    line-height: 34px;
+    content: "";
+    border-left: inherit;
+    border-radius: 0 3px 3px 0;
+    background-color: #555 !important;
+	color : #fff;
+	width: 40px;
+	background-size: 20px;
+	text-align: center;
+	background: url("/img/icon_search3.png");
+	background-repeat: no-repeat;
+	background-position: center  center
+	/* background-color: #f3f3f3;
+    color: #495057;*/
+}
+
+.custom-file-label:hover::after {
+	position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: block;
+    line-height: 34px;
+    content: "";
+    border-left: inherit;
+    border-radius: 0 3px 3px 0;
+    background-color: #000 !important;
+	color : #fff;
+	width: 40px;
+	background-size: 20px;
+	text-align: center;
+	background: url("/img/icon_search3.png");
+	background-repeat: no-repeat;
+	background-position: center  center
+	/* background-color: #f3f3f3;
+    color: #495057;*/
+}
+
+.custom-file-input:lang(ko)~.custom-file-label::after {
+	content: "";
+}
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    color: #212529;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: .5rem 1.125rem;
+    font-size: .8125rem;
+    line-height: 1.47;
+    border-radius: 4px;
+    -webkit-transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out
+}
+
+.btn:hover {
+    color: #212529;
+    text-decoration: none
+}
+
+.btn.focus,.btn:focus {
+    outline: 0;
+    -webkit-box-shadow: 0 0 0 .2rem transparent;
+    box-shadow: 0 0 0 .2rem transparent
+}
+
+.btn.disabled,.btn:disabled {
+    opacity: .65
+}
+
+.btn-sm {
+	padding: .375rem .844rem;
+	font-size: 14px;
+	height: 34px;
+	border-radius: 3px;
+}
+
+.btn-dark {
+	color: #fff;
+	background-color: #505050;
+	border-color: #505050;
+	height:39px;
+}
+
+.btn-dark:hover {
+    color: #fff;
+    background-color: #3d3d3d;
+    border-color: #363636
+}
+
+.btn-dark.focus,.btn-dark:focus {
+    -webkit-box-shadow: 0 0 0 .1rem rgba(106,106,106,.5);
+    box-shadow: 0 0 0 .1rem rgba(106,106,106,.5)
+}
+
+.btn-dark.disabled,.btn-dark:disabled {
+    color: #fff;
+    background-color: #505050;
+    border-color: #505050
+}
+
+.btn-dark:not(:disabled):not(.disabled).active,.btn-dark:not(:disabled):not(.disabled):active,.show>.btn-dark.dropdown-toggle {
+    color: #fff;
+    background-color: #363636;
+    border-color: #303030
+}
+
+.btn-dark:not(:disabled):not(.disabled).active:focus,.btn-dark:not(:disabled):not(.disabled):active:focus,.show>.btn-dark.dropdown-toggle:focus {
+    -webkit-box-shadow: 0 0 0 .1rem rgba(106,106,106,.5);
+    box-shadow: 0 0 0 .1rem rgba(106,106,106,.5)
+}
+
+#imgView {
+	width:320px;
+	height:288px;
+	object-fit:cover;
+	transform:scaleX(-1);
+}
+
+#myCanvas {
+	width: 320px;
+	height: 288px;
+}
+
+.tb_write_p1 tbody th {
+	line-height: 32px;
+}
+
+
+.custom-file-fileName {
+	width:165px;
+	padding:0 5px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+
+

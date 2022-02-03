@@ -1,0 +1,109 @@
+@charset "utf-8";
+
+.main_a{width: 100% ; float: left;  display: flex;
+  justify-content: center;
+  align-items: center; flex-direction:row;justify-content: space-between; padding:20px 40px 0px 40px; box-sizing: border-box}
+
+.main_a .st_box{width: 200px; float: left; box-sizing: border-box; padding-left: 60px; position: relative  }
+.main_a .st_box .icon{position: absolute; left: 0px; top: 0px}
+.main_a .st_box .tx1{width: 100% ; float: left; font-size: 16px; margin-bottom: 0px; color: #666; margin-top: 5px}
+.main_a .st_box .tx2{width: 100% ; float: left; font-size: 14px; line-height: 24px;  color: #666 }
+.main_a .st_box .tx2 em{font-size: 24px;  color: #000 ; font-family: 'Noto Sans KR', sans-serif; }
+
+.main_b{width: 100% ; float: left;  display: flex;
+  justify-content: center;
+  align-items: center; flex-direction:row;justify-content: space-between; padding: 40px; box-sizing: border-box; flex-wrap: wrap; }
+
+.main_b .inbox1{width: 49% ; float: left;  border-radius: 20px; background-color: #fff;    box-shadow:3px 3px 30px rgba(51,102,204,0.2);  padding:30px 30px 0px 0px; box-sizing: border-box; height: 356px; position: relative}
+.main_b .inbox1 .title{width: 100% ; float: left;  color: #000; font-size: 16px; margin-bottom: 20px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700;text-transform: uppercase ; position: absolute; top: 0px; left: 0px; padding: 20px ; box-sizing: border-box; z-index: 999999 }
+.main_b .inbox1 .title .more{position: absolute; right: 20px; top: 20px; cursor: pointer; opacity: 0.5;transition: all 0.5s;
+-moz-transition: all 0.5s; /* Firefox 4 */
+-webkit-transition: all 0.5s; /* Safari and Chrome */
+-o-transition: all 0.5s; /* Opera */
+
+}
+.main_b .inbox1 .title .more:hover{position: absolute; right: 0px; top: 0px; cursor: pointer; opacity: 1}
+.main_b .inbox1 .gr{width: 100% ; float: left; }
+
+
+
+.main_b .inbox2{width: 20% ; float: left;  border-radius: 20px; background-color: #fff;    box-shadow:3px 3px 30px rgba(51,102,204,0.2);  padding: 30px 40px; box-sizing: border-box; height: 356px; position: relative;transition: all 0.5s;
+-moz-transition: all 0.5s; /* Firefox 4 */
+-webkit-transition: all 0.5s; /* Safari and Chrome */
+-o-transition: all 0.5s; /* Opera */
+cursor: pointer
+}
+
+.main_b .inbox2:hover{width: 20% ; float: left;  border-radius: 20px; background-color: #fff;    box-shadow:3px 3px 30px rgba(51,102,204,0.5);  padding: 30px 40px; box-sizing: border-box; height: 356px; position: relative}
+
+
+.main_b .inbox2.mapbg{background: url("../img/main/m_bg1.png") no-repeat  right center;  background-color: #fff;  }
+
+
+.main_b .inbox2 .icon{width:60px ; height: 60px; border-radius: 100%; background-color: #6b86d6;   display: flex;
+  justify-content: center;
+  align-items: center; margin-bottom: 20px}
+.main_b .inbox2 .title{width: 100% ; float: left;  color: #000; font-size: 18px; margin-bottom: 5px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700;text-transform: uppercase ; }
+.main_b .inbox2 .tx1{width: 100% ; float: left;  color: #999; font-size: 14px; margin-bottom: 20px; position: relative;font-family: 'Noto Sans KR', sans-serif; }
+
+.main_b .inbox2 .tx2{width: 100% ; float: left;  color: #999; font-size: 12px;position: relative;font-family: 'Noto Sans KR', sans-serif;line-height: 14px }
+
+.main_b .inbox2 .tx3{width: 100% ; float: left;  color: #3b75e3; font-size: 30px; margin-bottom: 20px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700}
+
+.main_b .time{width: 100% ; float: left;  border-radius: 5px;  line-height: 40px; padding-left: 40px; background: url("../img/main/m_icon10.png"); background-color: #f7f7f7; background-position: 10px center; background-repeat: no-repeat; font-size: 12px;   }
+
+
+.main_b .inbox3{width: 100% ; float: left;  border-radius: 20px; background-color: #fff;    box-shadow:3px 3px 30px rgba(51,102,204,0.2);  padding:20px 30px 20px 30px; box-sizing: border-box; height: 256px; margin-top: 40px}
+
+.main_b .inbox3 .title{width: 100% ; float: left;  color: #000; font-size: 18px; margin-bottom: 15px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700;text-transform: uppercase ; letter-spacing: -1px }
+
+.main_b .inbox3 .title .more{position: absolute; right: 0px; top: 0px; cursor: pointer; opacity: 0.5;transition: all 0.5s;
+-moz-transition: all 0.5s; /* Firefox 4 */
+-webkit-transition: all 0.5s; /* Safari and Chrome */
+-o-transition: all 0.5s; /* Opera */
+
+}
+.main_b .inbox3 .title .more:hover{position: absolute; right: 0px; top: 0px; cursor: pointer; opacity: 1}
+
+.main_b .inbox3 .gr{width: 100% ; float: left; }
+
+/* 추가 */
+.main_b .inbox7{width: 49% ; float: left;  border-radius: 20px; background-color: #fff;    box-shadow:3px 3px 30px rgba(51,102,204,0.2);  padding:20px 30px 20px 30px; box-sizing: border-box; height: 356px;}
+.main_b .inbox7 .title{width: 100% ; float: left;  color: #000; font-size: 18px; margin-bottom: 15px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700;text-transform: uppercase ; letter-spacing: -1px }
+.main_b .inbox7 .title .more{position: absolute; right: 0px; top: 0px; cursor: pointer; opacity: 0.5;transition: all 0.5s;
+-moz-transition: all 0.5s; /* Firefox 4 */
+-webkit-transition: all 0.5s; /* Safari and Chrome */
+-o-transition: all 0.5s; /* Opera */
+}
+.main_b .inbox7 .title .more:hover{position: absolute; right: 0px; top: 0px; cursor: pointer; opacity: 1}
+.main_b .inbox7 .gr{width: 100% ; float: left; }
+
+
+
+.main_b .inbox4{width: 41.5% ; float: left;  border-radius: 20px; background-color: #2d3c4f;    box-shadow:3px 3px 30px rgba(51,102,204,0.2); box-sizing: border-box; height: 356px; margin-top: 40px; overflow: hidden}
+.main_b .inbox4 .left_box{width: 230px ;height: 356px; float: left; /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#29384b+0,182635+100 */
+background: rgb(41,56,75); /* Old browsers */
+background: -moz-linear-gradient(left,  rgba(41,56,75,1) 0%, rgba(24,38,53,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(left,  rgba(41,56,75,1) 0%,rgba(24,38,53,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to right,  rgba(41,56,75,1) 0%,rgba(24,38,53,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#29384b', endColorstr='#182635',GradientType=1 ); /* IE6-9 */padding:30px 30px; box-sizing: border-box;
+ }
+.main_b .inbox4 .left_box .title {width: 100%; float: left; margin-top: 15px; color: rgba(255,255,255,0.52); font-size: 12px; margin-bottom: 20px; ;text-align: right}
+.main_b .inbox4 .left_box .title em{width: 100%; float: left;  line-height: 20px; color: #fff; font-size: 18px;font-family: 'Noto Sans KR', sans-serif;   font-weight: 700; ;text-align: right}
+.main_b .inbox4 .left_box .link {width: 100%; float: left; border-top: 1px solid #0f1d2b; margin-bottom:10px}
+.main_b .inbox4 .left_box .link ul li{width: 100%; float: left; border-bottom: 1px solid #0f1d2b ;}
+.main_b .inbox4 .left_box .link ul li a{width: 100%; float: left; padding: 10px 0px; color: #fff;text-align: right;  font-size: 14px}
+
+.main_b .inbox4 .left_box .link ul li a:hover{ color: #8cacee;}
+
+.main_b .inbox4 .left_box .today {width: 100%; float: left; }
+.main_b .inbox4 .left_box .today .title{width: 100%; float: left;font-family: 'Noto Sans KR', sans-serif; color: #8cacee;font-weight: 700; font-size: 16px ; line-height: 16px; text-align: right; margin-bottom: 10px}
+.main_b .inbox4 .left_box .today .today_tx{width: 100%; float: left;color: #fff; font-size: 13px; text-align: right }
+.main_b .inbox4 .left_box .today .today_tx em{color: #04c8c5; font-size: 12px; }
+.main_b .inbox4 .left_box .more_go{width: 100%; float: left;   display: flex;
+  justify-content: center;
+  align-items: center;justify-content: flex-end; margin-top: 20px }
+.main_b .inbox4 .left_box .more_go a{ width: 30px ; height: 30px; border-radius: 100%; background-color: #6b90db; color: #1e2d3e; font-size: 20px; display: block ;  font-family: 'Noto Sans KR', sans-serif;  font-weight: 700; line-height: 30px; text-align: center}
+
+.main_b .inbox4 .right_box{width:calc(100% - 230px) ;height: 356px; float: left; box-sizing: border-box;
+ }

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="deviceInfo">
+	
+	<select id="selectDeviceInfoListCnt" parameterType="cubox.admin.main.service.vo.GateVO" resultType="int">
+		 SELECT COUNT(di.device_id)
+		   FROM device_info_tb di
+LEFT OUTER JOIN floor_management_tb fm
+			 ON di.device_floor = fm.idx 
+		  WHERE 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceId) and !deviceId.equals("10")'>
+         	AND di.device_id like concat(#{deviceId}, '%')
+        </if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(accAuthType)'>
+         	AND di.access_auth_type = #{accAuthType}
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(faceAuthType)">
+         	AND di.face_auth_type = #{faceAuthType} 
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceFloor)">
+         	AND di.device_floor = #{deviceFloor} 
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(useYn)">
+         	AND di.use_yn = #{useYn} 
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceNm)">
+       	    AND (    di.device_nm like concat('%', #{deviceNm}, '%')
+       	          OR di.device_desc like concat('%', #{deviceDesc}, '%')
+       	        )
+        </if>
+		
+	</select>
+	
+	<select id="selectDeviceInfoList" parameterType="cubox.admin.main.service.vo.GateVO" resultType="cubox.admin.main.service.vo.GateVO">
+		 SELECT di.device_id as deviceId,
+			    di.device_ip as deviceIp,
+			    di.device_nm as deviceNm,
+			    di.device_desc as deviceDesc,
+			    di.device_version as deviceVersion,
+			    di.use_yn as useYn,
+			    fm.floor as deviceFloor,
+			    di.access_auth_type as accAuthType,
+			    di.face_auth_type as faceAuthType
+		   FROM device_info_tb di
+LEFT OUTER JOIN floor_management_tb fm
+			 ON di.device_floor = fm.idx 
+		  WHERE 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceId) and !deviceId.equals("10")'>
+         	AND di.device_id like concat(#{deviceId}, '%')
+        </if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(accAuthType)'>
+         	AND di.access_auth_type = #{accAuthType}
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(faceAuthType)">
+         	AND di.face_auth_type = #{faceAuthType} 
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceFloor)">
+         	AND di.device_floor = #{deviceFloor} 
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(useYn)">
+         	AND di.use_yn = #{useYn} 
+        </if>
+        <if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(deviceNm)">
+       	    AND (    di.device_nm like concat('%', #{deviceNm}, '%')
+       	         OR di.device_desc like concat('%', #{deviceDesc}, '%')
+       	        )
+        </if>
+	   ORDER BY deviceId ASC
+		  LIMIT #{srchCnt} OFFSET #{offset}
+	</select>
+	
+	
+	<insert id="insertDeviceInfo" parameterType="cubox.admin.main.service.vo.GateVO">
+    	<selectKey resultType="String" keyProperty="deviceId" order="BEFORE">
+			SELECT nvl(concat(site_id, lpad(max(right(device_id, 7))+1, 7, '0')), concat(#{siteId}, '0000001')) as deviceId
+			  FROM device_info_tb 
+			 WHERE site_id = #{siteId}    		 
+    	</selectKey>	
+	   INSERT INTO 
+	DEVICE_INFO_TB (DEVICE_ID, DEVICE_NM, DEVICE_IP, DEVICE_DESC , SITE_ID, ACCESS_AUTH_TYPE, DEVICE_FLOOR)
+		    VALUES (#{deviceId}, #{deviceNm}, #{deviceIp}, #{deviceDesc}, #{siteId}, #{accAuthType}, #{deviceFloor})
+	</insert>	
+	
+	<update id="updateDeviceInfoUseYN" parameterType="cubox.admin.main.service.vo.GateVO">
+		UPDATE DEVICE_INFO_TB 
+		   SET USE_YN = #{useYn}
+		 WHERE DEVICE_ID = #{deviceId}
+	</update>
+	
+	<update id="updateDeviceInfo" parameterType="cubox.admin.main.service.vo.GateVO">
+		UPDATE DEVICE_INFO_TB 
+		   SET DEVICE_DESC = #{deviceDesc}
+			 , DEVICE_IP = #{deviceIp}
+			 , DEVICE_FLOOR = #{deviceFloor}
+		 WHERE DEVICE_ID = #{deviceId}	
+
+	</update>
+	
+	<select id="getFloorIdx" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="String">
+		SELECT IDX
+		  FROM FLOOR_MANAGEMENT_TB
+		 WHERE SITE_ID = #{siteId}
+		   AND FLOOR = #{floor}
+	</select>
+	
+</mapper>

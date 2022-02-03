@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="menu">
+
+	<select id="selectAuthorList" parameterType="HashMap" resultType="authorVO">
+		SELECT
+		AUTHOR_ID AS authorId,
+		AUTHOR_NM AS authorNm,
+		USE_YN AS useYn,
+		SORT_ORDR AS sortOrdr
+		FROM AUTHOR_TB AC
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)">
+			WHERE USE_YN = #{use_yn}
+		</if>
+		ORDER BY AC.SORT_ORDR ASC
+	</select>
+
+	<select id="selectAuthorMenuCl" parameterType="HashMap" resultType="menuClVO">
+		SELECT C.MENU_CL_CODE, C.MENU_CL_NM
+		FROM MENU_CL_TB C
+		WHERE C.MENU_CL_CODE IN (
+			SELECT MD.MENU_CL_CODE
+			FROM AUTHOR_MENU_TB AM
+			INNER JOIN MENU_DETAIL_TB MD ON AM.MENU_CODE = MD.MENU_CODE AND MD.USE_YN = 'Y'
+			WHERE AM.AUTHOR_ID = #{author_id}
+			  AND MD.USE_YN = 'Y'
+		)
+		AND C.USE_YN  = 'Y'
+		ORDER BY C.SORT_ORDR
+	</select>
+
+	<select id="selectAuthMenuList" parameterType="HashMap" resultType="menuDetailVO">
+		SELECT
+			MD.MENU_CODE,
+			MD.MENU_CL_CODE,
+			MD.MENU_NM,
+			MD.MENU_URL
+		FROM AUTHOR_MENU_TB AM
+		INNER JOIN MENU_DETAIL_TB MD ON AM.MENU_CODE = MD.MENU_CODE AND MD.USE_YN = 'Y'
+		WHERE AM.AUTHOR_ID = #{author_id}
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_cl_code)">
+			AND MD.MENU_CL_CODE = #{menu_cl_code}
+		</if>
+		  AND MD.USE_YN = 'Y'
+		ORDER BY MD.SORT_ORDR
+	</select>
+	
+	<select id="selectInmateCnt" statementType="CALLABLE"  resultType="int">
+		{ CALL check_inmate()} 
+	</select>
+</mapper>

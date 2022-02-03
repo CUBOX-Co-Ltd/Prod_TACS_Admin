@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="basicInfo">
+
+	<!-- 센터정보가져오기 -->
+	<select id="getCenterInfoList" parameterType="cubox.admin.main.service.vo.CenterInfoVO" resultType="cubox.admin.main.service.vo.CenterInfoVO" >
+    	select	fkind1, fkind2, fkind3, fuseyn, fvalue, fdoc, fsidx, fregdt
+			, 	DATE_FORMAT(fregdt,'%Y-%m-%d') AS fregdt2
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+         order by fkind3 asc
+    </select>
+
+    <!-- 센터추가  -->
+	<insert id="centerAddSave" parameterType="String" >
+		insert	into	tcommcd
+						(
+							fkind1, fkind2, fkind3, fuseyn, fvalue
+						)
+			  values 	(
+			  				'code', 'centercd', (select IFNULL(MAX(fkind3)+1, 10) from tcommcd as tt where fkind1 = 'code' and fkind2 = 'centercd'),'Y', #{fvalue}
+						)
+	</insert>
+
+	<!-- 센터 사용유무 편집 -->
+	<update id="fuseynChangeSave" parameterType="cubox.admin.main.service.vo.CenterInfoVO">
+		update tcommcd
+		   set useyn = #{fuseyn}
+		 where fkind1 = 'code'
+		   and fkind2 = 'centercd'
+		   and fkind3 = #{fkind3}
+	</update>
+
+	<!-- 사이트유저가져오기 -->
+	<select id="getSiteUserList" resultType="cubox.admin.main.service.vo.SiteUserVO" parameterType="cubox.admin.main.service.vo.SiteUserVO" >
+		select tsu.fsiteid, tsu.fpasswd, tsu.fpasswdyn, tsu.fkind3, tsu.fname, tsu.fphone, tsu.fuseyn, tsu.fregdt
+			, DATE_FORMAT(fregdt,'%Y-%m-%d') AS fregdt2
+			, (select fvalue from tcommcd where fkind1='code' and fkind2='centercd' and fkind3 = tsu.fkind3) as fvalue
+			, tsu.femergency
+			, (select fkind3 from tcommcd where fkind1='combo' and fkind2='COMBO_FEmergency' and fvalue = tsu.femergency) as femergencynm
+			, tsu.fauthcd
+			, (select max(fvalue) from tcommcd where fkind1='code' and fkind2='fauthcd' and fkind3 = tsu.fauthcd) as fauthnm
+			, tsu.fuid
+			, (select max(t.funm) from tuserinfo_main t where t.fuid = tsu.fuid) as funm
+			, tsu.site_id
+			, tsu.author_id
+			, (select au.author_nm from author_tb au where au.author_id = tsu.author_id) as author_nm
+			, (select st.site_nm from site_tb st where st.site_id = tsu.site_id) as site_nm
+		from tsiteuser tsu
+		where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(site_id)'>
+		and site_id = #{site_id}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(fsiteid)'>
+		and fsiteid like concat('%', #{fsiteid}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(fname)'>
+		and fname like concat('%', #{fname}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(author_id)'>
+		and author_id = #{author_id}
+		</if>
+		order by tsu.site_id asc
+		limit #{srchCnt} offset #{offset}
+	</select>
+
+	<select id="getSiteUserCnt" parameterType="cubox.admin.main.service.vo.SiteUserVO" resultType="int">
+		select count(1)
+		from tsiteuser tsu
+		where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(site_id)'>
+		and site_id = #{site_id}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(fsiteid)'>
+		and fsiteid like concat('%', #{fsiteid}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(fname)'>
+		and fname like concat('%', #{fname}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(author_id)'>
+		and author_id = #{author_id}
+		</if>
+	</select>
+
+    <!-- 아이디 중복체크  -->
+	<select id="checkIdDplct" parameterType="String" resultType="int">
+		select	COUNT(1) as usedCnt
+		  from	tsiteuser
+		 where  fsiteid = #{fsiteid}
+    </select>
+    
+     <!-- fuid (사원번호) 중복체크  -->
+	<select id="checkfuIdDplct" parameterType="String" resultType="int">
+		select	COUNT(1) as usedCnt
+		  from	tusrinfo_main
+		 where  fuid = #{fuid}
+    </select>
+
+    <!-- 계정추가  -->
+	<insert id="siteUserAddSave" parameterType="cubox.admin.main.service.vo.SiteUserVO" >
+		insert	into	tsiteuser
+						(
+							fsiteid, fpasswd, fpasswdyn, fname, fphone, fuseyn, fpasswdmodt, fuid, site_id, author_id
+						)
+			  values 	(
+			  				#{fsiteid}, #{fpasswd}, 'N', #{fname}, #{fphone}, 'Y', now(), #{fuid}, #{site_id}, #{author_id}
+						)
+	</insert>
+
+	<!-- 계정편집 -->
+	<update id="siteUserInfoChangeSave" parameterType="cubox.admin.main.service.vo.SiteUserVO">
+		update  tsiteuser
+		   set 	fname = #{fname}
+		   	,	fphone = #{fphone}
+		   	, 	fuid = #{fuid}
+		   	, 	site_id = #{site_id}
+		   	,	author_id = #{author_id}
+		 where	fsiteid = #{fsiteid}
+	</update>
+
+	<!-- 계정사용유무변경 -->
+	<update id="siteUserFuseynChangeSave" parameterType="cubox.admin.main.service.vo.SiteUserVO">
+		update  tsiteuser
+		   set 	fuseyn = #{fuseyn}
+		 where	fsiteid = #{fsiteid}
+	</update>
+
+	<!-- 계정비밀번호초기화 -->
+	<update id="siteUserPasswdReset" parameterType="cubox.admin.main.service.vo.SiteUserVO">
+		update  tsiteuser
+		   set 	fpasswd = #{fpasswd}
+			,	fpasswdyn = 'N'
+			,	fpasswdmodt = now()
+		 where	fsiteid = #{fsiteid}
+	</update>
+
+	<!-- 비밀번호 체크  -->
+	<select id="checkPwd" parameterType="cubox.admin.main.service.vo.SiteUserVO" resultType="int">
+		select	COUNT(1) as cnt
+		  from	tsiteuser
+		 where  fsiteid = #{fsiteid}
+		   and	fpasswd = #{fpasswd}
+    </select>
+
+    <!-- 계정비밀번호변경저장 -->
+	<update id="passwdChangeSave" parameterType="cubox.admin.main.service.vo.SiteUserVO">
+		update  tsiteuser
+		   set 	fpasswd = #{fpasswd}
+			,	fpasswdyn = 'Y'
+			,	fpasswdmodt = now()
+		 where	fsiteid = #{fsiteid}
+	</update>
+
+	<!-- sys로그 리스트 -->
+	<select id="sysLogList" parameterType="cubox.admin.main.service.vo.SysLogVO" resultType="cubox.admin.main.service.vo.SysLogVO" >
+		SELECT fevttm  /*[BasicInfo.sysLogList]*/
+		     , ts.fsiteid
+		     , s.fname
+		     , u.funm
+		     , left(ts.fsyscode,2) AS syslogdept1
+		     , (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept1' AND fkind3 = left(ts.fsyscode,2)) AS syslogdeptnm1
+		     , left(ts.fsyscode,4) AS syslogdept2
+		     , (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept2' AND fkind3 = left(ts.fsyscode,4)) AS syslogdeptnm2
+		     , left(ts.fsyscode,6) AS syslogdept3
+		     , (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept3' AND fkind3 = left(ts.fsyscode,6)) AS syslogdeptnm3
+		     , fsyscode
+		     , (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept4' AND fkind3 = ts.fsyscode) AS fsyscodenm
+		     , fdetail
+		     , fcnntip
+		  from tsyslog ts
+		       left outer join tsiteuser s on s.fsiteid = ts.fsiteid
+		       left outer join tuserinfo_main u on u.fpartcd1 = s.site_id and u.fuid = s.fuid
+		 where 1=1
+		<include refid="sysLogListCondition" />
+		 order by fevttm desc
+		 limit #{srchCnt} offset #{offset}
+	</select>
+
+	<sql id="sysLogListCondition">
+		<if test='startDateTime != null and !startDateTime.equals("")'>
+		   and fevttm >= #{startDateTime}
+		</if>
+		<if test='endDateTime != null and !endDateTime.equals("")'>
+		   and fevttm &lt;= concat(#{endDateTime}, ' 23:59:59')
+		</if>
+		<if test='fcnntip != null and !fcnntip.equals("")'>
+		   and fcnntip like concat('%', #{fcnntip},'%')
+		</if>
+		<if test='fcnntid != null and !fcnntid.equals("")'>
+		   and ts.fsiteid = #{fcnntid}
+		</if>
+		<if test='!fkind3.equals("10") and !authorId.equals("00001")'>
+		   and ts.fsiteid = #{fsiteid}
+		</if>
+		<choose>
+		  <when test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(syslogdept3)">
+		   and fsyscode like concat(#{syslogdept3}, '%')
+		  </when>
+		  <when test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(syslogdept2)">
+		   and fsyscode like concat(#{syslogdept2}, '%')
+		  </when>
+		  <when test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(syslogdept1)">
+		   and fsyscode like concat(#{syslogdept1}, '%')
+		  </when>
+		</choose>
+		<if test='sysLogDeptValue !=null and !sysLogDeptValue.equals("") '>
+		   and fsyscode REGEXP #{sysLogDeptValue}
+		</if>
+	</sql>
+
+    <!-- sys로그 전체 cnt -->
+	<select id="sysLogTotalCnt" parameterType="cubox.admin.main.service.vo.SysLogVO" resultType="int" >
+		select count(*) cnt
+		  from tsyslog ts
+		 where 1=1
+		<include refid="sysLogListCondition" />
+	</select>
+
+	<!-- sys로그 뎁2 가져오기 -->
+	<select id="sysLogDept2List" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO" >
+    	select	fkind1, fkind2, fkind3, fuseyn, fvalue
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fuseyn = 'Y'
+           and	left(fkind3,2) = #{fkind3}
+         order by forder, fkind3 asc
+    </select>
+
+    <!-- sys로그 뎁3 가져오기 -->
+	<select id="sysLogDept3List" parameterType="cubox.admin.main.service.vo.CodeVO" resultType="cubox.admin.main.service.vo.CodeVO" >
+    	select	fkind1, fkind2, fkind3, fuseyn, fvalue
+          from	tcommcd
+         where	1=1
+           and	fkind1 = #{fkind1}
+           and	fkind2 = #{fkind2}
+           and	fuseyn = 'Y'
+           and	left(fkind3,4) = #{fkind3}
+         order by forder, fkind3 asc
+    </select>
+
+    <select id="sysLogExcelList" parameterType="cubox.admin.main.service.vo.SysLogVO" resultType="cubox.admin.main.service.vo.ExcelVO" >
+		select	${chkValueArray}
+		  from	(
+				SELECT  fevttm
+				     , ts.fsiteid
+				     , s.fname		     
+				     , u.funm	
+				    ,   left(ts.fsyscode,2) AS syslogdept1
+				    ,   (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept1' AND fkind3 = left(ts.fsyscode,2)) AS syslogdeptnm1
+				    ,   left(ts.fsyscode,4) AS syslogdept2
+				    ,   (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept2' AND fkind3 = left(ts.fsyscode,4)) AS syslogdeptnm2
+				    ,   left(ts.fsyscode,6) AS syslogdept3
+				    ,   (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept3' AND fkind3 = left(ts.fsyscode,6)) AS syslogdeptnm3
+				    ,   fsyscode
+				    ,   (SELECT fvalue FROM tcommcd WHERE fkind1 = 'code' AND fkind2 = 'accsyslogdept4' AND fkind3 = ts.fsyscode) AS fsyscodenm
+				    ,   fdetail
+				    ,   fcnntip
+				  from	tsyslog ts
+		       left outer join tsiteuser s on s.fsiteid = ts.fsiteid
+		       left outer join tuserinfo_main u on u.fpartcd1 = s.site_id and u.fuid = s.fuid				  
+				 where	1=1
+				 <include refid="sysLogListCondition" />
+				) uu
+			order by fevttm desc
+    </select>
+
+    <select id="sysLogParam" parameterType="java.util.List" resultType="cubox.admin.main.service.vo.CodeVO" >
+    	select  fkind3, fvalue
+		  from  tcommcd
+		 where  fkind1 = 'code'
+		   and  fkind2 like 'accsyslogdept%'
+		   and  fuseyn = 'Y'
+		   and	fkind3 in
+			<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item}
+			</foreach>
+    </select>
+
+    <select id="getSelectFuidChkCnt" parameterType="cubox.admin.main.service.vo.SiteUserVO" resultType="int" >
+    	select count(a.fsiteid) as cnt
+    	from tsiteuser a
+    	where a.fuid = #{fuid}
+    	<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fsiteid)">
+			and a.fsiteid != #{fsiteid}
+		</if>
+    </select>
+
+
+	<select id="getAuthList" resultType="authorVO" >
+		select author_nm as authorNm
+		     , author_desc as authorDesc
+		     , regist_dt as registDt
+		     , modify_dt as modifyDt
+		     , use_yn    as useYn
+		     , author_id as authorId
+		     , sort_ordr as sortOrdr
+		  from author_tb
+		 order by sort_ordr
+	</select>
+
+    <insert id="authAddSave" parameterType="authorVO">
+		insert	into author_tb
+		(author_id,author_nm,use_yn,sort_ordr,regist_dt,modify_dt,author_desc)
+		select LPAD(nvl(max(author_id), 0) + 1, 5, '0')
+		 , #{authorNm}
+		 , 'Y'
+		 , case when #{sortOrdr} is null or #{sortOrdr} = '' then nvl(max(sort_ordr), 0)+1 else #{sortOrdr} end 
+		 , now(3)
+		 , now(3)
+		 , #{authorDesc}
+		from AUTHOR_TB
+		<!-- values
+		((select LPAD(COUNT(*)+1,5,'0') from AUTHOR_TB id),#{authorNm},'Y',nvl(#{sortOrdr}, 1),NOW(3),NOW(3),#{authorDesc}) -->
+	</insert>
+
+	<select id="getSiteList" resultType="cubox.admin.main.service.vo.SiteVO">
+		select site_id as siteId,
+			   site_nm as siteNm,
+			   sort_ordr as sortOrdr,
+			   use_yn as useYn,
+			   regist_id as registId,
+			   regist_dt as registDt,
+			   modify_dt as modifyDt,
+			   site_desc as siteDesc
+		from site_tb
+		order by sort_ordr asc
+	</select>
+
+	<insert id="siteAddSave" parameterType="cubox.admin.main.service.vo.SiteVO">
+		insert	into site_tb
+		(site_id,site_nm,use_yn,sort_ordr,regist_id, regist_dt,modify_dt,site_desc)
+		values
+		((select LPAD(COUNT(*)+1,3,'0') from SITE_TB id),#{siteNm},'Y',#{sortOrdr},#{registId}, NOW(3),NOW(3),#{siteDesc})
+	</insert>
+	
+	<select id="checkfgidDplct" resultType="int" parameterType="String">
+		select count(*) 
+			from device_info_tb
+		where device_id = #{checkId}
+	</select>
+	
+	<select id="getFloorList" resultType="cubox.admin.main.service.vo.FloorVO" parameterType="cubox.admin.main.service.vo.FloorVO">	
+		select fm.idx as idx,
+			   fm.floor as floor,
+			   fm.use_yn as useYn,
+			   fm.floor_nm as floorNm,
+			   fm.regist_id as registId,
+			   fm.atch_file_id as atchFileId
+			from floor_management_tb fm
+			where 
+		  site_id = #{siteId}
+		  and use_yn = "Y"
+	</select>
+	
+	<insert id="floorUpload" parameterType="cubox.admin.main.service.vo.FloorVO">
+		insert into 
+		floor_management_tb ( site_id, idx, floor, floor_nm, atch_file_id, use_yn)
+		     values (#{siteId},#{idx},#{newFloor},#{floorNm},#{atchFileId},"Y")
+		
+	</insert>
+	
+	<select id="getMaxIdx" parameterType="String" resultType="int">
+		select max(idx)+1
+		  from floor_management_tb
+		 where site_id = #{siteId}
+	</select>
+	
+	<update id="floorDelete" parameterType="cubox.admin.main.service.vo.FloorVO" >
+		update floor_management_tb
+			set use_yn="N"
+		where site_id = #{siteId}
+		  and idx = #{idx}
+	</update>
+	
+	<update id="fileDelete" parameterType="cubox.admin.main.service.vo.FloorVO" >
+		update file_tb
+			set use_at = "N"
+		where atch_file_id = #{atchFileId}
+	</update>
+	
+	<delete id="fileDetailDelete" parameterType="cubox.admin.main.service.vo.FloorVO" >
+		update floor_management_tb
+			set use_yn="N" 
+			where site_id = #{siteId}
+			  and idx = #{idx}
+	</delete>
+	
+	<select id="getAtchFileId" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="String">
+		select atch_file_id
+			from floor_management_tb
+			where site_id = #{siteId}
+			  and floor = #{floor}
+			  and use_yn = "Y"
+	</select>
+	
+	<select id="checkAtchFileId" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="int">
+		select count(atch_file_id)
+		from file_detail_tb fdt 
+		where atch_file_id = #{atchFileId}
+	</select>
+	
+	<select id="getFloorDetail" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="cubox.admin.main.service.vo.FloorVO">
+		select site_id as siteId,
+			       idx as idx,
+			  floor_nm as floorNm,
+			  atch_file_id as atchFileId,
+			  use_yn as useYn
+		from floor_management_tb
+		where site_id = #{siteId}
+		  and floor = #{floor}
+	</select>
+	
+	<update id="floorUpdate" parameterType="cubox.admin.main.service.vo.FloorVO">
+		update floor_management_tb  
+		   set floor_nm = #{floorNm},
+		   	   floor = #{floor},
+		   	   atch_file_id = #{atchFileId}
+		where site_id = #{siteId}
+		  and idx = #{idx}
+			
+	</update>
+	
+	<select id="getChkFloor" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="int">
+		select count(fmt.floor) as cnt
+			from floor_management_tb fmt 
+		where fmt.floor = #{newFloor}
+		  and fmt.site_id = #{siteId}
+		  and fmt.use_yn = "Y"
+	</select>
+	
+	<select id="checkUseDevice" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="int">
+		select count(device_floor) as deviceFloor
+			from device_info_tb dit
+		where dit.site_id = #{siteId}
+		  and dit.device_floor = #{floor}
+	</select>
+	
+	<select id="checkFloor" parameterType="cubox.admin.main.service.vo.FloorVO" resultType="int">
+		select count(floor) as deviceFloor
+			from floor_management_tb fmt
+		where fmt.site_id = #{siteId}
+		  and fmt.floor = #{newFloor}
+		  and use_yn = "Y"
+	</select>
+	
+
+    <select id="selectSysLogInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select fevttm  /*[BasicInfo.selectSysLogInfo]*/
+             , fsiteid 
+             , fsyscode
+             , fdetail     
+             , fcnntip 
+          from tsyslog 
+         where fevttm = #{fevttm}
+           and fsiteid = #{fsiteid}
+           and fsyscode = #{fsyscode}    
+    </select>
+    
+	<!-- 출입이력 설정정보 조회 -->
+	<select id="selectGateLogSettingList" resultType="java.util.HashMap">
+		select keep_seq
+		     , keep_sdt
+		     , keep_edt
+		     , keep_unit
+		     , keep_num
+		     , use_yn
+		  from gatelog_set_tb
+		 order by keep_sdt desc
+	</select>
+
+	<!-- 출입이력 보관기간 중복 체크  -->
+	<select id="selectDupKeepDt" parameterType="java.util.HashMap" resultType="java.lang.Integer" >
+		select sum(cf_dup) 
+		  from (select count(1) as cf_dup 
+				  from gatelog_set_tb
+				 where use_yn = 'Y'
+				   and (  str_to_date(#{keep_sdt},'%Y-%m-%d') between keep_sdt and keep_edt
+				       or str_to_date(#{keep_edt},'%Y-%m-%d') between keep_sdt and keep_edt
+				       )
+				<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(keep_seq)">
+				   and keep_seq <![CDATA[<>]]> #{keep_seq}
+				</if>
+				 union all
+				select sum(case when keep_sdt between str_to_date(#{keep_sdt},'%Y-%m-%d') and str_to_date(#{keep_edt},'%Y-%m-%d') 
+				                  or keep_edt between str_to_date(#{keep_sdt},'%Y-%m-%d') and str_to_date(#{keep_edt},'%Y-%m-%d') then 1 else 0 end) as cf_dup 
+				  from gatelog_set_tb 
+				<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(keep_seq)">				  
+				 where keep_seq <![CDATA[<>]]> #{keep_seq}
+				</if>
+		       ) t	
+	</select>
+
+	<!-- 출입이력 설정정보 신규등록 -->
+	<insert id="insertGateLogSettingInfo" parameterType="java.util.HashMap">
+		<selectKey resultType="int" keyProperty="keep_seq" order="BEFORE">
+		select nvl(max(keep_seq), 0) + 1 from gatelog_set_tb
+		</selectKey>
+		insert gatelog_set_tb 
+				( keep_seq
+				, keep_sdt
+				, keep_edt
+				, keep_unit
+				, keep_num
+				, use_yn
+				, reg_dt
+				, reg_id
+				)
+			values
+				( #{keep_seq}
+				, str_to_date(#{keep_sdt},'%Y-%m-%d')
+				, str_to_date(#{keep_edt},'%Y-%m-%d')
+				, #{keep_unit}
+				, #{keep_num}
+				, 'Y'
+				, now(3)
+				, #{reg_id}
+				)
+	</insert>
+
+	<insert id="insertGateLogSettingLog" parameterType="java.util.HashMap">
+		<selectKey resultType="int" keyProperty="log_seq" order="BEFORE">
+		select nvl(max(log_seq), 0) + 1 from gatelog_set_log
+		</selectKey>
+		insert gatelog_set_log 
+				( log_seq
+				, log_dt
+				, keep_seq
+				, keep_sdt
+				, keep_edt
+				, keep_unit
+				, keep_num
+				, use_yn
+				, reg_dt
+				, reg_id
+				, mod_dt
+				, mod_id
+				)
+		select #{log_seq}
+			 , now(3)
+			 , keep_seq
+			 , keep_sdt
+			 , keep_edt
+			 , keep_unit
+			 , keep_num
+			 , use_yn
+			 , reg_dt
+			 , reg_id
+			 , mod_dt
+			 , mod_id
+		  from gatelog_set_tb
+		 where keep_seq = #{keep_seq}
+	</insert>
+
+	<!-- 출입이력 설정정보 수정 -->
+	<update id="updateGateLogSettingInfo" parameterType="java.util.HashMap">
+		update gatelog_set_tb
+		   set keep_sdt = str_to_date(#{keep_sdt},'%Y-%m-%d')
+		     , keep_edt = str_to_date(#{keep_edt},'%Y-%m-%d')
+		     , keep_unit = #{keep_unit}
+		     , keep_num = #{keep_num}
+		     , use_yn = #{use_yn}
+		     , mod_dt = now(3)
+		     , mod_id = #{mod_id}
+		 where keep_seq = #{keep_seq}
+	</update>
+	
+</mapper>

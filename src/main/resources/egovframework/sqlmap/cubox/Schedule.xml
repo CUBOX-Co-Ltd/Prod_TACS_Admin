@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="schedule">
+
+	<select id="selectScheduleDate" parameterType="String" resultType="String">
+		/* ==IGNORE_LOG== */
+		SELECT DATE_FORMAT(MAX(FSDT), '%Y-%m-%d %H:%i:%S') AS FSDT
+		FROM TLINKSCHDUL
+		WHERE FJOBCD = #{schedule_div} AND FRSLTYN = 'Y'
+	</select>
+
+	<select id="selectScheduleIng" parameterType="String" resultType="int">
+		/* ==IGNORE_LOG== */
+		SELECT COUNT(*)
+		FROM TLINKSCHDUL
+		WHERE FJOBCD = #{schedule_div} AND FEDT IS NULL
+		AND FSDT >= DATE_ADD(NOW(), INTERVAL -30 minute)
+	</select>
+
+	<insert id="insertScheduleHist" parameterType="java.util.HashMap">
+		INSERT INTO TLINKSCHDUL(
+			FJOBCD, FSDT
+		) VALUES(
+			#{schedule_div},
+			STR_TO_DATE(#{schedule_dt},'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+
+	<update id="updateScheduleHist" parameterType="java.util.HashMap">
+		UPDATE TLINKSCHDUL SET
+			FEDT = STR_TO_DATE(#{end_dt},'%Y-%m-%d %H:%i:%s'),
+			FRSLTYN = #{succes_at}
+		WHERE FJOBCD = #{schedule_div}
+		AND FSDT = STR_TO_DATE(#{schedule_dt},'%Y-%m-%d %H:%i:%s')
+	</update>
+
+	<select id="selectStationCnt" parameterType="java.util.HashMap" resultType="int">
+		SELECT COUNT(*) AS CNT
+		FROM tuserinfo_main
+		WHERE fuid = #{fuid}
+	</select>
+
+	<select id="getBioLinkQ" parameterType="HashMap" resultType="HashMap">
+		SELECT
+		L.FUID AS face_idno,
+		U.FUNM AS face_nm,
+		L.FIMG AS face_img
+		FROM TBIOLINK L INNER JOIN TUSERINFO_MAIN U ON L.FUID=U.FUID
+		WHERE L.FSSTATUS = 'Q'
+	</select>
+
+	<select id="getBioLinkQRemoveImg" parameterType="HashMap" resultType="HashMap">
+		/* ==IGNORE_LOG== */
+		SELECT
+		L.FUID AS face_idno,
+		U.FUNM AS face_nm
+		FROM TBIOLINK L INNER JOIN TUSERINFO_MAIN U ON L.FUID=U.FUID
+		WHERE L.FSSTATUS = 'Q' AND L.FFAILCNT <![CDATA[ < ]]> 5
+	</select>
+
+	<select id="getBioLinkQImg" parameterType="HashMap" resultType="HashMap">
+		SELECT
+		L.FUID AS face_idno,
+		U.FUNM AS face_nm,
+		L.FIMG AS face_img
+		FROM TBIOLINK L INNER JOIN TUSERINFO_MAIN U ON L.FUID=U.FUID
+		WHERE L.FUID = #{face_idno}
+	</select>
+
+	<update id="setBioLinkU" parameterType="HashMap">
+		UPDATE TBIOLINK SET
+		FSSTATUS = #{fsstatus}
+		WHERE FUID = #{face_idno}
+	</update>
+
+	<select id="selectUserCnt" parameterType="HashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM tuserinfo_main
+		WHERE FUID = #{fuid}
+	</select>
+
+	<select id="selectCardCnt" parameterType="HashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM tcard_main
+		WHERE FUID = #{fuid} AND FCDNO = #{fcdno}
+	</select>
+
+	<insert id="insertUserInfo" parameterType="HashMap">
+			insert into tuserinfo_main
+			(
+				fuid, funm, futype, fregdt, fauthtype, fsidx, fgroupid, fpartcd1, fpartnm2, fsstatus, fusdt, fuedt
+			)
+    		values
+    		(
+				#{fuid}, #{funm}, #{futype}, now(3), #{fauthtype}, #{fsidx}, #{fgroupid}, #{fpartcd1}, #{fpartnm2}, 'Q', #{fusdt}, #{fuedt}
+			)
+	</insert>
+
+	<update id="updateUserInfo" parameterType="HashMap">
+			update tuserinfo_main set
+			funm = #{funm},
+			fpartnm2 = #{fpartnm2},
+			fsstatus = 'Q',
+			fusdt = #{fusdt},
+			fuedt = #{fuedt},
+    	   	fmoddt = now(3)
+			where fuid = #{fuid}
+	</update>
+
+
+	<insert id="insertCard" parameterType="HashMap">
+			insert	into	tcard_main
+			(
+				fcdno, fsdt, fedt, fuid, fstatus, fsidx, fsstatus, fqstatus
+			)
+    		values
+			(
+				#{fcdno}, #{fusdt}, #{fuedt}, #{fuid}, 'Y', #{fsidx}, 'I', 'I'
+			)
+	</insert>
+
+	<update id="updateCard" parameterType="HashMap">
+			update tcard_main set
+			fsstatus = 'I',
+			fqstatus = 'I',
+			fsdt = #{fusdt},
+			fedt = #{fuedt},
+    	   	fmoddt = now(3)
+			where fcdno = #{fcdno}
+			and	fuid = #{fuid}
+	</update>
+
+    <select id="selectUserInfoAllList" parameterType="cubox.admin.main.service.vo.UserInfoVO" resultType="cubox.admin.main.service.vo.UserBioInfoVO">
+    	select	u.fuid as fuid
+			,	u.funm as funm
+    		,   COALESCE(COALESCE(b.fmoddt, b.fregdt), NOW(3)) as fregdt
+		from tuserinfo_main u
+		join tbio_main b on u.fuid  = b.fuid
+		where length(b.fimg) > 0
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fmoddt)">
+			and COALESCE(b.fmoddt, b.fregdt) > #{fmoddt}
+		</if>
+		<!-- and b.fuid <![CDATA[<]]> 11020	-->
+    </select>
+
+    <select id="selectUserBioInfo" parameterType="cubox.admin.main.service.vo.UserInfoVO" resultType="cubox.admin.main.service.vo.UserBioInfoVO">
+    	select	b.fuid as fuid
+			,	b.fdt, b.fimg, b.fextdata, b.fquality
+    	from tbio_main b
+		where length(b.fimg) > 0
+		  and b.fuid = #{fuid}
+    </select>
+
+    <update id="updateBioLinkFailCnt" parameterType="Map">
+    	UPDATE TBIOLINK SET
+    	 ffailcnt = COALESCE(ffailcnt,0)+1
+    	WHERE fuid = #{face_idno}
+    </update>
+
+    <select id="selectZipSetPw" resultType="java.util.HashMap">
+		SELECT COALESCE(FPW,'1234') AS FPW, FUFLG FROM TZIPPW WHERE FDWNIDX = (SELECT MAX(FDWNIDX) FROM TZIPPW)
+	</select>
+
+	<select id="getUserExpireList" resultType="cubox.admin.main.service.vo.UserInfoVO">
+		select fcdno as cfcdno
+			 , fedt
+			 , fuid
+		  from tcard_main c
+		 where date_format(c.fedt, '%Y-%m-%d') &lt;= date_format(curdate() - interval 1 day, '%Y-%m-%d')
+		   and fstatus = 'Y'
+	</select>
+	
+	<select id="selectVisitorForExpire" resultType="java.util.HashMap">
+	<![CDATA[
+		select fvisitno, fprogrscd, fvisitedt /*[schedule.selectVisitorForExpire]*/
+		  from tvisitinfo
+		 where fprogrscd in ('A', 'C', 'T') /*신청,승인,카드수령*/
+		   and left(fvisitedt, 8) <= date_format(date_add(now(), interval -1 day), '%Y%m%d')
+	]]>
+	</select>	
+	
+	<update id="updateVisitorForExpire">
+	<![CDATA[
+		update tvisitinfo /*[schedule.updateVisitorForExpire]*/
+		   set fprogrscd = 'X'
+		     , fmodid = 'SYSTEM'
+		     , fmoddt = substr(date_format(current_timestamp(3),'%Y-%m-%d %H:%i:%s.%f'),1,23)
+		 where fprogrscd in ('A', 'C', 'T') /*신청,승인,카드수령*/
+		   and left(fvisitedt, 8) <= date_format(date_add(now(), interval -1 day), '%Y%m%d')
+	]]>
+	</update>
+	
+	<update id="updateVisitorNotComeIn">
+	<![CDATA[
+		update tvisitinfo /*[schedule.updateVisitorNotComeIn]*/
+		   set fprogrscd = 'X' /*기간만료(신청,승인)*/
+		     , fmoddt = substr(date_format(current_timestamp(3),'%Y-%m-%d %H:%i:%s.%f'),1,23)
+		     , fmodid = 'SYSTEM'
+		 where fvisitno in (select fvisitno 
+		                      from tvisitinfo 
+		                     where fprogrscd in ('A', 'C') 
+		                       and fvisitsdt < date_format(current_timestamp(),'%Y%m%d%H00'))
+	]]>
+	</update>
+	
+	<update id="updateVisitorNotGoOut">
+	<![CDATA[
+		update tvisitinfo /*[schedule.updateVisitorNotGoOut]*/
+		   set fprogrscd = 'Z' /*카드미반납(카드교부)*/
+		     , fmoddt = substr(date_format(current_timestamp(3),'%Y-%m-%d %H:%i:%s.%f'),1,23)
+		     , fmodid = 'SYSTEM'
+		 where fvisitno in (select fvisitno 
+		                      from tvisitinfo 
+		                     where fprogrscd = 'T' 
+		                       and fvisitedt < date_format(current_timestamp(),'%Y%m%d%H%i'))
+	]]>
+	</update>
+	
+	<!-- 2021-04-09 신청,승인=>기간만료, 카드교부=>카드미반납으로 처리 -->
+	<update id="updateVisitInfoForExpire">
+	<![CDATA[
+		update tvisitinfo /*[schedule.updateVisitInfoForExpire]*/
+		   set fprogrscd = (case when fprogrscd = 'T' then 'Z' else 'X' end)
+		     , fmoddt = substr(date_format(current_timestamp(3),'%Y-%m-%d %H:%i:%s.%f'),1,23)
+		     , fmodid = 'SYSTEM'
+		 where fvisitno in (select fvisitno 
+							  from tvisitinfo 
+							 where fprogrscd in ('A', 'C', 'T') 
+							   and fvisitedt < date_format(current_timestamp(),'%Y%m%d%H%i'))	
+	]]>
+	</update>
+	
+	<!-- 2021-04-16 출입이력 삭제  -->
+	<select id="selectLogSettingInfo" resultType="java.util.HashMap">
+	<![CDATA[
+		select curdate() cf_curdate, keep_unit, keep_num 
+		     , case when keep_unit = 'day'   then date_add(curdate(), interval (-1)*keep_num day)
+		            when keep_unit = 'month' then date_add(curdate(), interval (-1)*keep_num month)
+		            when keep_unit = 'year'  then date_add(curdate(), interval (-1)*keep_num year) end as cf_duedt /*해당 날짜보다 작은 날짜를 삭제*/
+		  from gatelog_set_tb
+		 where use_yn = 'Y'
+		   and curdate() between keep_sdt and keep_edt	
+	]]>
+	</select>
+	
+	<delete id="deleteOldGateLog" parameterType="java.util.HashMap">
+	<![CDATA[
+		delete from tgatelog where fevttm < #{cf_duedt}
+	]]>
+	</delete>
+	
+	<delete id="deleteOldGateLogBio" parameterType="java.util.HashMap">
+	<![CDATA[
+		delete from tgatelogbio where fevttm < #{cf_duedt}
+	]]>
+	</delete>
+	
+</mapper>

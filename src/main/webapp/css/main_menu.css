@@ -1,0 +1,32 @@
+@charset "utf-8";
+/* CSS Document */
+
+/****왼쪽 메뉴  Hidden/ show s****/
+
+input[type="checkbox"]#menu_state {
+  display: none; 
+}
+input[type="checkbox"]:checked ~ nav.main {
+  width:100px;
+}
+input[type="checkbox"]:checked ~ nav.main label[for="menu_state"] i::before {
+  content: "\f053"; 
+}
+input[type="checkbox"]:checked ~ nav.main ul {
+  width: 100%;
+}
+input[type="checkbox"]:checked ~ nav.main ul li a i {
+  border-right: 1px solid #2f343e;
+}
+input[type="checkbox"]:checked ~ nav.main ul li a span {
+  opacity: 1;
+  transition: opacity 0.25s ease-in-out;
+}
+input[type="checkbox"]:checked ~ nav.main .left_title { width: 100%; float: left; height:100px; 
+	 position: relative;   transition: opacity 0.1s ease-in-out;  opacity: 1; background-color: #36404a
+}
+input[type="checkbox"]:checked ~ nav.main .left_title .icon{  width:45px; height: 45px; text-align: center; line-height: 40px; border-radius: 50px; position: absolute; top:40px; left: 0px; opacity: 1;
+}
+input[type="checkbox"]:checked ~ main {
+ padding-left: 180px; width: 100% ;   transition: opacity 0.25s ease-in-out;box-sizing: border-box
+}

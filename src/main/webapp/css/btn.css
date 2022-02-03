@@ -1,0 +1,43 @@
+@charset "utf-8";
+button{cursor: pointer; transition: all 0.5s;
+-moz-transition: all 0.5s; /* Firefox 4 */
+-webkit-transition: all 0.5s; /* Safari and Chrome */
+-o-transition: all 0.5s; /* Opera */  }
+.btn_excel{padding: 0px 15px 0px 40px; background: url("../img/icon_excel.png")
+no-repeat 15px center  ; background-color: #1C4C29; color: #fff; font-size: 14px; border-radius: 2px; line-height: 35px; height: 35px; }
+.btn_excel:hover{ background-color: #0C3217; }
+
+
+
+.btn_small{padding: 0px 10px;  color: #fff; font-size: 12px; border-radius: 4px; line-height: 25px; height: 25px; }
+
+.btn_middle{padding: 0px 20px; color: #fff; font-size: 14px; border-radius: 4px; line-height: 35px; height: 35px; }
+
+
+.btn_add{padding: 0px 15px 0px 35px;  background: url("../img/svg/plus.svg") no-repeat 10px center;
+	 background-size: 20px; background-color: #225CCB; color: #fff; font-size: 12px; border-radius: 4px; line-height: 35px; height: 35px;  }
+.btn_del{padding: 0px 15px 0px 35px;  background: url("../img/svg/multiply.svg") no-repeat 10px center; 	 background-size: 20px;  background-color: #666; color: #fff; font-size: 12px; border-radius: 4px; line-height: 35px; height: 35px;   }
+.btn_del_small {
+    padding: 0px 15px 8px 10px;
+    background: url(../img/svg/multiply.svg) no-repeat 3px center;
+    background-size: 20px;
+    background-color: #666;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 4px;
+    line-height: 35px;
+    height: 25px;
+    margin-bottom: 5;
+}
+    
+    
+
+.color_basic{background-color: #225CCB;}
+.color_basic:hover{background-color: #0F4BBD;}
+
+.color_gray{background-color: #666;}
+.color_gray:hover{background-color: #333;}
+
+.color_color1{background-color: #00a7a4!important;}
+.color_color1:hover{background-color: #007E7B!important;}
+

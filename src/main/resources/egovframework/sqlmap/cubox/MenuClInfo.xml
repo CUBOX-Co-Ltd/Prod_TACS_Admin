@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="menuClInfo">
+
+	<select id="selectMenuClList" resultType="java.util.HashMap">
+		select menu_cl_code 
+		     , menu_cl_nm
+		     , icon_img
+		     , sort_ordr
+		     , use_yn
+		  from menu_cl_tb
+		 order by sort_ordr 
+	</select>
+	
+	<select id="selectMenuClInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select menu_cl_code 
+		     , menu_cl_nm
+		     , icon_img
+		     , sort_ordr
+		     , use_yn
+		  from menu_cl_tb
+		 where menu_cl_code = #{menu_cl_code}  
+	</select>
+	
+	<select id="selectNewMenuClCode" resultType="java.lang.String">
+		select lpad(ifnull(max(menu_cl_code), '0') + 1, 5, '0')
+		  from menu_cl_tb
+	</select>	
+	
+	<insert id="insertMenuClInfo" parameterType="java.util.HashMap">
+		insert into menu_cl_tb 
+			( menu_cl_code 
+			, menu_cl_nm 
+			, icon_img
+			, sort_ordr 
+			, use_yn
+			, regist_dt
+			, regist_id
+			) 
+		values
+			( #{menu_cl_code} 
+			, #{menu_cl_nm}
+			, #{icon_img} 
+			, #{sort_ordr} 
+			, 'Y'
+			, current_date()
+			, #{regist_id}
+			)	
+	</insert>
+	
+	<update id="updateMenuClInfo" parameterType="java.util.HashMap">
+		update menu_cl_tb
+		   set menu_cl_nm = #{menu_cl_nm}
+		     , icon_img = #{icon_img}
+		     , sort_ordr = #{sort_ordr}
+		     , modify_dt = current_date()
+		     , modify_id = #{modify_id}
+		 where menu_cl_code = #{menu_cl_code}
+	</update>
+	
+	<update id="updateMenuClUseYn" parameterType="java.util.HashMap">
+		update menu_cl_tb
+		   set use_yn = #{use_yn}
+		     , modify_dt = current_date()
+		     , modify_id = #{modify_id}
+		 where menu_cl_code = #{menu_cl_code}
+	</update>
+	
+	<update id="updateMenuDetailListUseYn" parameterType="java.util.HashMap">
+		update menu_detail_tb
+		   set use_yn = #{use_yn}
+		     , modify_dt = current_date()
+		     , modify_id = #{modify_id}
+		 where menu_cl_code = #{menu_cl_code}
+	</update>
+		
+	
+	<select id="selectMenuDetailList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select c.menu_cl_nm
+		     , c.sort_ordr as cl_sort_ordr
+		     , c.use_yn as cl_use_yn
+		     , d.menu_cl_code
+		     , d.menu_code
+		     , d.menu_nm 
+		     , d.menu_url 
+		     , d.sort_ordr 
+		     , d.use_yn
+		  from menu_detail_tb d
+		       inner join menu_cl_tb c on c.menu_cl_code = d.menu_cl_code 
+		 where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_cl_code)'>
+		   and d.menu_cl_code = #{menu_cl_code}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_nm)'>
+		   and d.menu_nm like concate('%', #{menu_nm}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)'>
+		   and d.use_yn = #{use_yn}
+		</if>
+		 order by c.sort_ordr, d.sort_ordr
+		 limit #{srchCnt} offset #{offset}	
+	</select>
+	
+	<select id="selectMenuDetailListCount" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+		select count(1)
+		  from menu_detail_tb d
+		       inner join menu_cl_tb c on c.menu_cl_code = d.menu_cl_code 
+		 where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_cl_code)'>
+		   and d.menu_cl_code = #{menu_cl_code}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_nm)'>
+		   and d.menu_nm like concate('%', #{menu_nm}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)'>
+		   and d.use_yn = #{use_yn}
+		</if>
+	</select>	
+	
+	<select id="selectMenuDetailInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select d.menu_cl_code
+		     , (select menu_cl_nm from menu_cl_tb c where c.menu_cl_code = d.menu_cl_code) menu_cl_nm
+		     , d.menu_code
+		     , d.menu_nm 
+		     , d.menu_url 
+		     , d.sort_ordr 
+		     , d.use_yn
+		  from menu_detail_tb d
+		 where d.menu_code = #{menu_code}
+	</select>
+	
+	<select id="selectNewMenuCode" resultType="java.lang.String">
+		select lpad(ifnull(max(menu_code), '0') + 1, 5, '0')
+		  from menu_detail_tb
+	</select>
+	
+	<insert id="insertMenuDetailInfo" parameterType="java.util.HashMap">
+	<![CDATA[
+		insert into menu_detail_tb 
+			( menu_code
+			, menu_cl_code
+			, menu_nm
+			, menu_url
+			, sort_ordr
+			, use_yn
+			, regist_dt
+			, regist_id
+			)
+		values
+			( #{menu_code}
+			, #{menu_cl_code}
+			, #{menu_nm}
+			, #{menu_url}
+			, #{sort_ordr}
+			, 'Y'
+			, current_date()
+			, #{regist_id}
+			)
+	]]>
+	</insert>
+	
+	<update id="updateMenuDetailInfo" parameterType="java.util.HashMap">
+	<![CDATA[
+		update menu_detail_tb
+		   set menu_cl_code = #{menu_cl_code}
+		     , menu_nm = #{menu_nm}
+		     , menu_url = #{menu_url}
+		     , sort_ordr = #{sort_ordr}
+		     , modify_dt = current_date()
+		     , modify_id = #{modify_id}
+		 where menu_code = #{menu_code}
+	]]>
+	</update>
+	
+	<update id="updateMenuDetailUseYn" parameterType="java.util.HashMap">
+	<![CDATA[
+		update menu_detail_tb
+		   set use_yn = #{use_yn}
+		     , modify_dt = current_date()
+		     , modify_id = #{modify_id}
+		 where menu_code = #{menu_code}
+	]]>
+	</update>
+
+	<select id="selectMenuNm" parameterType="java.lang.String" resultType="java.lang.String">
+		select menu_nm
+		  from menu_detail_tb
+		 where menu_url = #{menu_url}
+	</select>
+	
+</mapper>

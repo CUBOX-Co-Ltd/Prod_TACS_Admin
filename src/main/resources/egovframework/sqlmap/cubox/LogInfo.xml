@@ -1,0 +1,1135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="logInfo">
+
+	<!-- 출입이력  -->
+	<select id="getLogInfoList" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO" >
+		select	*
+		from
+			(
+				select	l.fevttm
+					,	l.fgid as fgid
+					,	(select device_nm from device_info_tb where device_id = l.fgid) as flname
+					,	l.fuid as fuid
+					,	l.funm as funm
+					,	l.fcdno as fcdno
+					,	l.fevtcd
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	l.fauthtype as fauthtype
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+					,	(select fvisitnum from tuserinfo_main where fuid = l.fuid and fpartcd1=l.fpartcd1) as fvisitnum
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	c.fstatus
+					,	(select fkind3 from tcommcd where  fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus' and fvalue = c.fstatus) as cfstatus
+					,	(select futype from tuserinfo_main where fuid = l.fuid and fpartcd1=l.fpartcd1) as futype
+					,	l.fpartnm1 as fpartnm1
+					,	l.fpartnm2 as fpartnm2
+					,	l.fpartnm3 as fpartnm3
+					,	l.fpartcd1 as fpartcd1
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'centercd' and fkind3 = l.fpartcd1 ) as fvalue3
+				from	tgatelog l
+				left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+				where 1=1
+	 		<if test="srchCond != '10' and srchCond != null">
+				and	l.fpartcd1 = #{srchCond}
+			</if>
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuid)">
+				and l.fuid = #{fuid}
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			<if test="srchAuthType != '' and srchAuthType != null">
+				and	l.fauthtype = #{srchAuthType}
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@empty(fsNone)'>
+				and	c.fstatus in
+				<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+				and	(c.fstatus in
+				<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@empty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			) a
+		where 1=1
+		<if test='srchColChk.size != 0 and srchCondWord != ""'>
+			and ${colChkQuery}
+		</if>
+		<if test='srchColChk2.size != 0 and srchPartWord != ""'>
+			and ${colChkQuery2}
+		</if>
+		<choose>
+			<when test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(hidSortName)">
+				order by ${hidSortName}
+				<choose>
+					<when test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(hidSortNum) and hidSortNum != "1"'>desc</when>
+					<otherwise>asc</otherwise>
+				</choose>
+				, fevttm desc
+			</when>
+			<otherwise>
+				order by fevttm desc /*default:출입일자 기준으로 내림차순*/
+			</otherwise>
+		</choose>
+			limit #{srchCnt} offset #{offset}
+    </select>
+
+    <!-- 출입이력 전체 count -->
+    <select id="getLogTotalCnt" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="int" >
+		select
+			count(*) as cnt
+		from
+			(
+				select	l.fevttm as fevttm
+					,	l.fgid as fgid
+					,	(select device_nm from device_info_tb where device_id = l.fgid) as flname
+					,	l.fuid as fuid
+					,	l.funm as funm
+					,	l.fcdno as fcdno
+					,   l.fevtcd
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	l.fauthtype as fauthtype
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+					,	(select fvisitnum from tuserinfo_main where fuid = l.fuid and fpartcd1=l.fpartcd1) as fvisitnum
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					, 	c.fstatus
+					,	(select fkind3 from tcommcd where  fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus'and fvalue = c.fstatus) as cfstatus
+					,	(select futype from tuserinfo_main where fuid = l.fuid and fpartcd1=l.fpartcd1) as futype
+					,	l.fpartnm1 as fpartnm1
+					,	l.fpartnm2 as fpartnm2
+					,	l.fpartnm3 as fpartnm3
+					,	l.fpartcd1 as fpartcd1
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'centercd' and fkind3 = l.fpartcd1 ) as fvalue3
+				from	tgatelog l
+				left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+				where 1=1
+	 		<if test="srchCond != '10' and srchCond != null">
+				and	l.fpartcd1 = #{srchCond}
+			</if>		
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuid)">
+				and l.fuid = #{fuid}
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@empty(fsNone)'>
+				and	c.fstatus in
+				<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+				and	(c.fstatus in
+				<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@empty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			) a
+		where 1=1
+		<if test='srchColChk.size != 0 and srchCondWord != ""'>
+			and ${colChkQuery}
+		</if>
+    </select>
+
+    <!-- 게이트별 출입이력 -->
+	<select id="getGateLogInfoPop" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO" >
+		select	*
+		from
+			(
+				select	l.fevttm as fevttm
+					,	l.fgid   as fgid
+					,	l.fuid as fuid
+					,	l.funm    as funm
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	l.fcdno  as fcdno
+					,	c.fstatus
+					,	l.fevtcd					
+					,	(select fkind3 from tcommcd where  fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus'and fvalue = c.fstatus) as cfstatus
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	l.fauthtype as fauthtype
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+					,	l.fpartnm1  as fpartnm1
+					,	l.fpartnm2  as fpartnm2
+					,	l.fpartnm3  as fpartnm3
+				from	tgatelog l
+				left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+				where 1=1
+			<if test="fuid != '' and fuid != null">
+				and l.fuid = #{fuid}
+			</if>				
+			<if test="fgid != '' and fgid != null">
+				and l.fgid = #{fgid}
+			</if>
+			<if test="srchCondWord != '' and srchCondWord != null">
+				and	l.funm like concat('%',#{srchCondWord},'%')
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			<if test='fsList.size !=0 and fsNone == ""'>
+				and	c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='fsList.size !=0 and fsNone != ""'>
+				and	(c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='fsList.size == 0 and fsNone != ""'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			) a
+		order by fevttm desc
+		limit	#{srchCnt} offset #{offset}
+ 	</select>
+
+    <!-- 게이트별 출입이력 전체 갯수   -->
+    <select id="getGateLogTotalCnt" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="int" >
+		select
+			count(*) as cnt
+		from
+			(
+				select	l.fevttm as fevttm
+					,	l.fgid   as fgid
+					,	l.fuid as fuid
+					,	l.funm    as funm
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	l.fcdno  as fcdno
+					, 	c.fstatus
+					,	(select fkind3 from tcommcd where  fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus'and fvalue = c.fstatus) as cfstatus
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	l.fauthtype as fauthtype
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+					,	l.fpartnm1  as fpartnm1
+					,	l.fpartnm2  as fpartnm2
+					,	l.fpartnm3  as fpartnm3
+				from	tgatelog l
+				left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+				where 1=1
+			<if test="fuid != '' and fuid != null">
+				and l.fuid = #{fuid}
+			</if>				
+			<if test="fgid != '' and fgid != null">
+				and l.fgid = #{fgid}
+			</if>
+			<if test="srchCondWord != '' and srchCondWord != null">
+				and	l.funm like concat('%',#{srchCondWord},'%')
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			<if test='fsList.size !=0 and fsNone == ""'>
+				and	c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='fsList.size !=0 and fsNone != ""'>
+				and	(c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='fsList.size == 0 and fsNone != ""'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			) a
+    </select>
+
+    <!-- 게이트별 출입자 개인정보 -->
+    <select id="getGateUserInfo" parameterType="cubox.admin.main.service.vo.UserInfoVO" resultType="cubox.admin.main.service.vo.UserInfoVO" >
+		select u.fuid as fuid  /*[LogInfo.getGateUserInfo]*/
+		     , u.funm as funm  
+		     , (select fkind3 from tcommcd where fkind1 = 'combo' and fkind2 = 'COMBO_Futype' and fvalue = u.futype) as futypenm
+		     , (select fkind3 from tcommcd where fkind1 = 'combo' and fkind2 = 'COMBO_FAuthType' and fvalue = u.fauthtype) as fauthtypenm
+		     , (select site_nm from site_tb where site_id = u.fpartcd1) as siteNm 
+		     , ifnull(u.fpartnm1, '') as fpartnm1
+		     , ifnull(u.fpartnm2, '') as fpartnm2
+		     , ifnull(u.fpartnm3, '') as fpartnm3
+		     , ifnull(u.fpartcd1, '') as fpartcd1
+		     , ifnull(u.fpartcd2, '') as fpartcd2
+		     , ifnull(u.fpartcd3, '') as fpartcd3
+		     , ifnull(u.ftel, '') as ftel
+		     , ifnull(u.hp_no, '') as hpNo
+		     , ifnull(u.fcarno, '') as fcarno
+		     , DATE_FORMAT(u.fusdt,'%Y-%m-%d') as fusdt
+		     , DATE_FORMAT(u.fuedt,'%Y-%m-%d') as fuedt
+		     , DATE_FORMAT(c.fsdt,'%Y-%m-%d') as cfsdt
+		     , DATE_FORMAT(c.fedt,'%Y-%m-%d') as cfedt
+		  from tuserinfo_main u
+		       left outer join tcard_main c on c.fuid = u.fuid and c.fcdno = #{cfcdno}
+		 where u.fpartcd1 != '10'
+		   and u.fuid = #{fuid}
+    </select>
+
+    <!-- 사용자별 출입이력 -->
+	<select id="getUsrLogInfoPop" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO">
+		select	*
+		from
+			(
+				select	l.fevttm as fevttm
+					,	l.funm	as funm
+					,	g.device_nm as flname
+					,	l.fuid	as fuid
+					,	l.fcdno  as fcdno
+					,	l.fpartcd1 as fpartcd1
+					,	l.fevtcd
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+				from	tgatelog l
+						left outer join device_info_tb g on g.device_id = l.fgid
+				where	1=1
+			<if test="fuid != '' and fuid != null">
+				and	l.fuid = #{fuid}
+			</if>
+			<if test="srchCond != '10' and srchCond != null">
+				and	l.fpartcd1 = #{srchCond}
+			</if>
+			<if test="srchCondWord != '' and srchCondWord != null">
+				and	g.device_nm like concat ('%',#{srchCondWord},'%')
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			) a
+		order by fevttm desc
+		limit	#{srchCnt} offset #{offset}
+    </select>
+
+    <!-- 사용자별 출입이력 전체 갯수  -->
+    <select id="getUsrLogTotalCnt" resultType="int">
+		select	count(1)
+		from
+			(
+				select	l.fevttm as fevttm
+					,	l.funm	as funm
+					,	g.device_nm as flname
+					,	l.fuid	as fuid
+					,	l.fcdno  as fcdno
+					,	l.fpartcd1 as fpartcd1
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+				from	tgatelog l
+						left outer join device_info_tb g on g.device_id = l.fgid
+				where	1=1
+			<if test="fuid != '' and fuid != null">
+				and	l.fuid = #{fuid}
+			</if>
+			<if test="srchCond != '10' and srchCond != null">
+				and	l.fpartcd1 = #{srchCond}
+			</if>
+			<if test="srchCondWord != '' and srchCondWord != null">
+				and	g.device_nm like concat ('%',#{srchCondWord},'%')
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			) a
+    </select>
+
+    <!-- 사용자 개인정보 가져오기 -->
+    <select id="getUserInfo" parameterType="String" resultType="cubox.admin.main.service.vo.UserInfoVO" >
+		select u.fuid as fuid  /*[LogInfo.getUserInfo]*/
+		     , u.funm as funm
+		     , (select fkind3 from tcommcd where fkind1 = 'combo' and fkind2 = 'COMBO_Futype' and fvalue = u.futype) as futypenm
+		     , (select fkind3 from tcommcd where fkind1 = 'combo' and fkind2 = 'COMBO_FAuthType' and fvalue = u.fauthtype) as fauthtypenm
+		     , (select site_nm from site_tb where site_id = u.fpartcd1) as siteNm
+		     , u.fpartnm1 as fpartnm1
+		     , u.fpartnm2 as fpartnm2
+		     , u.fpartnm3 as fpartnm3
+		     , u.fpartcd1 as fpartcd1
+		     , u.fpartcd2 as fpartcd2
+		     , u.fpartcd3 as fpartcd3
+		     , u.ftel as ftel
+		     , u.hp_no as hpNo
+		     , u.fcarno as fcarno
+		     , DATE_FORMAT(u.fusdt,'%Y-%m-%d') as fusdt
+		     , DATE_FORMAT(u.fuedt,'%Y-%m-%d') as fuedt
+		  from tuserinfo_main u
+		 where u.fpartcd1 != '10'
+		   and u.fuid = #{fuid}
+	</select>
+
+	<!-- source 이미지가져오기 -->
+	<select id="getUserBioInfo" parameterType="String" resultType="cubox.admin.main.service.vo.UserBioInfoVO" >
+		select	fdt
+			, 	fuid
+    		, 	fimg
+    		,	fextdata
+    		,	fquality
+    		,	fregdt
+    		, 	fmoddt
+    		, 	ffailcnt
+    		, 	fsidx
+    		, 	fextfg
+    		, 	fsstatus
+    		, 	fqstatus
+    		, 	factdt
+    		, 	fqstdt
+    		, 	fwvname
+    		, 	fwedt
+    		,	fwsdt
+		from	tbio_main
+		where 	fuid = #{fuid}
+		and		fdt = 'T'
+    </select>
+
+    <!-- real 이미지가져오기  -->
+    <select id="getLogBioRealInfo" parameterType="cubox.admin.main.service.vo.LogBioRealInfoVO" resultType="cubox.admin.main.service.vo.LogBioRealInfoVO" >
+		select	fuid
+			,   fevttm
+			,   fcimg
+		from	tgatelogbio
+		where 	fuid = #{fuid}
+		and 	fevttm = #{fevttm}
+		and fdt = 'F'
+    </select>
+
+    <!-- 출입이력 엑셀 다운로드 -->
+    <select id="getLogCellList" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.ExcelVO" >
+		select ${rowData}
+		from
+			 (
+				select	substring_index(l.fevttm,'.',1) as fevttm
+					,	l.fgid as fgid
+					,	(select device_nm from device_info_tb where device_id = l.fgid) as flname
+					,	l.fuid as fuid
+					,	l.funm as funm
+					,	l.fcdno as fcdno
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	l.fauthtype as fauthtype
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+					,	(select fvisitnum from tuserinfo_main where fuid = l.fuid and fpartcd1=l.fpartcd1) as fvisitnum
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	c.fstatus
+					,	(select fkind3 from tcommcd where  fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus' and fvalue = c.fstatus) as cfstatus
+					,	(select futype from tuserinfo_main where fuid = l.fuid and fpartcd1=l.fpartcd1) as futype
+					,	l.fpartnm1 as fpartnm1
+					,	l.fpartnm2 as fpartnm2
+					,	l.fpartnm3 as fpartnm3
+					,	l.fpartcd1 as fpartcd1
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'centercd' and fkind3 = l.fpartcd1 ) as fvalue3
+				from	tgatelog l
+				left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+				where 1=1
+			<if test="srchCond != '10' and srchCond != null">
+				and	l.fpartcd1 = #{srchCond}
+			</if>
+			<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fuid)">
+				and l.fuid = #{fuid}
+			</if>			
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@empty(fsNone)'>
+				and	c.fstatus in
+				<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+				and	(c.fstatus in
+				<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@empty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if>			
+			<!-- <if test='fsList.size !=0 and fsNone == ""'>
+				and	c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='fsList.size !=0 and fsNone != ""'>
+				and	(c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='fsList.size == 0 and fsNone != ""'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if> -->
+			) a
+		where 1=1
+		<if test='srchColChk.size != 0 and srchCondWord != ""'>
+			and ${colChkQuery}
+		</if>
+		<choose>
+			<when test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(hidSortName)">
+				order by ${hidSortName}
+				<choose>
+					<when test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(hidSortNum) and hidSortNum != "1"'>desc</when>
+					<otherwise>asc</otherwise>
+				</choose>
+				, fevttm desc
+			</when>
+			<otherwise>
+				order by fevttm desc /*default:출입일자 기준으로 내림차순*/
+			</otherwise>
+		</choose>		
+    </select>
+
+    <!-- 단말기 팝업 엑셀 다운로드 -->
+    <select id="getGatePopCellList" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.ExcelVO" >
+		select ${rowData}
+		from
+			(
+				select	substring_index(l.fevttm,'.',1) as fevttm
+					,	l.fgid   as fgid
+					,	l.fuid as fuid
+					,	l.funm    as funm
+					,	l.fcdno  as fcdno
+					,	c.fstatus
+					,	(select fkind3 from tcommcd where  fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus' and fvalue = c.fstatus) as cfstatus
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	l.fauthtype as fauthtype
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+					,	l.fpartnm1  as fpartnm1
+					,	l.fpartnm2  as fpartnm2
+					,	l.fpartnm3  as fpartnm3
+				from	tgatelog l
+				left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno
+				where 1=1
+			<if test="fuid != '' and fuid != null">
+				and l.fuid = #{fuid}
+			</if>
+			<if test="fgid != '' and fgid != null">
+				and l.fgid = #{fgid}
+			</if>
+			<if test="srchCondWord != '' and srchCondWord != null">
+				and	l.funm like concat('%',#{srchCondWord},'%')
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			<if test='fsList.size !=0 and fsNone == ""'>
+				and	c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test='fsList.size !=0 and fsNone != ""'>
+				and	(c.fstatus in
+				<foreach collection="fsList" item="item" index="index" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+				 or c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			<if test='fsList.size == 0 and fsNone != ""'>
+				and	(c.fstatus is null or length(c.fstatus) = 0)
+			</if>
+			) a
+		order by fevttm desc
+    </select>
+
+    <!-- 사용자 팝업 엑셀 다운로드 -->
+    <select id="getUsrPopCellList" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.ExcelVO" >
+		select ${rowData}
+		from
+			(
+				select	substring_index(l.fevttm,'.',1) as fevttm
+					,	l.funm as funm
+					,	g.device_nm  as flname
+					,	l.fuid	as fuid
+					,	l.fcdno  as fcdno
+					,	(select fcdnum from tcard_main where length(fcdnum) > 5 and fcdno = l.fcdno) as fcdnum
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+					,	(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+				from	tgatelog l
+						left outer join device_info_tb g on g.device_id = l.fgid
+				where 1=1
+			<if test="fuid != '' and fuid != null">
+				and	l.fuid = #{fuid}
+			</if>
+			<if test="srchCondWord != '' and srchCondWord != null">
+				and	g.device_nm like concat ('%',#{srchCondWord},'%')
+			</if>
+			<if test="stDateTime != '' and stDateTime != null">
+				and	l.fevttm >= #{stDateTime}
+			</if>
+			<if test="edDateTime != '' and edDateTime != null">
+				and	l.fevttm &lt;= concat(#{edDateTime},':59')
+			</if>
+			<if test='srchSuccess.equals("Y")'>
+				and	l.fevtcd in ('0', '39')
+			</if>
+			<if test='srchSuccess.equals("N")'>
+				and	l.fevtcd not in ('0', '39')
+			</if>
+			) a
+		order by fevttm desc
+    </select>
+
+    <!-- 오늘날짜 -->
+    <select id="getTodayDt" resultType="String" >
+    	select DATE_FORMAT(now(), '%Y-%m-%d') as curdt
+    </select>
+
+    <!-- 어제날짜 -->
+     <select id="getYesterDt" resultType="String" >
+		select date_add(DATE_FORMAT(now(),'%Y-%m-%d'), interval-1 day ) as yester
+    </select>
+
+    <!-- 0시0분 -->
+    <select id="getDefaultTime" resultType="String">
+   		select date_format('00:00:00', '%H:%i:%s') as defaultTime
+    </select>
+
+    <!-- 현재시간 -->
+    <select id="getCurTime" resultType="String">
+    	select date_format(now(), '%H:%i') as curTime
+    </select>
+
+    <!-- 단말기명 타이틀 -->
+    <select id="getGateTitle" parameterType="String" resultType="String">
+   		select 	device_nm
+   		from 	device_info_tb
+   		where 	device_id = #{fgid}
+    </select>
+
+    <!-- 일반 -->
+    <select id="getTitle" parameterType="String" resultType="String">
+		select funm 
+		  from (select funm, 1 as cf_sort
+		          from tuserinfo_main
+		         where fuid = #{fuid}
+		         union all
+		        select fcdno, 2
+		          from tcard_main
+		         where fuid = #{fuid}
+		       ) t
+		 order by cf_sort
+		 limit 1 offset 0    
+    </select>
+
+    <!-- 임시증 -->
+    <select id="getTempTitle" parameterType="String" resultType="String">
+   		select	funm
+   		from 	tuserinfo_main
+   		where	futype in ('9')
+   		and 	fuid = #{fuid}
+    </select>
+
+    <!-- 방문증 -->
+    <select id="getVisitTitle" parameterType="String" resultType="String">
+   		select	concat('방문증 ', fvisitnum)
+   		from 	tuserinfo_main
+   		where	futype in ('5','6','7','8')
+   		and 	fuid = #{fuid}
+    </select>
+
+    <!-- 출입실패 로그 count -->
+    <select id="getFailLogTotalCnt_BAK" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="int">
+    	select count(a.fuid) as cnt
+		from (
+			select
+				l.fcdno,
+				l.fuid,
+				sum(case when ( select 'f' from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd and fdoc like '%fail%') = 'f' then 1 else 0 end) as fvalue1,
+				(select max(b.fpartcd1) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartcd1
+			from
+				tgatelog l
+			where 1=1
+				<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+					and	l.fpartcd1 = #{srchCond}
+				</if>
+				and l.fevttm >= #{stDateTime}
+				and l.fevttm &lt;= concat(#{edDateTime},':59')
+				<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)">
+					and l.fcdno like concat('%',#{fcdno},'%')
+				</if>
+				<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(funm)">
+					and l.funm like concat('%',#{funm},'%')
+				</if>
+			group by
+				l.fcdno,
+				l.fuid
+		) a
+		left join tuserinfo_main b on a.fuid = b.fuid and a.fpartcd1 = b.fpartcd1
+		where fvalue1 > 0
+		<if test='srchTemp.equals("Y") and @cubox.admin.cmmn.util.CommonUtils@empty(srchVisit)'>
+			and	IFNULL(b.fvisitnum,'') like concat('%', #{srchTVCardNum},'%')
+			and	b.futype = '9'
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@empty(srchTemp) and srchVisit.equals("Y")'>
+			and	IFNULL(b.fvisitnum,'') like concat('%', #{srchTVCardNum},'%')
+			and	b.futype in ('5','6','7','8')
+		</if>
+    </select>
+
+    <!-- 출입실패 로그 조회 -->
+    <select id="getFailLogInfoList_BAK" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO">
+    	select
+    		a.fcdno,
+    		a.fuid,
+    		a.fvalue1,
+    		a.fauthtype,
+    		a.fpartnm1,
+    		a.fpartnm2,
+    		a.fpartnm3,
+    		a.fpartcd1,
+    		b.fpartcd3 as fpartcd3 ,
+			b.fcarno as fcarno,
+			b.fpartcd2 as fpartcd2,
+			b.ftel as ftel,
+			b.fvisitnum,
+			b.futype,
+		  ( select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = a.fauthtype ) as fvalue2,
+		  ( select fkind3 from tcommcd where fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus' and fvalue = c.fstatus) as cfstatus,
+		  concat( case when b.futype = '9' then '임시' when b.futype in ('5','6','7','8') then '방문' end, ' ', b.fvisitnum ) as fvisitnm
+		from (
+			select
+				l.fcdno,
+				l.fuid,
+				max(l.fevttm) as fevttm,
+				sum(case when ( select 'f' from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd and fdoc like '%fail%') = 'f' then 1 else 0 end) as fvalue1,
+				(select max(b.fauthtype) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fauthtype,
+				(select max(b.fpartnm1) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartnm1 ,
+				(select max(b.fpartnm2) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartnm2 ,
+				(select max(b.fpartnm3) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartnm3 ,
+				(select max(b.fpartcd1) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartcd1
+			from
+				tgatelog l
+			where 1=1
+				<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+					and	l.fpartcd1 = #{srchCond}
+				</if>
+				and l.fevttm >= #{stDateTime}
+				and l.fevttm &lt;= concat(#{edDateTime},':59')
+				<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)">
+					and l.fcdno like concat('%',#{fcdno},'%')
+				</if>
+				<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(funm)">
+					and l.funm like concat('%',#{funm},'%')
+				</if>
+			group by
+				l.fcdno,
+				l.fuid
+		) a
+		left join tuserinfo_main b on a.fuid = b.fuid and a.fpartcd1 = b.fpartcd1
+		left outer join tcard_main c on c.fuid = a.fuid and c.fcdno = a.fcdno
+		where fvalue1 > 0
+		<if test='srchTemp.equals("Y") and @cubox.admin.cmmn.util.CommonUtils@empty(srchVisit)'>
+			and	IFNULL(b.fvisitnum,'') like concat('%', #{srchTVCardNum},'%')
+			and	b.futype = '9'
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@empty(srchTemp) and srchVisit.equals("Y")'>
+			and	IFNULL(b.fvisitnum,'') like concat('%', #{srchTVCardNum},'%')
+			and	b.futype in ('5','6','7','8')
+		</if>
+		order by a.fevttm desc
+		limit #{srchCnt} offset #{offset}
+    </select>
+    
+    <!-- 출입실패 로그 count -->
+    <select id="getFailLogTotalCnt" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="int">
+		select count(distinct l.fcdno, l.fuid, l.funm, l.fpartcd1) as cnt
+		  from tgatelog l
+		       left outer join tuserinfo_main b on l.fuid = b.fuid and l.fpartcd1 = b.fpartcd1  
+		 where l.fevtcd not in ('0', '39')
+		<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+		   and l.fpartcd1 = #{srchCond}
+		</if>
+		   and l.fevttm >= #{stDateTime}
+		   and l.fevttm &lt;= concat(#{edDateTime},':59')
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(futype)">		   
+		   and b.futype = #{futype}
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)">
+		   and l.fcdno like concat('%',#{fcdno},'%')
+		</if>
+    </select>
+        
+	<!-- 출입실패 로그 조회 -->
+    <select id="getFailLogInfoList" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO">
+		select l.fcdno  /*[LogInfo.getFailLogInfoList]*/
+		     , l.fuid
+		     , l.funm
+		     , l.fpartcd1
+		     , count(l.fevtcd) fvalue1
+		     , max(l.fevttm) fevttm
+		     , max(l.fpartnm1) fpartnm1
+		     , max(l.fpartnm2) fpartnm2
+		     , max(l.fpartnm3) fpartnm3
+		     , max(y.fkind3) fvalue2
+		     , max(x.fkind3) cfstatus
+		  from tgatelog l
+		       left outer join tuserinfo_main b on l.fuid = b.fuid and l.fpartcd1 = b.fpartcd1  
+		       left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno 
+		       left outer join tcommcd x on x.fkind1 = 'combo' and x.fkind2 = 'COMBO_Fcardstatus' and x.fvalue = c.fstatus 
+		       left outer join tcommcd y on y.fkind1 = 'combo' and y.fkind2 = 'COMBO_Futype' and y.fvalue = b.futype       
+		 where l.fevtcd not in ('0', '39')
+		<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+		   and l.fpartcd1 = #{srchCond}
+		</if>
+		   and l.fevttm >= #{stDateTime}
+		   and l.fevttm &lt;= concat(#{edDateTime},':59')
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(futype)">		   
+		   and b.futype = #{futype}
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)">
+		   and l.fcdno like concat('%',#{fcdno},'%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(arrCardStatus) and @cubox.admin.cmmn.util.CommonUtils@notEmpty(fsNone)'>
+			and	(c.fstatus in
+			<foreach collection="arrCardStatus" item="item" index="index" separator="," open="(" close=")">
+				#{item}
+			</foreach>
+			 or c.fstatus is null or length(c.fstatus) = 0)
+		</if>
+		 group by l.fcdno, l.fuid, l.funm, l.fpartcd1
+		 order by fevttm desc
+		 limit #{srchCnt} offset #{offset}
+    </select>    
+
+	<!-- 출입실패 로그 조회 엑셀저장 -->
+    <select id="getFailLogCellList" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.ExcelVO">
+	select 
+    	${rowData}
+    from (    
+		select l.fcdno  /*[LogInfo.getFailLogCellList]*/
+		     , l.fuid
+		     , l.funm
+		     , l.fpartcd1
+		     , count(l.fevtcd) fvalue1
+		     , max(l.fevttm) fevttm
+		     , max(l.fpartnm1) fpartnm1
+		     , max(l.fpartnm2) fpartnm2
+		     , max(l.fpartnm3) fpartnm3
+		     , max(y.fkind3) fvalue2
+		     , max(x.fkind3) cfstatus
+		  from tgatelog l
+		       left outer join tuserinfo_main b on l.fuid = b.fuid and l.fpartcd1 = b.fpartcd1  
+		       left outer join tcard_main c on c.fuid = l.fuid and c.fcdno = l.fcdno 
+		       left outer join tcommcd x on x.fkind1 = 'combo' and x.fkind2 = 'COMBO_Fcardstatus' and x.fvalue = c.fstatus 
+		       left outer join tcommcd y on y.fkind1 = 'combo' and y.fkind2 = 'COMBO_Futype' and y.fvalue = b.futype       
+		 where l.fevtcd not in ('0', '39')
+		<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+		   and l.fpartcd1 = #{srchCond}
+		</if>
+		   and l.fevttm >= #{stDateTime}
+		   and l.fevttm &lt;= concat(#{edDateTime},':59')
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(futype)">		   
+		   and b.futype = #{futype}
+		</if>
+		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)">
+		   and l.fcdno like concat('%',#{fcdno},'%')
+		</if>
+		 group by l.fcdno, l.fuid, l.funm, l.fpartcd1
+	) a
+	order by a.fevttm desc
+    </select>  
+
+    <select id="getFailLogCellList_BAK" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.ExcelVO">
+    	select
+    		${rowData}
+    	from (
+	    	select
+	    		a.fcdno,
+	    		a.fuid,
+	    		a.fvalue1,
+	    		a.fauthtype,
+	    		replace(a.fpartnm1,'NULL','') as fpartnm1,
+	    		replace(a.fpartnm2,'NULL','') as fpartnm2,
+	    		replace(a.fpartnm3,'NULL','') as fpartnm3,
+	    		a.fpartcd1,
+	    		b.fpartcd3 as fpartcd3 ,
+				b.fcarno as fcarno,
+				replace(b.fpartcd2,'(null)','') as fpartcd2,
+				replace(b.ftel,'(null)','') as ftel,
+				b.fvisitnum,
+				b.futype,
+			  ( select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = a.fauthtype ) as fvalue2,
+			  ( select fkind3 from tcommcd where fkind1 = 'combo' and fkind2 = 'COMBO_Fcardstatus' and fvalue = c.fstatus) as cfstatus,
+			  concat( case when b.futype = '9' then '임시' when b.futype in ('5','6','7','8') then '방문' end, ' ', b.fvisitnum ) as fvisitnm
+			from (
+				select
+					max(l.fevttm) as fevttm,
+					l.fcdno,
+					l.fuid,
+					sum(case when ( select 'f' from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd and fdoc like '%fail%') = 'f' then 1 else 0 end) as fvalue1,
+					(select max(b.fauthtype) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fauthtype,
+					(select max(b.fpartnm1) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartnm1 ,
+					(select max(b.fpartnm2) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartnm2 ,
+					(select max(b.fpartnm3) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartnm3 ,
+					(select max(b.fpartcd1) from tgatelog b where b.fevttm = max(l.fevttm) and b.fuid = l.fuid) as fpartcd1
+				from
+					tgatelog l
+				where 1=1
+					<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+						and	l.fpartcd1 = #{srchCond}
+					</if>
+					and l.fevttm >= #{stDateTime}
+					and l.fevttm &lt;= concat(#{edDateTime},':59')
+					<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(fcdno)">
+						and l.fcdno like concat('%',#{fcdno},'%')
+					</if>
+					<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(funm)">
+						and l.funm like concat('%',#{funm},'%')
+					</if>
+				group by
+					l.fcdno,
+					l.fuid
+			) a
+			left join tuserinfo_main b on a.fuid = b.fuid and a.fpartcd1 = b.fpartcd1
+			left outer join tcard_main c on c.fuid = a.fuid and c.fcdno = a.fcdno
+			where fvalue1 > 0
+			<if test='srchTemp.equals("Y") and @cubox.admin.cmmn.util.CommonUtils@empty(srchVisit)'>
+				and	IFNULL(b.fvisitnum,'') like concat('%', #{srchTVCardNum},'%')
+				and	b.futype = '9'
+			</if>
+			<if test='@cubox.admin.cmmn.util.CommonUtils@empty(srchTemp) and srchVisit.equals("Y")'>
+				and	IFNULL(b.fvisitnum,'') like concat('%', #{srchTVCardNum},'%')
+				and	b.futype in ('5','6','7','8')
+			</if>
+			order by a.fevttm desc
+		) a
+    </select>
+
+    <select id="getUsrFailLogTotalCnt_BAK" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="int">
+    	select
+    		count(a.fevttm) as cnt
+		from (
+			select
+				l.fevttm,
+				( select fdoc from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1
+			from
+				tgatelog l
+			where 1=1
+			<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+				and	l.fpartcd1 = #{srchCond}
+			</if>
+			and l.fevttm >= #{stDateTime}
+			and l.fevttm &lt;= concat(#{edDateTime},':59')
+			and l.fcdno = #{fcdno}
+			and l.fuid = #{fuid}
+		) a
+		where fvalue1 like '%fail%'
+    </select>
+
+    <select id="getUsrFailLogInfoPop_BAK" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO">
+    	select
+    		a.fevttm,
+    		a.fuid,
+    		a.funm,
+    		a.fcdno,
+    		a.fvalue1,
+    		a.fauthtype,
+    		(select g.device_nm from left outer join device_info_tb g on g.device_id = a.fgid) as flname,
+    		(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = a.fauthtype ) as fvalue2
+		from (
+			select
+				l.fevttm,
+				l.fgid,
+				l.fcdno,
+				l.funm,
+				l.fuid,
+				( select fdoc from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1,
+				l.fauthtype,
+				l.fpartnm1 ,
+				l.fpartnm2 ,
+				l.fpartnm3 ,
+				l.fpartcd1
+			from
+				tgatelog l
+			where 1=1
+			<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+				and	l.fpartcd1 = #{srchCond}
+			</if>
+			and l.fevttm >= #{stDateTime}
+			and l.fevttm &lt;= concat(#{edDateTime},':59')
+			and l.fcdno = #{fcdno}
+			and l.fuid = #{fuid}
+		) a
+		left join tuserinfo_main b on a.fuid = b.fuid and a.fpartcd1 = b.fpartcd1
+		left outer join tcard_main c on c.fuid = a.fuid and c.fcdno = a.fcdno
+		where fvalue1 like '%fail%'
+		order by a.fevttm desc
+		limit #{srchCnt} offset #{offset}
+    </select>
+    
+    <select id="getUsrFailLogTotalCnt" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="int">
+    	select count(1) as cnt /*[LogInfo.getUsrFailLogTotalCnt]*/
+		from tgatelog l
+		where l.fevtcd not in ('0', '39')
+		<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+		and l.fpartcd1 = #{srchCond}
+		</if>
+		and l.fevttm >= #{stDateTime}
+		and l.fevttm &lt;= concat(#{edDateTime},':59')
+		and l.fcdno = #{fcdno}
+		and l.fuid = #{fuid}
+    </select>
+    
+	<select id="getUsrFailLogInfoPop" parameterType="cubox.admin.main.service.vo.LogInfoVO" resultType="cubox.admin.main.service.vo.LogInfoVO">
+		select /*[LogInfo.getUsrFailLogInfoPop]*/
+			l.fevttm,
+			l.fgid,
+			l.fcdno,
+			l.funm,
+			l.fuid,
+			( select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evtcd' and fkind3 = l.fevtcd ) as fvalue1,
+			l.fauthtype,
+			l.fpartnm1,
+			l.fpartnm2,
+			l.fpartnm3,
+			l.fpartcd1,
+			(select device_nm from device_info_tb g where g.device_id = l.fgid) as flname,
+			(select fvalue from tcommcd where fkind1 = 'code' and fkind2 = 'evttype' and fkind3 = l.fauthtype ) as fvalue2
+		from tgatelog l
+		where l.fevtcd not in ('0', '39')
+		<if test="srchCond != '10' and @cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCond)">
+		and l.fpartcd1 = #{srchCond}
+		</if>
+		and l.fevttm >= #{stDateTime}
+		and l.fevttm &lt;= concat(#{edDateTime},':59')
+		and l.fcdno = #{fcdno}
+		and l.fuid = #{fuid}
+		order by l.fevttm desc
+		limit #{srchCnt} offset #{offset}
+    </select> 
+    
+    <select id="getSchdulTotalCnt" parameterType="java.util.HashMap" resultType="int">
+
+	    	select count(*) from TLINKSCHDUL
+	    	where 1=1
+	    	<if test="fsdt != '' and fsdt != null">
+	    		and DATE_FORMAT(fsdt,'%Y-%m-%d') >= #{fsdt}
+	    	</if>
+	    	<if test="fedt != '' and fedt != null">
+				and	DATE_FORMAT(fedt,'%Y-%m-%d') <![CDATA[ <= ]]> #{fedt}
+			</if>
+			<if test="code != '' and code != null">
+				and	fjobcd = #{code}
+			</if>
+			<if test="result != '' and result != null">
+				and	frsltyn = #{result}
+			</if>
+	    	order by fsdt desc
+
+    </select>
+
+    <select id="getSchdulList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    	select * from TLINKSCHDUL
+	    	where 1=1
+	    	<if test="fsdt != '' and fsdt != null">
+	    		and DATE_FORMAT(fsdt,'%Y-%m-%d') >= #{fsdt}
+	    	</if>
+	    	<if test="fedt != '' and fedt != null">
+				and	DATE_FORMAT(fedt,'%Y-%m-%d') <![CDATA[ <= ]]> #{fedt}
+			</if>
+			<if test="code != '' and code != null">
+				and	fjobcd = #{code}
+			</if>
+			<if test="result != '' and result != null">
+				and	frsltyn = #{result}
+			</if>
+	    	order by fsdt desc
+	    	limit #{srchCnt} offset #{offset}
+    </select>
+                
+    <select id="selectGateLogTotCntByUser" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+		select count(1)
+		  from tgatelog 
+		 where fuid = #{fuid}
+		   and fpartcd1 = #{fpartcd1}    
+    </select>
+
+</mapper>

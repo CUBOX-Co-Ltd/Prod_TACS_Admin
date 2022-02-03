@@ -1,0 +1,10 @@
+[{
+    "_id": 1,
+    "title": "철수 생일",
+    "description": "Lorem ipsum dolor sit incid idunt ut Lorem ipsum sit.",
+    "start": "2020-04-12",
+    "end": "2020-04-12",
+    "backgroundColor": "#ffa94d",
+    "textColor": "#ffffff",
+    "allDay": true
+  }]
