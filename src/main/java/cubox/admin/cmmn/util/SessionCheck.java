@@ -15,11 +15,11 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import cubox.admin.main.service.CommonService;
 import cubox.admin.main.service.vo.AuthorVO;
 import cubox.admin.main.service.vo.LoginVO;
-import cubox.admin.menu.service.MenuService;
-import cubox.admin.menu.vo.MenuClVO;
-import cubox.admin.menu.vo.MenuDetailVO;
+import cubox.admin.main.service.vo.MenuClVO;
+import cubox.admin.main.service.vo.MenuVO;
 
 public class SessionCheck extends HandlerInterceptorAdapter {
 	static final Logger log = LogManager.getLogger();
@@ -27,8 +27,7 @@ public class SessionCheck extends HandlerInterceptorAdapter {
 	AuthorManager authorManager = AuthorManager.getInstance();
 
 	@Resource
-    private MenuService menuService;
-
+    private CommonService commonService;
 
 	/**
 	 * 세션정보 체크
@@ -38,28 +37,25 @@ public class SessionCheck extends HandlerInterceptorAdapter {
 	 */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
 		//로그인없이 볼수 있는 페이지
- 		ArrayList<String> freeAccessUrls = new ArrayList<String>();
+		ArrayList<String> freeAccessUrls = new ArrayList<String>();
 
 		//로그인
 		freeAccessUrls.add("/login.do");
 		freeAccessUrls.add("/common/loginProc.do");
-
+		freeAccessUrls.add("/alive.do");
 
 		//권한관계 없이 볼수 있는 페이지
 		ArrayList<String> defaultAccessUrls = new ArrayList<String>();
-		defaultAccessUrls.add("/main.do");
+		defaultAccessUrls.add("main.do");
 
 		String uri = request.getServletPath();
 
-		//System.out.println("uri >>>> "+uri);
-
 		LoginVO loginVO = (LoginVO)request.getSession().getAttribute("loginVO");
 		//로그인
-		if (loginVO != null && loginVO.getFsiteid() != null && !loginVO.getFsiteid().equals("")) {
+		if (loginVO != null && loginVO.getUserId() != null && !loginVO.getUserId().equals("")) {
 			//권한 확인
-			//if(!authorManager.is()) setAuthorInfo();
+			if(!authorManager.is()) setAuthorInfo();
 
 			//공통화면 체크
 			if(defaultAccessUrls.contains(uri)) { 	//index.do
@@ -70,8 +66,8 @@ public class SessionCheck extends HandlerInterceptorAdapter {
 					//String strUrlPath = authorManager.getMainRedirect(loginVO.getAuthor_id());
 					//request.getSession().setAttribute("uriPath", strUrlPath);
 					//response.sendRedirect(strUrlPath);
-					request.getSession().setAttribute("uriPath", "/main.do");
-					response.sendRedirect("/main.do");
+					request.getSession().setAttribute("uriPath", "main.do");  
+					response.sendRedirect("main.do");
 					return false;
 				} else {
 					request.getSession().setAttribute("uriPath", uri);
@@ -92,37 +88,45 @@ public class SessionCheck extends HandlerInterceptorAdapter {
 		}
 	}
 
+	public static String getUserIp() {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		String ip = request.getHeader("X-FORWARDED-FOR");
+		if (ip == null) {
+			ip = request.getRemoteAddr();
+		}
+		return ip;
+	}
 
-	/* public void setAuthorInfo() throws Exception {
+	public void setAuthorInfo() throws Exception {
 		HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("use_yn", "Y");
-    	List<AuthorVO> authorList = menuService.getAuthorList(map);
+    	List<AuthorVO> authorList = commonService.selectAuthorList(map);
+    	
     	for(AuthorVO avo : authorList) {
-    		System.out.println("result >>>> "+avo.getAuthorId());
-    		String authorId = avo.getAuthorId();
+    		String authorCd = avo.getAuthorCd();
 
     		//권한별 대메뉴 정보
         	HashMap<String, Object> sMap = new HashMap<String, Object>();
-        	sMap.put("author_id", authorId);
-        	List<MenuClVO> urlList = menuService.getAuthorMenuCl(sMap);
+        	sMap.put("authorCd", authorCd);
+        	List<MenuClVO> urlList = commonService.selectMenuClListByAuthor(sMap);
         	List<MenuClVO> chkClList = new ArrayList<MenuClVO>();
 
         	//권한별 상세 url 전체 정보
-        	sMap.put("menu_cl_code", "");
-        	List<MenuDetailVO> menuDetailList = menuService.getAuthMenuList(sMap);
-	    	authorManager.setDetailMenu(authorId, menuDetailList);
+        	sMap.put("menuClCd", "");
+        	List<MenuVO> menuDetailList = commonService.selectAuthorMenuList(sMap);
+	    	authorManager.setDetailMenu(authorCd, menuDetailList);
 
     		for(MenuClVO vo : urlList) {
-    			String strClCode = vo.getMenu_cl_code();
+    			String strClCode = vo.getMenuClCd();
     			//권한별 sub menu 정보
-    			sMap.put("menu_cl_code", strClCode);
-    			List<MenuDetailVO> menuList = menuService.getAuthMenuList(sMap);
+    			sMap.put("menuClCd", strClCode);
+    			List<MenuVO> menuList = commonService.selectAuthorMenuList(sMap);
     	    	//대메뉴 정보
     	    	vo.setList(menuList);
     	    	chkClList.add(vo);
     		}
-    		authorManager.setMenuCl(authorId, chkClList);
+    		authorManager.setMenuCl(authorCd, chkClList);
     	}
 		authorManager.complete();
-	}*/
+	}
 }

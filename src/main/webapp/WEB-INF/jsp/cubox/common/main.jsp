@@ -44,11 +44,11 @@ function reload() {
 		<table class="tb_list">
 			<tbody>
 				<tr>
-				<c:forEach items="${imageList}" var="List" varStatus="status">
+				<c:forEach items="${deviceList}" var="result" varStatus="status">
 					<c:if test="${i%j == 0 }">
 						<tr>
             		</c:if>
-                 		<td><img width="100px" src='${List}' onerror="this.src='/img/photo_01_back.jpg'"></td>
+                 		<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"></td>
             		<c:if test="${i%j == j-1 }">
                 		</tr>
            		 	</c:if>

@@ -2,38 +2,40 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<!DOCTYPE html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0">
+<title><spring:message code="site.title"/></title>
 <link rel="stylesheet" type="text/css" href="/css/all.css" media="all">
 <script type="text/javascript" src="/js/jquery-2.2.4.min.js"></script>
-<c:if test="${resultMsg eq 'loginError'}">
+<c:if test="${result ne '' && result ne null}">
 <script type="text/javascript">
-	alert("아이디 또는 비밀번호를 다시 확인하세요. \n등록되지 않은 아이디이거나, 아이디 또는 비밀번호를 잘못 입력하셨습니다.");
+	alert("<c:out value='${message}'/>");
 	window.location.href = "/login.do";
 </script>
 </c:if>
 <script type="text/javascript">
 $(function(){
-	$("#fsiteid").focus();
+	$("input[name=userId]").focus();
 
 	var sUserId = getCookie("cookieLoginUserId");
 	if(!fnIsEmpty(sUserId)){
-		$("input[name=fsiteid]").val(sUserId);
+		$("input[name=userId]").val(sUserId);
 		$("#chkIdSave").attr("checked", true);
 	}
 });
 
 function fnLoginProc () {
-	var fsiteid = $("input[name=fsiteid]").val();
-	var fpasswd = $("input[name=fpasswd]").val();
+	var userId = $("input[name=userId]").val();
+	var userPw = $("input[name=userPw]").val();
 
-	if(fnIsEmpty(fsiteid)){alert ("아이디를 입력하세요."); $("input[name=fsiteid]").focus(); return;}
-	if(fnIsEmpty(fpasswd)){alert ("비밀번호를 입력하세요."); $("input[name=fpasswd]").focus(); return;}
+	if(fnIsEmpty(userId)){alert ("아이디를 입력하세요."); $("input[name=userId]").focus(); return;}
+	if(fnIsEmpty(userPw)){alert ("비밀번호를 입력하세요."); $("input[name=userPw]").focus(); return;}
 
 	if($("#chkIdSave").is(":checked")) {
-		var sUserId = $("input[name=fsiteid]").val();
+		var sUserId = $("input[name=userId]").val();
 		setCookie("cookieLoginUserId", sUserId, 365);
 	}else{
 		deleteCookie("cookieLoginUserId");
@@ -114,7 +116,6 @@ function fnGoVisit() {
 	window.open('/visitInfo/visitorPopup.do', 'visitorPopup', "scrollbars=yes, toolbar=no, menubar=no, resizable=no, status=no, location=no, width="+iWidth+", height="+iHeight+", left="+iLeft+", top="+iTop);
 }
 </script>
-<title><spring:message code="site.title"/></title>
 </head>
 <body>
 <div id="login_wrap">
@@ -133,14 +134,14 @@ function fnGoVisit() {
 						<div class="icon">
 							<img src="/img/login/login_icon1.png" alt="" />
 						</div>
-						<input name="fsiteid" type="text" placeholder="Username" onkeyup="this.value=this.value.replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|/`~!@#$%^&*()_=+|<>?:{}-]/g,'')" />
+						<input name="userId" type="text" placeholder="Username" autocomplete="off" onkeyup="this.value=this.value.replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|/`~!@#$%^&*()_=+|<>?:{}-]/g,'')"/>
 					</div>
 					<div class="tx_box">비밀번호</div>
 					<div class="input_inbox">
 						<div class="icon">
 							<img src="/img/login/login_icon2.png" alt="" />
 						</div>
-						<input type="password" name="fpasswd" placeholder="Password" onkeypress="caps_lock(event);" />
+						<input type="password" name="userPw" placeholder="Password" onkeypress="caps_lock(event);" />
 					</div>
 					<button type="button" class="login_btn mt_30 mr_20" onClick="fnLoginProc()">로그인</button>
 					<%-- <button type="button" class="login_btn mt_30" onClick="fnGoVisit()">방문신청</button> --%>

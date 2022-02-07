@@ -4,7 +4,7 @@
 
 #wrap {width: 100%;  height: 100%;  display: inline-block; }
 
-header.main{ width: 100%; float: left;display:flex; justify-content: center; align-items: center;  height: 90px; background-color: #fff; display: table;; position: fixed; z-index: 999 ;  min-width: 1400px; position: fixed;  box-shadow:3px 3px 30px rgba(51,102,204,0.2);}
+header.main{ width: 100%; float: left;display:flex; justify-content: center; align-items: center;  height: 90px; background-color: #fff; display: table;; position: fixed; z-index: 9999;  min-width: 1400px; position: fixed;  box-shadow:3px 3px 30px rgba(51,102,204,0.2);}
 header .logo{ display: table-cell; vertical-align: middle;; padding-left: 50px}
 header .search_icon{ position: absolute; right:2vw; top:25px; padding-left: 30px; box-sizing: border-box; border-left: 1px solid #505375; height: 30px}
 header .login_iconbox{ position: absolute; right:calc(2vw + 110px); top:25px; }

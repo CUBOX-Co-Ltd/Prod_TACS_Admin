@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>KEPCO</groupId>
-	<artifactId>KEPCO</artifactId>
+    <groupId>TACS</groupId>
+	<artifactId>TACS</artifactId>
 	<packaging>war</packaging>
 	<version>1.0.0</version>
-	<name>KEPCO</name>
+	<name>TACS</name>
 	<url>http://www.egovframe.go.kr</url>
 
 	<licenses>
@@ -134,6 +134,23 @@
 			<artifactId>hsqldb</artifactId>
 			<version>2.3.2</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.17.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>				
 
         <!-- mysql이나 oracle DB 사용시 아래 설정 추가  -->
         <dependency>
@@ -342,7 +359,7 @@
         <defaultGoal>install</defaultGoal>
         <directory>${basedir}/target</directory>
 <!--         <finalName>${artifactId}-${version}</finalName> -->
-        <finalName>KEPCO</finalName>
+        <finalName>TACS</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>

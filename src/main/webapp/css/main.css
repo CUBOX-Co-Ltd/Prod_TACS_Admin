@@ -15,7 +15,7 @@
   align-items: center; flex-direction:row;justify-content: space-between; padding: 40px; box-sizing: border-box; flex-wrap: wrap; }
 
 .main_b .inbox1{width: 49% ; float: left;  border-radius: 20px; background-color: #fff;    box-shadow:3px 3px 30px rgba(51,102,204,0.2);  padding:30px 30px 0px 0px; box-sizing: border-box; height: 356px; position: relative}
-.main_b .inbox1 .title{width: 100% ; float: left;  color: #000; font-size: 16px; margin-bottom: 20px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700;text-transform: uppercase ; position: absolute; top: 0px; left: 0px; padding: 20px ; box-sizing: border-box; z-index: 999999 }
+.main_b .inbox1 .title{width: 100% ; float: left;  color: #000; font-size: 16px; margin-bottom: 20px; position: relative;font-family: 'Noto Sans KR', sans-serif; font-weight: 700;text-transform: uppercase ; position: absolute; top: 0px; left: 0px; padding: 20px ; box-sizing: border-box; z-index: 9991 }
 .main_b .inbox1 .title .more{position: absolute; right: 20px; top: 20px; cursor: pointer; opacity: 0.5;transition: all 0.5s;
 -moz-transition: all 0.5s; /* Firefox 4 */
 -webkit-transition: all 0.5s; /* Safari and Chrome */

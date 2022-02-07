@@ -2755,3 +2755,6 @@
 		UniversalSortableDateTimePattern: "Y-m-d H:i:sO",
 		YearMonthPattern: "F, Y"};
 }));
+
+
+$.datetimepicker.setLocale('ko');

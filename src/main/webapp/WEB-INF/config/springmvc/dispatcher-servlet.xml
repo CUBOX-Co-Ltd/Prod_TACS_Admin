@@ -16,28 +16,28 @@
 		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository" />
 	</context:component-scan>
 	
-	<!-- Globals Properties -->
-	<util:properties id="property" location="classpath:/egovframework/property/globals.properties" />
+	<!-- Globals Properties (context-common.xml로 옮김) -->
+	<!-- <util:properties id="property" location="classpath:/egovframework/property/globals.properties" /> -->
 	
 	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 		<property name="webBindingInitializer">
 			<bean class="egovframework.example.cmmn.web.EgovBindingInitializer" />
 		</property>
 		<!-- <property name="messageConverters">
-	        <list>
-	            <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-	                <property name="supportedMediaTypes">
-	                    <list>
-	                        <value>text/html;charset=UTF-8</value>
-	                        <value>application/json;charset=UTF-8</value>
-	                    </list>
-	                </property>
-	            </bean>
-	        </list>
-        </property> -->
+			<list>
+				<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+					<property name="supportedMediaTypes">
+						<list>
+							<value>text/html;charset=UTF-8</value>
+							<value>application/json;charset=UTF-8</value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property> -->
 	</bean>
 
-	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	<!-- <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
 		<property name="exceptionMappings">
 			<props>
 				<prop key="org.springframework.dao.DataAccessException">error/errorPage</prop>
@@ -46,8 +46,8 @@
 				<prop key="AccessDeniedException">error/authorPage</prop>
 			</props>
 		</property>
-		<property name="defaultErrorView" value="error/errorPage"/>
-	</bean>
+		<property name="defaultErrorView" value="cmmn/errorPage"/>
+	</bean> -->
 
 	<bean id="loginCheckInterceptor" class="cubox.admin.cmmn.util.SessionCheck" />
 

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="auth">
+	
+	<select id="selectAuthList" parameterType="HashMap" resultType="HashMap">
+		select author_cd 
+		     , author_nm 
+		     , author_desc
+		     , sort_ordr 
+		     , use_yn
+		     , date_format(regist_dt, '%Y-%m-%d %H:%i:%s') regist_dt
+		     , date_format(updt_dt, '%Y-%m-%d %H:%i:%s') updt_dt 
+		  from cmn_author
+		 where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)'>		 
+		   and use_yn = #{use_yn}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(author_nm)'>		 
+		   and author_nm like concat('%', #{author_nm}, '%')
+		</if>
+		 order by sort_ordr
+		 limit #{srchCnt} offset #{offset}
+	</select>
+	
+	<select id="selectAuthListCount" parameterType="HashMap" resultType="int">
+		select count(1) 
+		  from cmn_author
+		 where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)'>		 
+		   and use_yn = #{use_yn}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(author_nm)'>		 
+		   and author_nm like concat('%', #{author_nm}, '%')
+		</if>
+	</select>	
+	
+	<select id="selectAuthCombo" resultType="HashMap">
+		select author_cd 
+		     , author_nm 
+		     , sort_ordr 
+		     , use_yn 
+		  from cmn_author
+		 where use_yn = 'Y'
+		 order by sort_ordr 
+	</select>
+	
+	<select id="selectAuthInfo" parameterType="HashMap" resultType="HashMap">
+		select author_cd 
+		     , author_nm 
+		     , sort_ordr 
+		     , use_yn 
+		  from cmn_author
+		 where author_cd = #{author_cd}
+	</select>	
+	
+	<select id="selectNewAuthCd" resultType="String">
+		select lpad(ifnull(max(author_cd), '0') + 1, 5, '0')
+		  from cmn_author
+	</select>		
+
+	<insert id="insertAuthInfo" parameterType="HashMap">
+	<![CDATA[
+		insert into cmn_author 
+			( author_cd
+			, author_nm
+			, author_desc
+			, sort_ordr
+			, use_yn
+			, regist_dt
+			, regist_id
+			)
+		values
+			( #{author_cd}
+			, #{author_nm}
+			, #{author_desc}
+			, #{sort_ordr}
+			, 'Y'
+			, current_timestamp()
+			, #{regist_id}
+			)
+	]]>
+	</insert>
+	
+	<update id="updateAuthInfo" parameterType="HashMap">
+	<![CDATA[
+		update cmn_author
+		   set author_nm = #{author_nm}
+		     , author_desc = #{author_desc}
+		     , sort_ordr = #{sort_ordr}
+		     , updt_dt = current_timestamp()
+		     , updt_id = #{updt_id} 
+		 where author_cd = #{author_cd}  
+	]]>
+	</update>
+	
+	<update id="updateAuthUseYn" parameterType="HashMap">
+		update cmn_author
+		   set use_yn = #{use_yn}
+		     , updt_dt = current_timestamp()
+		     , updt_id = #{updt_id}
+		 where author_cd = #{author_cd}
+	</update>		
+	
+	
+</mapper>

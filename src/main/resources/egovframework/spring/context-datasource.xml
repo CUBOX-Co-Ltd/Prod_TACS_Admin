@@ -1,19 +1,20 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util" 
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/jdbc  http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
 
-	<!-- DB -->
+	<util:properties id="db" location="classpath:/egovframework/property/dbProperties.xml" />
+	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<!-- -->
+		<property name="driverClassName" value="#{db['base.driver']}"/>
+		<property name="url" value="#{db['base.url']}" />
+		<property name="username" value="#{db['base.username']}"/>
+		<property name="password" value="#{db['base.password']}"/>
 		<property name="validationQuery" value="select 1"/>
-        <property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"/> 
-        
-		<!-- CUBOX Server Dev-->
-		<property name="url" value="jdbc:log4jdbc:mysql://172.16.254.3:3306/dev?useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnection=true&amp;allowMultiQueries=true&amp;noAccessToProcedureBodies=true" /> 
-        <property name="username" value="cml2"/>
-        <property name="password" value="1111"/>
-     
-    </bean> 
-    
+		<property name="testWhileIdle" value="true"/>
+		<property name="timeBetweenEvictionRunsMillis" value="1800000"/>
+		<property name="connectionProperties" value="useUnicode=true;characterEncoding=utf8;autoReconnection=true;allowMultiQueries=true;noAccessToProcedureBodies=true"/>
+	</bean>
 </beans>

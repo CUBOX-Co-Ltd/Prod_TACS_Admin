@@ -5,18 +5,16 @@
 <html lang="ko">
 <head>
 	<meta charset="utf-8">
-	<title>CUBOX 보안관제시스템</title>
+	<title>CUBOX얼굴인증관리시스템</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, minimal-ui">
 	<!-- base css -->
-	<link rel="stylesheet" media="screen, print" href="css/import.css">
-	<link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+	<link href="/css/import.css" rel="stylesheet" media="screen, print"/>
+	<link href="/lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
 </head>
-
 <body>
 	<div id="wrap">
 		<div class="error-wrap">
-			<!-- <h1><a href="#"><img src="/images/logo_t.png" alt=""></a></h1> -->
 			<div class="error">
 				<span class="img"><img src="/images/error_img.png" alt=""></span>
 				<h2>요청하신 페이지를 찾을 수가 없습니다.</h2>

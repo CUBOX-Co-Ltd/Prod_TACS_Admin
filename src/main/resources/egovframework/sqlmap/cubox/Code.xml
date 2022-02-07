@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="code">
+	
+	<select id="selectCdCombo" parameterType="String" resultType="HashMap">
+		select esntl_cd
+		     , esntl_cd as cd		
+		     , cd_nm
+		     , cd_desc
+		     , cd_dp
+		     , sort_ordr 
+		  from cmn_cd
+		 where upper_cd = #{upper_cd}
+		   and use_yn = 'Y'
+		 order by sort_ordr
+	</select>
+	
+	<select id="selectCdList" parameterType="HashMap" resultType="HashMap">
+		select esntl_cd
+		     , cd_nm
+		     , cd_desc
+		     , cd_dp
+		     , sort_ordr 
+		  from cmn_cd
+		 where upper_cd = #{upper_cd}
+		   and use_yn = 'Y'
+		 order by sort_ordr
+	</select>	
+	
+	
+</mapper>

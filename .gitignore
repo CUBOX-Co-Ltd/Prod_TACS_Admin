@@ -2,6 +2,7 @@
 /build/
 /bin/
 target/
+
    
 # OS Files #
 .DS_Store
@@ -43,6 +44,7 @@ Desktop.ini
 # Eclipse
 ######################
    
+.springBeans
 *.pydevproject
 .project
 .metadata

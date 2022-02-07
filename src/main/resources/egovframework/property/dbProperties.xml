@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>DB</comment>
+	<entry key="base.driver">net.sf.log4jdbc.sql.jdbcapi.DriverSpy</entry>
+	<entry key="base.url">jdbc:log4jdbc:mysql://pdteam-dev-db.cwbuq98fc0gd.ap-northeast-2.rds.amazonaws.com:3306/para_fcs</entry>
+	<entry key="base.username">admin</entry>
+	<entry key="base.password">cubox2021!</entry>
+</properties>

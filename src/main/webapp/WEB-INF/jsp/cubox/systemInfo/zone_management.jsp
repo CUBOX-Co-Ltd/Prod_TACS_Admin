@@ -32,7 +32,7 @@ function fnZoneAdd () {
 	
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/zone',
+		url: 'http://172.16.150.14:8080/tacsm/v1/admin/zone',
 		data: JSON.stringify({
 			"zoneName": txtName,
 			"zoneHost": txtHost
@@ -95,7 +95,7 @@ function fnZoneEdit () {
 
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/zone/'+zoneId,
+		url: 'http://172.16.150.14:8080/tacsm/v1/admin/zone/'+zoneId,
 		data: JSON.stringify({
 			"id" : zoneId,
 			"zoneUuid": editUuid,
@@ -124,7 +124,7 @@ function fnZoneDelete () {
 
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/zone/'+zoneId,
+		url: 'http://172.16.150.14:8080/tacsm/v1/admin/zone/'+zoneId,
 		type: "DELETE",
 		success:function(result){
 			if(result.status == "200"){
@@ -174,13 +174,13 @@ function pageSearch(page){
 <input type="hidden" id="srchPage" name="srchPage" value="${pagination.curPage}"/>
 	<div class="search_box mb_20">
 		<div class="search_in_bline">
-			<div class="comm_search  mr_5">
+			<!-- <div class="comm_search  mr_5">
 				<label for="search-from-date" class="title">등록일</label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchStartDate" id="startDatetimepicker" value="${logInfoVO.srchStartDate}" placeholder="날짜,시간">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchExpireDate" id="endDatetimepicker" value="${logInfoVO.srchExpireDate}" placeholder="날짜,시간">
-			</div>
+			</div> -->
 			<div class="ch_box  mr_20">
 				<label for="srchFunm" class="ml_10"> 이름</label>
 			</div>

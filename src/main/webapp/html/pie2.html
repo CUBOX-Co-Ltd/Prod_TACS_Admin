@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<meta charset="UTF-8">
+    <script type="text/javascript" src="/js/charts/echarts.min.js"></script>
+  </head>
+  <body>
+    <div id="main" style="width: 200px; height: 100px;"></div>
+    <script type="text/javascript">
+    var chartDom = document.getElementById('main');
+    var myChart = echarts.init(chartDom);
+    var option;
+    
+    option = {
+    		  tooltip: {
+    		    trigger: 'item'
+    		  },
+    		  legend: {
+    		    top: '5%',
+    		    left: 'center'
+    		  },
+    		  series: [
+    		    {
+    		      name: 'Access From',
+    		      type: 'pie',
+    		      radius: ['25%', '70%'],
+    		      avoidLabelOverlap: false,
+    		      label: {
+    		        show: true,
+    		        position: 'inside',
+    		        formatter: '{c}',
+    		      },      
+    		      labelLine: {
+    		        show: false
+    		      },
+    		      data: [
+    		        { value: 45, name: 'iSO'},
+    		        { value: 55, name: 'Android' }
+    		      ]
+    		    }
+    		  ]
+    		};
+    
+    myChart.setOption(option);
+    
+    </script>    
+  </body>
+</html>
+

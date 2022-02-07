@@ -20,6 +20,15 @@ text-align:center;font-weight:normal; color:#000; background-color:#eff0f4; font
 .tb_list tbody td:last-child{padding: 7px 0px;   border-bottom:1px solid #ccc; COLOR:#666666; font-size:14px; background-color: #fff; text-align: center; border-right:none;  }
 .tb_list tbody tr.total td{color: #4667ba}
 
+.tb_list tbody tr.total1 td{color: #1125FF}
+.tb_list tbody tr.total2 td{color: #C10909}
+
+.tb_list tbody tr.tot_bg1 td{  background-color:#DFE2F0!important;  }
+.tb_list tbody tr.tot_bg2 td{  background-color:#F0DFE7!important;  }
+
+.tb_list tbody tr td.td_left{text-align:left; padding: 0px 0px 0px 7px;}
+.tb_list tbody tr td.td_right{text-align:right; padding: 0px 7px 0px 0px;}
+
 .tb_list tbody tr:nth-child(2n) td{  background-color: #f7f7f7!important }
 
 .tb_list thead th.bg1{  background-color:#DFE2F0;  }
@@ -28,7 +37,7 @@ text-align:center;font-weight:normal; color:#000; background-color:#eff0f4; font
 .tb_list tbody tr td.bg2{  background-color:#F0DFE7!important;   }
 
 .tb_list_main { width:100%;  border-collapse: collapse;  }
-.tb_list_main thead th{border-bottom:1px solid #999; color:#000 !important; font-size:14px;  text-align:center;   box-sizing:border-box ; font-family: 'Noto Sans KR', sans-serif; font-weight: 400; padding: 7px 0px;}
+.tb_list_main thead th{border-bottom:1px solid #999; color:#000 !important; font-size:14px;  text-align:center;   box-sizing:border-box ; font-family: 'Noto Sans KR', sans-serif; font-weight: 400; padding: 7px 0px; background-color:#EAECF0 ;}
 .tb_list_main tbody th{
  border-bottom:1px solid #ccc; padding:5px 15px;
 text-align:center;font-weight:normal; color:#000; font-size:14px;  }
@@ -36,7 +45,7 @@ text-align:center;font-weight:normal; color:#000; font-size:14px;  }
 .tb_list_main thead th:last-child{border-right:none;  }
 
 
-.tb_list_main tbody td {padding: 7px 0px;  border-bottom:1px solid #ccc; COLOR:#666666; font-size:12px; text-align:center;background-color: #fff;  box-sizing: border-box;  line-height: 16px}
+.tb_list_main tbody td {padding: 7px 0px;  border-bottom:1px solid #ccc; COLOR:#666666; font-size:13px; text-align:center;background-color: #fff;  box-sizing: border-box;  line-height: 16px}
 .tb_list_main tbody td .tdbtnbox{width: 100%;   display: flex;
   justify-content: center;
   align-items: center;}
@@ -88,9 +97,17 @@ text-align:center;font-weight:normal; color:#000; background-color:#eff0f4; font
 .tb_list3 tbody td:last-child{ padding:7px 10px;   border-bottom:1px solid #ccc; COLOR:#666666; font-size:14px; background-color: #fff; text-align: center; border-right:none;  }
 .tb_list3 tbody tr.total td{color: #4667ba}
 
+.tb_list3 tbody tr.total1 td{color: #1125FF}
+.tb_list3 tbody tr.total2 td{color: #C10909}
 
+.tb_list3 tbody tr.tot_bg1 td{  background-color:#DFE2F0!important;  }
+.tb_list3 tbody tr.tot_bg2 td{  background-color:#F0DFE7!important;  }
 
+.tb_list3 tbody tr td.bg1{  background-color:#DFE2F0!important;  }
+.tb_list3 tbody tr td.bg2{  background-color:#F0DFE7!important;  }
 
+.tb_list3 tbody tr td.td_left{text-align:left; padding: 0px 0px 0px 7px;}
+.tb_list3 tbody tr td.td_right{text-align:right; padding: 7px 7px 7px 0px;}
 
 .tb_write { width:100%;  border-collapse: collapse; }
 .tb_write thead th{border-bottom:1px solid #999; color:#000 !important;border-right: 1px solid #ccc; font-size:14px;  text-align:center; background-color:#EAECF0 ;   box-sizing:border-box ; font-family: 'Noto Sans KR', sans-serif; font-weight: 400; padding: 7px 0px}

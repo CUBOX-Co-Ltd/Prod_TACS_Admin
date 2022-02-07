@@ -5,7 +5,7 @@
 <html lang="ko">
 <head>
 	<meta charset="utf-8">
-	<title>CUBOX 보안관제시스템</title>
+	<title>CUBOX얼굴인증관리시스템</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, minimal-ui">
 	<!-- base css -->

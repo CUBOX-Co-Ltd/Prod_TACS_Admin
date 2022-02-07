@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<version>1</version>
-	<pluginVersion><![CDATA[3.8.4.201703310634-RELEASE]]></pluginVersion>
+	<pluginVersion><![CDATA[3.9.5.201807030714-RELEASE]]></pluginVersion>
 	<configSuffixes>
 		<configSuffix><![CDATA[xml]]></configSuffix>
 	</configSuffixes>
@@ -10,13 +10,13 @@
 	</configs>
 	<autoconfigs>
 		<config>src/main/resources/egovframework/spring/context-idgen.xml</config>
-		<config>src/main/resources/egovframework/spring/context-excel.xml</config>
 		<config>src/main/resources/egovframework/spring/context-transaction.xml</config>
+		<config>src/main/resources/egovframework/spring/context-mapper.xml</config>
 		<config>src/main/resources/egovframework/spring/context-common.xml</config>
 		<config>src/main/webapp/WEB-INF/config/springmvc/dispatcher-servlet.xml</config>
 		<config>src/main/resources/egovframework/spring/context-aspect.xml</config>
 		<config>src/main/resources/egovframework/spring/context-properties.xml</config>
-		<config>src/main/resources/egovframework/spring/context-scheduling.xml</config>
+		<config>src/main/resources/egovframework/spring/context-datasource.xml</config>
 		<config>src/main/resources/egovframework/spring/context-validator.xml</config>
 	</autoconfigs>
 	<configSets>

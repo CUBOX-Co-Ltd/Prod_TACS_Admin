@@ -8,20 +8,12 @@
 		<setting name="jdbcTypeForNull" value="NULL"/>				<!-- 쿼리에 보내는 파라메터가 null인 경우, 오류 발생하는 것 방지  예) #{search.user}  -->
 	</settings>
 	<typeAliases>
+		<typeAlias alias="commonUtils" type="cubox.admin.cmmn.util.CommonUtils"/>	
 		<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
 		<typeAlias alias="authorVO" type="cubox.admin.main.service.vo.AuthorVO"/>
-		<typeAlias alias="siteVO" type="cubox.admin.main.service.vo.SiteVO"/>
-		<typeAlias alias="menuClVO" type="cubox.admin.menu.vo.MenuClVO"/>
-		<typeAlias alias="menuDetailVO" type="cubox.admin.menu.vo.MenuDetailVO"/>
-		<typeAlias alias="commonUtils" type="cubox.admin.cmmn.util.CommonUtils"/>
-		<typeAlias alias="logInfoVO" type="cubox.admin.main.service.vo.LogInfoVO"/>
-		<typeAlias alias="mainStatusVO" type="cubox.admin.main.service.vo.MainStatusVO"/>
-		<typeAlias alias="authorGroupVO" type="cubox.admin.main.service.vo.AuthorGroupVO"/>
-		<typeAlias alias="authorGroupDetailVO" type="cubox.admin.main.service.vo.AuthorGroupDetailVO"/>
-		<typeAlias alias="syncDeviceVO" type="cubox.admin.main.service.vo.SyncDeviceVO"/>
-		<typeAlias alias="userInfoVO" type="cubox.admin.main.service.vo.UserInfoVO"/>
-		<typeAlias alias="cardInfoVO" type="cubox.admin.main.service.vo.CardInfoVO"/>
-		<typeAlias alias="userChgLogVO" type="cubox.admin.main.service.vo.UserChgLogVO"/>
+		<typeAlias alias="menuClVO" type="cubox.admin.main.service.vo.MenuClVO"/>
+		<typeAlias alias="menuVO" type="cubox.admin.main.service.vo.MenuVO"/>
 		<typeAlias alias="excelVO" type="cubox.admin.main.service.vo.ExcelVO"/>
+		<typeAlias alias="loginVO" type="cubox.admin.main.service.vo.LoginVO"/>		
 	</typeAliases>
 </configuration>

@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -200,6 +199,7 @@ public class CommonUtils {
 		case "MM/dd/yyyy":	break;
 		case "yyyy-MM":	break;
 		case "yyyy-MM-dd":	break;
+		case "yyyy-MM-dd HH:mm":	break;
 		case "yyyy-MM-dd HH:mm:ss":	break;
 		case "yyyyMMddHHmmssSSSS":	break;
 		case "yyyyMMddHHmmssSSS":	break;
@@ -786,4 +786,10 @@ public class CommonUtils {
 
         return list;
     }
+    
+    public int getOffset(int srchPage, int srchCnt) {
+		int offset = (srchPage - 1) * srchCnt;
+		if(offset < 0) offset = 0;
+    	return offset;
+    }    
 }

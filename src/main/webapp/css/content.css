@@ -1,6 +1,7 @@
 @charset "utf-8";
 .com100_box{ width: 100%;  float: left }
 .com_box{width: 100%;   float: left }
+.com_box_img{width: 100%;  float: left; background-color: #e3e2e3;}
 
 
 .sub_box{ width: 100%; min-height:calc(100vh - 90px); padding:8px 40px 30px 40px; float: left;   margin-top: 90px ;  align-items: flex-start; min-width: 1300px ;  height: auto; box-sizing: border-box }
@@ -37,6 +38,8 @@
 .font-color_H{  color: #C10909!important}
 .font-color_V{  color: #267C83!important}
 .font-color_S{  color: #8E5D41!important}
+
+.font-color_B{  color: #112596!important}
 
 
 

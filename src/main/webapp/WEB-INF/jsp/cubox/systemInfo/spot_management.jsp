@@ -3,6 +3,10 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <script type="text/javascript">
+
+var globalIp = '172.16.150.14';
+var globalPort = '8080';
+
 $(function() {
 	$(".title_tx").html("Spot 목록");
 	
@@ -16,6 +20,14 @@ $(function() {
 	
 	$("#btnAddBeacon").on("click", function(event){
 		$("#add-beacon-modal").PopupWindow("open");
+    });
+	
+	$("#btnEditClose").on("click", function(event){
+		$("#edit-spot-modal").PopupWindow("close");
+    });
+	
+	$("#btnBeaconClose").on("click", function(event){
+		$("#add-beacon-modal").PopupWindow("close");
     });
 	
 	modalPopup ("add-spot-modal", "Spot 추가", 550, 450);
@@ -38,7 +50,7 @@ function fnSpotAddSave(){
 	
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot',
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot',
 		data: JSON.stringify({
 			"zoneId" : id,
 			"spotName": txtName,
@@ -63,7 +75,7 @@ function fnEditPop(id) {
 	$("#edit-spot-modal").PopupWindow("open");
 	
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+id,
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+id,
 		dataType:'json',
 		type: "GET",
 		contentType: "application/json",
@@ -84,7 +96,6 @@ function fnEditPop(id) {
 					$("#editHost03").val(sHost[2]);
 					$("#editHost04").val(sHost[3]);
 				}
-			
 			} else {
 				alert(returnData.message);
 				hideLoading();
@@ -93,23 +104,21 @@ function fnEditPop(id) {
 	});
 	
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+id+'/beacon?page=0&pageSize=20',
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+id+'/beacon?page=0&pageSize=20',
 		dataType:'json',
 		type: "GET",
 		contentType: "application/json",
-		
 		success:function(result){
 			if(result.status == "200"){
 				var content = "";
 				innerHtml = "";
-				
 				for(var i = 0; i<result.data.content.length; i++){
 					content = result.data.content[i];
 					innerHtml+= "<tr>";
-					innerHtml+= "<td>"+content.id+"</td>";
 					innerHtml+= "<td><input type='text' class='w_200px input_com' id='editBeaconMajor' name='editBeaconMajor' value='"+content.majorNo+"'/></td>";
-					innerHtml+= "<td><button type='button' class='comm_btn' onClick='fnBeaconSave("+content.majorNo+","+content.msSpot.id+")'>저장</button></td>";
-					innerHtml+= "<td><button type='button' class='comm_btn' onClick='fnBeaconDelete("+content.majorNo+","+content.msSpot.id+")'>삭제</button></td>";
+					innerHtml+= "<td><input type='text' class='w_200px input_com' id='editBeaconMemo' name='editBeaconMemo' value='"+content.beaconMemo+"'/></td>";
+					innerHtml+= "<td><button type='button' class='comm_btn' onClick='fnBeaconSave("+content.id+","+id+")'>저장</button></td>";
+					innerHtml+= "<td><button type='button' class='comm_btn' onClick='fnBeaconDelete("+content.id+","+id+")'>삭제</button></td>";
 					innerHtml+= "</tr>";
 				}
 				$("#beconList").html(innerHtml);
@@ -137,11 +146,12 @@ function fnSpotEditSave(){
 	var editHost = editHost01 + "." + editHost02 + "." + editHost03 + "." + editHost04;
 	
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+spotId,
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId,
 		dataType:'json',
 		type: "POST",
 		data: JSON.stringify({
-			"spotUuid": editUuid,
+			"id" : spotId,
+			"zoneId": editZone,
 			"spotName": editName,
 			"frsHost": editHost
 		}),
@@ -161,7 +171,7 @@ function fnSpotDelete(){
 	var spotId = $("#hidSpotId").val();
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+spotId,
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId,
 		type: "DELETE",
 		success:function(result){
 			if(result.status == "200"){
@@ -175,14 +185,16 @@ function fnSpotDelete(){
 }
 
 function fnBeaconSave(beaconId,spotId){
-	var beaconMemo = $("#editbeaconMemo").val();
+	var beaconMemo = $("#editBeaconMemo").val();
+	var beaconMajor = $("#editBeaconMajor").val();
 
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+spotId+'/beacon/'+beaconId,
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId+'/beacon/'+beaconId,
 		dataType:'json',
 		type: "POST",
 		data: JSON.stringify({
+			"majorNo" : beaconMajor,
 			"beaconMemo" : beaconMemo
 		}),
 		contentType: "application/json",
@@ -204,7 +216,7 @@ function fnBeaconAddSave(){
 
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+spotId+'/beacon',
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId+'/beacon',
 		data: JSON.stringify({
 			"majorNo" : majorNo,
 			"beaconMemo" : beaconMemo,
@@ -225,7 +237,7 @@ function fnBeaconAddSave(){
 
 function fnBeaconDelete(beaconId,spotId){
 	$.ajax({
-		url: 'http://172.16.150.14:8081/tacsm/v1/admin/spot/'+spotId+'/beacon/'+beaconId,
+		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId+'/beacon/'+beaconId,
 		type: "DELETE",
 		success:function(result){
 			if(result.status == "200"){
@@ -275,18 +287,27 @@ function fnvalichk(event) {
 	}
 }
 
+
+function resetSearch(){
+	 $("#srchCondName").val("");
+	 $("#srchCondHost").val("");
+	 $("#srchZone").val("");
+}
+
+
 </script>
 <form id="frmSearch" name="frmSearch" method="post" onsubmit="return false;">
 <input type="hidden" id="hidZoneId" name="hidZoneId" value="${zoneId}"/>
+<input type="hidden" id="srchPage" name="srchPage" value="${pagination.curPage}"/>
 	<div class="search_box mb_20">
 		<div class="search_in_bline">
-			<div class="comm_search  mr_5">
+			<!-- <div class="comm_search  mr_5">
 				<label for="search-from-date" class="title">등록일</label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchStartDate" id="startDatetimepicker" placeholder="날짜">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchExpireDate" id="endDatetimepicker" placeholder="날짜">
-			</div>
+			</div> -->
 			<div class="ch_box  mr_20">
 				<label for="srchSpotName" class="ml_10"> 이름</label>
 			</div>
@@ -297,7 +318,7 @@ function fnvalichk(event) {
 				<label for="srchSpotHost" class="ml_10"> host</label>
 			</div>
 			<div class="comm_search mr_20">
-				<input type="text" class="w_200px input_com" id="srchCondHost" name="srchCondHost" value="${srchCondHost}"/>
+				<input type="text" class="w_200px input_com" id="srchCondHost" name="srchCondHost" value="${srchCondHost}" placeholder="127.0.0.1"/>
 			</div>
 			<div class="ch_box  mr_20">
 				<label for="srchSpotHost" class="ml_10"> zone</label>
@@ -316,7 +337,7 @@ function fnvalichk(event) {
 				<div class="search_btn2" title="검색" onclick="spotSearch()"></div>
 			</div>
 			<div class="comm_search ml_65">
-				<button type="button" class="comm_btn" id="reset">초기화</button>
+				<button type="button" class="comm_btn" id="reset" onclick="resetSearch();">초기화</button>
 			</div>
 		</div>
 		
@@ -375,6 +396,7 @@ function fnvalichk(event) {
 						</c:forEach>
 					</c:otherwise>
 				</c:choose>
+			</tbody>
 		</table>
 	</div>
 	<!--------- //목록--------->
@@ -485,18 +507,11 @@ function fnvalichk(event) {
 						</td>
 					</tr>
 					<tr>
-						<th>EXPIRED_TIME</th>
-						<td>
-							<input type="text" id="editExpiredTime" name="editExpiredTime" maxlength="20" class="w_190px input_com" check="text" checkName="" readOnly="readOnly"/>
-						</td>
-					</tr>
-					<tr>
 						<th>등록일</th>
 						<td>
 							<input type="text" id="editRegistTime" name="editRegistTime" maxlength="20" class="w_190px input_com" check="text" checkName="" readOnly="readOnly"/>
 						</td>
 					</tr>
-				
 				</tbody>
 			</table>
 		</div>
@@ -505,7 +520,7 @@ function fnvalichk(event) {
 			<div style="display: inline-block;">
 				<button type="button" class="comm_btn mr_5" onclick="fnSpotEditSave();">수정</button>
 				<button type="button" class="comm_btn mr_5" onclick="fnSpotDelete();">삭제</button>
-				<button type="button" class="bk_color comm_btn mr_5" id="btnAddClose">취소</button>
+				<button type="button" class="bk_color comm_btn mr_5" id="btnEditClose">취소</button>
 				
 			</div>
 		</div>
@@ -526,8 +541,8 @@ function fnvalichk(event) {
 
 			<thead>
 				<tr>
-					<th>일련번호</th>
-					<th>비콘_MAJOR</th>
+					<th>비콘MAJOR</th>
+					<th>비콘Memo</th>
 					<th></th>
 					<th></th>
 				</tr>
@@ -554,13 +569,13 @@ function fnvalichk(event) {
 				<col width="70%" />
 				<tbody>
 					<tr>
-						<th>MajorNo</th>
+						<th>비콘_Major</th>
 						<td>
 							<input type="text" id="txtMajorNo" name="txtMajorNo" maxlength="20" class="w_190px input_com" check="text" checkName="txtMajorNo" />
 						</td>
 					</tr>
 					<tr>
-						<th>비콘_Major</th>
+						<th>비콘_Memo</th>
 						<td>
 							<input type="text" id="txtbeaconMemo" name="txtbeaconMemo" maxlength="20" class="w_190px input_com" check="text" checkName="비콘Major" />
 						</td>
@@ -572,7 +587,7 @@ function fnvalichk(event) {
 	   	<div class="r_btnbox">
 			<div style="display: inline-block;">
 				<button type="button" class="comm_btn mr_5" onclick="fnBeaconAddSave();">저장</button>
-				<button type="button" class="bk_color comm_btn mr_5" id="btnAddClose">취소</button>
+				<button type="button" class="bk_color comm_btn mr_5" id="btnBeaconClose">취소</button>
 			</div>
 		</div>
 		<!--//버튼  -->

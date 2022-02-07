@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+	
+	<select id="checkPasswd" parameterType="String" resultType="int">
+		select count(1)
+		  from cmn_user
+		 where user_id = #{userId}
+		   and user_pw = #{curPasswdEnc}
+	</select>
+
+	<update id="updatePasswd" parameterType="HashMap">
+		update cmn_user
+		   set user_pw = #{newPasswdEnc}
+		     , pw_updt_yn = 'Y'
+		     , pw_updt_dt = current_timestamp()
+		     , pw_failr_cnt = 0
+		     , updt_id = #{esntlId}
+		     , updt_dt = current_timestamp()
+		 where esntl_id = #{esntlId}
+	</update>
+	
+	<select id="selectUserInfo" parameterType="HashMap" resultType="HashMap">
+		select esntl_id
+		     , user_id
+		     , user_nm
+		     , user_pw
+		     , author_cd
+		     , pw_updt_yn
+		     , pw_updt_dt 
+		     , use_yn
+		     , regist_id
+		     , date_format(regist_dt, '%Y-%m-%d %H:%i:%S') regist_dt
+		     , updt_id
+		     , date_format(updt_dt, '%Y-%m-%d %H:%i:%S') updt_dt 
+		  from cmn_user u
+		 where esntl_id = #{esntl_id}
+	</select>	
+	
+	<select id="selectUserList" parameterType="HashMap" resultType="HashMap">
+		select esntl_id
+		     , user_id
+		     , user_nm
+		     , user_pw
+		     , author_cd
+		     , (select author_nm from cmn_author a where a.author_cd = u.author_cd) author_nm
+		     , date_format(last_conect_dt, '%Y-%m-%d %H:%i:%S') last_conect_dt
+		     , pw_failr_cnt 
+		     , pw_updt_yn
+		     , date_format(regist_dt, '%Y-%m-%d %H:%i:%S') regist_dt
+		     , datediff(current_timestamp(), pw_updt_dt) pw_diff_days 
+		     , use_yn
+		     , regist_id
+		     , date_format(regist_dt, '%Y-%m-%d %H:%i:%S') regist_dt
+		     , date_format(regist_dt, '%Y-%m-%d') regist_de
+		     , updt_id
+		     , date_format(updt_dt, '%Y-%m-%d %H:%i:%S') updt_dt 
+		  from cmn_user u
+		 where 1=1
+		<include refid="selectUserListConditions"/>
+		 limit #{srchCnt} offset #{offset}
+	</select>
+	
+	<sql id="selectUserListConditions">
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(srchUserId)'>
+		   and u.user_id like concat('%', #{srchUserId}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(srchUserNm)'>
+		   and u.user_nm like concat('%', #{srchUserNm}, '%')
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(srchAuthorCd)'>
+		   and u.author_cd = #{srchAuthorCd}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(srchUseYn)'>
+		   and u.use_yn = #{srchUseYn}
+		</if>
+	</sql>
+	
+	<select id="selectUserListCount" parameterType="HashMap" resultType="int">
+		select count(1)
+		  from cmn_user u
+		 where 1=1
+		<include refid="selectUserListConditions"/>
+	</select>
+	
+	<select id="selectUserIdDplct" parameterType="HashMap" resultType="int">
+		select count(1) 
+		  from cmn_user
+		 where user_id = #{checkId}
+	</select>
+	
+	<insert id="insertUserInfo" parameterType="HashMap">
+		insert into cmn_user
+			( esntl_id
+			, user_id
+			, user_nm
+			, user_pw
+			, author_cd
+			, pw_updt_yn
+			, use_yn
+			, regist_id
+			, regist_dt
+			)
+		values
+			( concat('USER', lpad(nextval(sq_esntl_id), 16, '0'))
+			, #{user_id}
+			, #{user_nm}
+			, #{user_pw}
+			, #{author_cd}
+			, 'N'
+			, 'Y'
+			, #{regist_id}
+			, current_timestamp()
+			)
+	</insert>
+	
+	<update id="updateUserInfo" parameterType="HashMap">
+		update cmn_user
+		   set user_nm = #{user_nm}
+		     , author_cd = #{author_cd}
+		     , updt_id = #{updt_id}
+		     , updt_dt = current_timestamp()
+		 where esntl_id = #{esntl_id}
+	</update>
+	
+	<update id="updateUserUseYn" parameterType="HashMap">
+		update cmn_user
+		   set use_yn = #{use_yn}
+		     , pw_updt_yn = 'N'
+		     , pw_failr_cnt = 0
+		     , updt_id = #{updt_id}
+		     , updt_dt = current_timestamp()
+		 where esntl_id = #{esntl_id}
+	</update>
+	
+	<update id="updateUserPasswdReset" parameterType="HashMap">
+		update cmn_user
+		   set user_pw = #{user_pw}
+		     , pw_updt_dt = current_timestamp()		   
+		     , pw_updt_yn = 'N'		   
+		     , pw_failr_cnt = 0
+		     , updt_id = #{updt_id}
+		     , updt_dt = current_timestamp()		 
+		 where esntl_id = #{esntl_id}
+	</update>	
+	
+</mapper>

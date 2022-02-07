@@ -7,15 +7,11 @@
 	<title><spring:message code="site.title"/></title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, minimal-ui">
-	<!-- base css -->
-	<link href="/css/import.css" rel="stylesheet" media="screen, print"/>
 	<link href="/lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
 </head>
-
-<body>
+<body style="text-align:center; margin-top:50px;">
 	<div id="wrap">
 		<div class="error-wrap">
-			<!-- h1><a href="#"><img src="/images/logo_t.png" alt=""></a></h1-->
 			<div class="error">
 				<span class="img"><img src="/images/error_img.png" alt=""></span>
 				<h2>요청하신 페이지를 찾을 수가 없습니다.</h2>

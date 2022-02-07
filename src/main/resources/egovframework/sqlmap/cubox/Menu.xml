@@ -2,51 +2,195 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="menu">
-
-	<select id="selectAuthorList" parameterType="HashMap" resultType="authorVO">
-		SELECT
-		AUTHOR_ID AS authorId,
-		AUTHOR_NM AS authorNm,
-		USE_YN AS useYn,
-		SORT_ORDR AS sortOrdr
-		FROM AUTHOR_TB AC
-		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)">
-			WHERE USE_YN = #{use_yn}
-		</if>
-		ORDER BY AC.SORT_ORDR ASC
-	</select>
-
-	<select id="selectAuthorMenuCl" parameterType="HashMap" resultType="menuClVO">
-		SELECT C.MENU_CL_CODE, C.MENU_CL_NM
-		FROM MENU_CL_TB C
-		WHERE C.MENU_CL_CODE IN (
-			SELECT MD.MENU_CL_CODE
-			FROM AUTHOR_MENU_TB AM
-			INNER JOIN MENU_DETAIL_TB MD ON AM.MENU_CODE = MD.MENU_CODE AND MD.USE_YN = 'Y'
-			WHERE AM.AUTHOR_ID = #{author_id}
-			  AND MD.USE_YN = 'Y'
-		)
-		AND C.USE_YN  = 'Y'
-		ORDER BY C.SORT_ORDR
-	</select>
-
-	<select id="selectAuthMenuList" parameterType="HashMap" resultType="menuDetailVO">
-		SELECT
-			MD.MENU_CODE,
-			MD.MENU_CL_CODE,
-			MD.MENU_NM,
-			MD.MENU_URL
-		FROM AUTHOR_MENU_TB AM
-		INNER JOIN MENU_DETAIL_TB MD ON AM.MENU_CODE = MD.MENU_CODE AND MD.USE_YN = 'Y'
-		WHERE AM.AUTHOR_ID = #{author_id}
-		<if test="@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_cl_code)">
-			AND MD.MENU_CL_CODE = #{menu_cl_code}
-		</if>
-		  AND MD.USE_YN = 'Y'
-		ORDER BY MD.SORT_ORDR
+	
+	<select id="selectMenuNm" parameterType="String" resultType="String">
+		select menu_nm 
+		  from cmn_menu
+		 where menu_url = #{menu_url}
 	</select>
 	
-	<select id="selectInmateCnt" statementType="CALLABLE"  resultType="int">
-		{ CALL check_inmate()} 
+	<select id="selectMenuList" parameterType="HashMap" resultType="HashMap">
+		select m.menu_cl_cd 
+		     , c.menu_cl_nm
+		     , m.menu_cd 
+		     , m.menu_nm 
+		     , m.menu_url
+		     , m.use_yn
+		     , m.sort_ordr
+		     , c.use_yn as cl_use_yn
+		     , c.sort_ordr as cl_sort_ordr
+		  from cmn_menu m
+		       inner join cmn_menu_cl c on c.menu_cl_cd = m.menu_cl_cd 
+		 where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)'>		 
+		   and m.use_yn = #{use_yn}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(cl_use_yn)'>		 
+		   and c.use_yn = #{cl_use_yn}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_cl_cd)'>		 
+		   and m.menu_cl_cd = #{menu_cl_cd}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_nm)'>		 
+		   and m.menu_nm like concat('%', #{menu_nm}, '%')
+		</if>
+		 order by c.sort_ordr, m.sort_ordr
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(srchCnt)'>
+		 limit #{srchCnt} offset #{offset}
+		</if>
 	</select>
+	
+	<select id="selectMenuListCount" parameterType="HashMap" resultType="int">
+		select count(1)
+		  from cmn_menu m
+		       inner join cmn_menu_cl c on c.menu_cl_cd = m.menu_cl_cd 
+		 where 1=1
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(use_yn)'>		 
+		   and m.use_yn = #{use_yn}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_cl_cd)'>		 
+		   and m.menu_cl_cd = #{menu_cl_cd}
+		</if>
+		<if test='@cubox.admin.cmmn.util.CommonUtils@notEmpty(menu_nm)'>		 
+		   and m.menu_nm like concat('%', #{menu_nm}, '%')
+		</if>
+	</select>
+	
+	<select id="selectMenuInfo" parameterType="HashMap" resultType="HashMap">
+		select menu_cl_cd 
+		     , menu_cd 
+		     , menu_nm 
+		     , menu_url
+		     , use_yn
+		     , sort_ordr
+		  from cmn_menu
+		 where menu_cd = ${menu_cd}
+	</select>
+	
+	<select id="selectNewMenuCd" resultType="String">
+		select lpad(ifnull(max(menu_cd), '0') + 1, 5, '0')
+		  from cmn_menu
+	</select>
+	
+	<insert id="insertMenuInfo" parameterType="HashMap">
+	<![CDATA[
+		insert into cmn_menu 
+			( menu_cd
+			, menu_cl_cd
+			, menu_nm
+			, menu_url
+			, sort_ordr
+			, use_yn
+			, regist_dt
+			, regist_id
+			)
+		values
+			( #{menu_cd}
+			, #{menu_cl_cd}
+			, #{menu_nm}
+			, #{menu_url}
+			, #{sort_ordr}
+			, 'Y'
+			, current_timestamp()
+			, #{regist_id}
+			)
+	]]>
+	</insert>
+	
+	<update id="updateMenuInfo" parameterType="HashMap">
+	<![CDATA[
+		update cmn_menu
+		   set menu_cl_cd = #{menu_cl_cd}
+		     , menu_nm = #{menu_nm}
+		     , menu_url = #{menu_url}
+		     , sort_ordr = #{sort_ordr}
+		     , updt_dt = current_timestamp()
+		     , updt_id = #{updt_id}
+		 where menu_cd = #{menu_cd}
+	]]>
+	</update>
+	
+	<update id="updateMenuUseYn" parameterType="HashMap">
+		update cmn_menu
+		   set use_yn = #{use_yn}
+		     , updt_dt = current_timestamp()
+		     , updt_id = #{updt_id}
+		 where menu_cd = #{menu_cd}
+	</update>	
+	
+	<select id="selectMenuClCombo" resultType="HashMap">
+		select menu_cl_cd 
+		     , menu_cl_nm 
+		     , icon_image 
+		     , sort_ordr 
+		     , use_yn 
+		  from cmn_menu_cl
+		 where use_yn = 'Y'
+		 order by sort_ordr
+	</select>	
+	
+	<select id="selectMenuClList" parameterType="HashMap" resultType="HashMap">
+		select menu_cl_cd 
+		     , menu_cl_nm 
+		     , icon_image 
+		     , sort_ordr 
+		     , use_yn 
+		  from cmn_menu_cl
+		 order by sort_ordr
+	</select>
+	
+	<select id="selectMenuClInfo" parameterType="HashMap" resultType="HashMap">
+		select menu_cl_cd 
+		     , menu_cl_nm
+		     , icon_image
+		     , sort_ordr
+		     , use_yn
+		  from cmn_menu_cl
+		 where menu_cl_cd = #{menu_cl_cd}  
+	</select>
+
+	<select id="selectNewMenuClCd" resultType="String">
+		select lpad(ifnull(max(menu_cl_cd), '0') + 1, 5, '0')
+		  from cmn_menu_cl
+	</select>	
+	
+	<insert id="insertMenuClInfo" parameterType="HashMap">
+		insert into cmn_menu_cl 
+			( menu_cl_cd 
+			, menu_cl_nm 
+			, icon_image
+			, sort_ordr 
+			, use_yn
+			, regist_dt
+			, regist_id
+			) 
+		values
+			( #{menu_cl_cd} 
+			, #{menu_cl_nm}
+			, #{icon_image} 
+			, #{sort_ordr} 
+			, 'Y'
+			, current_timestamp()
+			, #{regist_id}
+			)	
+	</insert>
+	
+	<update id="updateMenuClInfo" parameterType="HashMap">
+		update cmn_menu_cl
+		   set menu_cl_nm = #{menu_cl_nm}
+		     , icon_image = #{icon_image}
+		     , sort_ordr = #{sort_ordr}
+		     , updt_dt = current_timestamp()
+		     , updt_id = #{updt_id}
+		 where menu_cl_cd = #{menu_cl_cd}
+	</update>
+	
+	<update id="updateMenuClUseYn" parameterType="HashMap">
+		update cmn_menu_cl
+		   set use_yn = #{use_yn}
+		     , updt_dt = current_timestamp()
+		     , updt_id = #{updt_id}
+		 where menu_cl_cd = #{menu_cl_cd}
+	</update>
+	
 </mapper>

@@ -5,37 +5,37 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ page import="cubox.admin.main.service.vo.LoginVO" %>
 <%@ page import="cubox.admin.cmmn.util.AuthorManager" %>
-<%@ page import="cubox.admin.menu.vo.MenuClVO" %>
-<%-- <%@ page import="cubox.admin.menu.vo.MenuDetailVO" %> --%>
+<%@ page import="cubox.admin.main.service.vo.MenuClVO" %>
 <%@ page import="java.util.*" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%
 	Date nowTime = new Date();
-	SimpleDateFormat sf = new SimpleDateFormat("yyyy년 MM월 dd일");
+	SimpleDateFormat sf = new SimpleDateFormat("yyyy년 MM월 dd일  HH시 mm분");
 %>
-<%-- 
+<%
 	AuthorManager authorManager = AuthorManager.getInstance();
 	LoginVO loginVO = (LoginVO)session.getAttribute("loginVO");
-	String authorId = "";
+
+	String authorCd = "";
 	if(loginVO!= null) {
-		authorId = loginVO.getAuthor_id ();
+		authorCd = loginVO.getAuthorCd();
 	}
 
 	//대메뉴 조회
 	List<MenuClVO> menuClList = null;
 	if(authorManager != null) {
-		menuClList = authorManager.getMenuCl (authorId);
+		menuClList = authorManager.getMenuCl (authorCd);
 	}
 	pageContext.setAttribute("menuClList", menuClList);
 
 	//String strUriPath = (String) session.getAttribute("uriPath");
---%>
+%>
 <body>
 	<!--상단영역 공통  -->
 	<header class="main">
 		<div class="logo" style="width: 250px;">
 			<a href="/main.do">
-				<img id="topLeftLogo" src="/img/logo/logo_<spring:eval expression="@property['Globals.site.main.id']" />.png" alt="" style="max-width: 170px; <c:if test="${sessionScope.loginVO.author_id ne '00008'}">display: none;</c:if>"/>
+				<img id="topLeftLogo" src="/img/logo/logo_<spring:eval expression="@property['Globals.site.main.id']" />.png" alt="" style="max-width: 170px; display: none;"/>
 			</a>
 		</div>
 		<div class="title_box">
@@ -49,7 +49,15 @@
 			</div>
 		</div>
 		<div class="login_in_iconbox">
-			
+			<div class="member">
+				<div class="img">
+					<img src="/img/icon_member.png" alt="" />
+				</div>
+				<p>
+					[<c:out value="${sessionScope.loginVO.userNm}"/>]
+				</p>
+			</div>
+			<button type="button" class="pw" onclick="fnPassChange();">비밀번호 변경</button>
 			<button type="button" class="logout" onclick="fnLogout();">로그아웃</button>
 		</div>
 	</header>
@@ -62,24 +70,21 @@
 				<img src="/img/logo/logo_<spring:eval expression="@property['Globals.site.main.id']" />_w.png" alt="" style="max-width: 170px;"/>
 			</a>
 		</div>
-
+		<!-- 메뉴 자동 -->
 		<ul class="nav" id="demo1">
+		<c:forEach var="result" items="${menuClList}" varStatus="status">
 			<li>
-				<a>지역 관리</a>
+				<a href="" style="background: url('/img/${result.iconImage}');">${result.menuClNm}</a>
+				<c:if test="${result.list != null && fn:length(result.list) > 0 }">
 					<ul class="menu2">
-						<li class="li-a"><a href="/systemInfo/zoneMngmt.do">Zone 관리</a></li>
-						<li class="li-a"><a href="/systemInfo/spotMngmt.do">Spot 관리</a></li>
+						<c:forEach var="menuList" items="${result.list}" varStatus="dStatus">
+							<li class="li-a"><a href="${menuList.menuUrl}">${menuList.menuNm}</a></li>
+						</c:forEach>
 					</ul>
+				</c:if>
 			</li>
-			<li>
-				<a>기기 관리</a>
-					<ul class="menu2">
-						<li class="li-a"><a href="/systemInfo/deviceMngmt.do">등록 현황</a></li>
-						<li class="li-a"><a href="/systemInfo/spotMngmt.do">이동 현황</a></li>
-					</ul>
-			</li>
-		</ul> 
-		
+		</c:forEach>
+		</ul>
 		<div style="position: absolute; left: 10; bottom: 0; "></div>
 	</nav>
 
@@ -88,7 +93,7 @@
 			location.href = "/logout.do";
 		}
 		function fnPassChange () {
-			location.href = "/basicInfo/pwChange.do";
+			location.href = "/user/passwdChange.do";
 		}
 		$(function() {
 			$(".nav > li").removeClass("open");
