@@ -3,27 +3,30 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <jsp:include page="/WEB-INF/jsp/cubox/common/checkPasswd.jsp" flush="false"/>
-<script type="text/javascript" src="/js/charts/loader.js"></script>
-<script type="text/javascript" src="/js/charts/charts.min.js"></script>
-<script type="text/javascript" src="/js/charts/utils.js"></script>
-<script type="text/javascript" src="<c:url value='/js/holidayManage/moment.min.js'/>"></script>
-<script type="text/javascript" src="/js/jquery.simple-calendar.js"></script>
+
 <script type="text/javascript">
 
 $(function(){
 	
+	$(".title_tx").html("등록기기 목록");
+	
 	setInterval(function(){ 
 		reload();
 	 }, 4000);
+
+	
 });
 
 //새로고침
 function reload() {
-	f = document.frmSearch;
+	/*f = document.frmSearch;
 	f.action = "/main.do"
-	f.submit();
+	f.submit();*/
+	
+	$('#deviceList').load(location.href+' #deviceList');
 }
 	
+
 
 </script>
 <form id="frmSearch" name="frmSearch" method="post" onsubmit="return false;">
@@ -40,7 +43,7 @@ function reload() {
 
 
 	<!--테이블 시작 -->
-	<div class="tb_outbox">
+	<div class="tb_outbox" id="deviceList">
 		<table class="tb_list">
 			<tbody>
 				<tr>

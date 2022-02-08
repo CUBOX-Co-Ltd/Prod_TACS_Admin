@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <script type="text/javascript">
 $(function() {
@@ -32,7 +33,6 @@ function fnGetSpot(obj) {
 							+ result.spotCombo[i].spotName + "</option>");
 				});
 			}
-			
 		}
 	});
 }
@@ -142,7 +142,10 @@ function resetSearch(){
 								<td> ${result.id}</td>
 								<td> ${spotId}</td>
 								<td> ${result.majorNo}</td>
-								<td> ${result.registDt}</td>
+								<td> 
+									<fmt:parseDate value="${fn:substringBefore(result.registDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
+									<fmt:formatDate value="${dateValue}" pattern="yyyy-MM-dd HH:mm:ss"/>
+								</td>
 							</tr>
 						</c:forEach>
 					</c:otherwise>

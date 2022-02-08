@@ -14,9 +14,7 @@ $(function() {
 	
 	modalPopup ("add-zone-modal", "Zone 추가", 550, 300);
 	modalPopup ("edit-zone-modal", "Zone 상세보기", 550, 330);
-	
-	
-	
+
 });
 
 function fnZoneAdd () {

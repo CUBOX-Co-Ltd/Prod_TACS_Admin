@@ -2,6 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
 <script type="text/javascript">
 
 $(function() {
@@ -27,23 +29,21 @@ $(function() {
 		$("#add-beacon-modal").PopupWindow("close");
     });
 	
-	modalPopup ("add-spot-modal", "Spot 추가", 550, 450);
+	modalPopup ("add-spot-modal", "Spot 추가", 550, 350);
 	modalPopup ("edit-spot-modal", "Spot 상세보기", 550, 600);
 	modalPopup ("add-beacon-modal", "Beacon 추가", 550, 400);
 
 });
 
 function fnSpotAddSave(){
-	var id = $("#srchZone").val();
+	var id = $("#srchAddZone").val();
 	
 	var txtName = $("#txtName").val();
 	var txtHost01 = $("#txtHost01").val();
 	var txtHost02 = $("#txtHost02").val();
 	var txtHost03 = $("#txtHost03").val();
 	var txtHost04 = $("#txtHost04").val();
-	
 	var txtHost = txtHost01 + "." + txtHost02 + "." + txtHost03 + "." + txtHost04;
-	
 	
 	showLoading();
 	$.ajax({
@@ -56,7 +56,6 @@ function fnSpotAddSave(){
 		dataType:'json',
 		type: "POST",
 		contentType: "application/json",
-		
 		success:function(result){
 			if(result.status == "200"){
 				location.reload();
@@ -76,14 +75,11 @@ function fnEditPop(id) {
 		dataType:'json',
 		type: "GET",
 		contentType: "application/json",
-		
 		success:function(result){
 			if(result.status == "200"){
 				$("#editZone").val(result.data.msZone.id);
 				$("#editUuid").val(result.data.spotUuid);
 				$("#editName").val(result.data.spotName);
-				$("#editExpiredTime").val(result.data.msZone.updtDt);
-				$("#editRegistTime").val(result.data.msZone.registDt);
 				$("#hidSpotId").val(id);
 				var host = result.data.frsHost;
 				if(!fnIsEmpty(host)) {
@@ -150,7 +146,8 @@ function fnSpotEditSave(){
 			"id" : spotId,
 			"zoneId": editZone,
 			"spotName": editName,
-			"frsHost": editHost
+			"frsHost": editHost,
+			"deleteYn": "N"
 		}),
 		contentType: "application/json",
 		success:function(result){
@@ -164,12 +161,37 @@ function fnSpotEditSave(){
 	});
 }
 
-function fnSpotDelete(){
+ /*function fnSpotDelete(){
 	var spotId = $("#hidSpotId").val();
 	showLoading();
 	$.ajax({
 		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
 		type: "DELETE",
+		success:function(result){
+			if(result.status == "200"){
+				location.reload();
+			} else {
+				alert(returnData.message);
+				hideLoading();
+			}
+		}
+	});
+}*/
+
+function fnSpotDelete(){
+	var spotId = $("#hidSpotId").val();
+	var editZone = $("#editZone").val();
+	showLoading();
+	$.ajax({
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
+		dataType:'json',
+		type: "POST",
+		data: JSON.stringify({
+			"id" : spotId,
+			"zoneId": editZone,
+			"deleteYn": "Y"
+		}),
+		contentType: "application/json",
 		success:function(result){
 			if(result.status == "200"){
 				location.reload();
@@ -279,6 +301,19 @@ function fnvalichk(event) {
 			tVal = tVal.replace(/[^0-9]/g, "");
 			event.target.value = fnIsEmpty(tVal) ? "" : tVal.substring(
 					0, 3);
+		}
+	}
+}
+function fnNumberOnly(event) {
+	event = event || window.event;
+	var keyID = (event.which) ? event.which : event.keyCode;
+	if (keyID == 8 || keyID == 46 || keyID == 37 || keyID == 39)
+		return;
+	else {
+		var tVal = event.target.value;
+		var regx = /^[0-9]{0,3}$/g;
+		if (!fnIsEmpty(tVal) && !regx.test(tVal)) {
+			tVal = tVal.replace(/[^0-9]/g, "");
 		}
 	}
 }
@@ -417,7 +452,7 @@ function resetSearch(){
 					<tr>
 						<th>ZONE</th>
 						<td>
-							<select name="srchZone" id="srchZone" size="1" class="w_100px input_com">
+							<select name="srchAddZone" id="srchAddZone" size="1" class="w_100px input_com">
 								<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
 	                      			<option value='<c:out value="${zCombo.id}"/>' 
 	                      				<c:if test="${zCombo.zoneName eq zCombo.zoneName}">selected</c:if>>
@@ -427,12 +462,12 @@ function resetSearch(){
 							</select>
 						</td>
 					</tr>
-					<tr>
+					<!--<tr>
 						<th>UUID</th>
 						<td>
 							<input type="text" id="txtUuid" name="txtUuid" maxlength="20" class="w_190px input_com" check="text" checkName="UUID" readOnly="readOnly"/>
 						</td>
-					</tr>
+					</tr> -->
 					<tr>
 						<th>이름</th>
 						<td>
@@ -503,12 +538,7 @@ function resetSearch(){
 							<input type="text" id="editHost04" name="editHost04" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
 						</td>
 					</tr>
-					<tr>
-						<th>등록일</th>
-						<td>
-							<input type="text" id="editRegistTime" name="editRegistTime" maxlength="20" class="w_190px input_com" check="text" checkName="" readOnly="readOnly"/>
-						</td>
-					</tr>
+					
 				</tbody>
 			</table>
 		</div>
@@ -533,7 +563,6 @@ function resetSearch(){
 		<table class="tb_list">
 			<col width="40%" />
 			<col width="40%" />
-			<col width="" />
 			<col width="" />
 
 			<thead>
@@ -568,7 +597,7 @@ function resetSearch(){
 					<tr>
 						<th>비콘_Major</th>
 						<td>
-							<input type="text" id="txtMajorNo" name="txtMajorNo" maxlength="20" class="w_190px input_com" check="text" checkName="txtMajorNo" />
+							<input type="text" id="txtMajorNo" name="txtMajorNo" maxlength="20" class="w_190px input_com" check="text" checkName="txtMajorNo" onKeyup="this.value=this.value.replace(/[^-0-9]/g,'');"/>
 						</td>
 					</tr>
 					<tr>
