@@ -4,7 +4,7 @@
 
 <script type="text/javascript">
 $(function() {
-	$(".title_tx").html("등록현황");
+	$(".title_tx").html("이동현황");
 });
 
 function pageSearch(page){
@@ -38,9 +38,20 @@ function fnGetSpot(obj) {
 }
 
 function beaconSearch(){
+	if(fnIsEmpty($("#srchSpot").val())){
+		alert('Spot 을 선택해 주세요');
+		return;
+	}	
+	
 	$("#srchPage").val("1");
 	frmSearch.action = "/systemInfo/beaconMngmt.do";
 	frmSearch.submit();
+}
+
+function resetSearch(){
+	$("#srchZone").val("");
+	$("#srchSpot").val("");
+	$("#srchBeacon").val("");
 }
 
 </script>
@@ -64,7 +75,7 @@ function beaconSearch(){
 				</select>
 			</div>
 			<div class="ch_box  mr_20">
-				<label for="srchSpotHost" class="ml_10"> zone</label>
+				<label for="srchSpotHost" class="ml_10"> spot</label>
 			</div>
 			<div class="comm_search mr_20">
 				<select name="srchSpot" id="srchSpot" size="1" class="w_100px input_com">
@@ -110,13 +121,11 @@ function beaconSearch(){
 			<col width="" />
 			<col width="" />
 			<col width="" />
-			<col width="" />
-			
 			<thead>
 				<tr>
 					<th>일련번호</th>
 					<th>SPOT</th>
-					<th>비콘 메이저</th>
+					<th>비콘 MAJOR</th>
 					<th>기록일시</th>
 				</tr>
 			</thead>

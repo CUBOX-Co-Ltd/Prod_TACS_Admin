@@ -113,7 +113,6 @@ public class SystemInfoController {
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
 		
-		String zoneId = "";
 		String zoneUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/zone?page=0&pageSize=20";
 		HashMap<String, Object> zoneResult = new HashMap<String, Object>();
 		List zoneCombo = new ArrayList<>();
@@ -123,7 +122,6 @@ public class SystemInfoController {
 		if(zoneResult.get("data") != null){
 			zoneCombo = (List) ((HashMap) zoneResult.get("data")).get("content");
 		}
-		
 
 		pageVO.setCurPage(srchPage);
 		pageVO.setRecPerPage(Integer.parseInt(srchRecPerPage));
@@ -135,8 +133,6 @@ public class SystemInfoController {
 		int pageSize = pageVO.getRecPerPage();
 		
  		if(!CommonUtils.empty(param)) {
-
-
 	 		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page="+page+"&pageSize="+pageSize;
 	 			   spotUrl += "&zoneId="+param.get("srchZone")+"&spotName="+param.get("srchCondName")+"&spotHost="+param.get("srchCondHost");
 			System.out.println("spotUrl >>>> "+spotUrl);
@@ -318,7 +314,7 @@ public class SystemInfoController {
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("jsonView");
 		
-		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page=0&pageSize=20&zoneId="+param.get("srchZone");
+		String spotUrl = "http://" + GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page=0&pageSize=20&zoneId="+param.get("srchZone");
 		   
 		System.out.println("spotUrl >>>> "+spotUrl);
 

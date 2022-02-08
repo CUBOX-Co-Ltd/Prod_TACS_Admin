@@ -1,11 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <script type="text/javascript">
-
-var globalIp = '172.16.150.14';
-var globalPort = '8080';
 
 $(function() {
 	$(".title_tx").html("Spot 목록");
@@ -50,7 +47,7 @@ function fnSpotAddSave(){
 	
 	showLoading();
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot',
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot",
 		data: JSON.stringify({
 			"zoneId" : id,
 			"spotName": txtName,
@@ -75,7 +72,7 @@ function fnEditPop(id) {
 	$("#edit-spot-modal").PopupWindow("open");
 	
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+id,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+id,
 		dataType:'json',
 		type: "GET",
 		contentType: "application/json",
@@ -104,7 +101,7 @@ function fnEditPop(id) {
 	});
 	
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+id+'/beacon?page=0&pageSize=20',
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+id+"/beacon?page=0&pageSize=20",
 		dataType:'json',
 		type: "GET",
 		contentType: "application/json",
@@ -146,7 +143,7 @@ function fnSpotEditSave(){
 	var editHost = editHost01 + "." + editHost02 + "." + editHost03 + "." + editHost04;
 	
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
 		dataType:'json',
 		type: "POST",
 		data: JSON.stringify({
@@ -171,7 +168,7 @@ function fnSpotDelete(){
 	var spotId = $("#hidSpotId").val();
 	showLoading();
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
 		type: "DELETE",
 		success:function(result){
 			if(result.status == "200"){
@@ -190,7 +187,7 @@ function fnBeaconSave(beaconId,spotId){
 
 	showLoading();
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId+'/beacon/'+beaconId,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId+"/beacon/"+beaconId,
 		dataType:'json',
 		type: "POST",
 		data: JSON.stringify({
@@ -216,7 +213,7 @@ function fnBeaconAddSave(){
 
 	showLoading();
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId+'/beacon',
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId+"/beacon",
 		data: JSON.stringify({
 			"majorNo" : majorNo,
 			"beaconMemo" : beaconMemo,
@@ -237,7 +234,7 @@ function fnBeaconAddSave(){
 
 function fnBeaconDelete(beaconId,spotId){
 	$.ajax({
-		url: 'http://' + globalIp + ':' + globalPort + '/tacsm/v1/admin/spot/'+spotId+'/beacon/'+beaconId,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId+"/beacon/"+beaconId,
 		type: "DELETE",
 		success:function(result){
 			if(result.status == "200"){
@@ -251,13 +248,12 @@ function fnBeaconDelete(beaconId,spotId){
 }
 
 function spotSearch() {
-	if(!fnIsEmpty($("#srchFromDt").val()) && !fnIsEmpty($("#srchToDt").val())) {
-		if($("#srchFromDt").val() > $("#srchToDt").val()){
-			alert('시작일이 만료일보다 큽니다. 다시 입력해 주세요');
-			$("input[name=srchFromDt]").focus();
-			return;
-		}	
+	if(!fnIsEmpty($("#srchFromDt").val())){
+		alert('시작일이 만료일보다 큽니다. 다시 입력해 주세요');
+		$("input[name=srchFromDt]").focus();
+		return;
 	}	
+		
 	
 	$("#srchPage").val("1");
 	frmSearch.action = "/systemInfo/spotMngmt.do";
@@ -325,6 +321,7 @@ function resetSearch(){
 			</div>
 			<div class="comm_search mr_20">
 				<select name="srchZone" id="srchZone" size="1" class="w_100px input_com">
+				<option value=''>선택</option>
 					<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
 	                      	<option value='<c:out value="${zCombo.id}"/>' 
 	                      		<c:if test="${zCombo.id eq zoneId}">selected</c:if>>

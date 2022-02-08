@@ -48,7 +48,7 @@ function reload() {
 					<c:if test="${i%j == 0 }">
 						<tr>
             		</c:if>
-                 		<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"></td>
+                 		<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"><br>${result.deviceName}</td>
             		<c:if test="${i%j == j-1 }">
                 		</tr>
            		 	</c:if>

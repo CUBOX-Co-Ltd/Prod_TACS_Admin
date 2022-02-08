@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
 <script type="text/javascript">
 $(function() {
@@ -32,7 +33,7 @@ function fnZoneAdd () {
 	
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8080/tacsm/v1/admin/zone',
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/zone",
 		data: JSON.stringify({
 			"zoneName": txtName,
 			"zoneHost": txtHost
@@ -95,7 +96,7 @@ function fnZoneEdit () {
 
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8080/tacsm/v1/admin/zone/'+zoneId,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/zone/"+zoneId,
 		data: JSON.stringify({
 			"id" : zoneId,
 			"zoneUuid": editUuid,
@@ -124,7 +125,7 @@ function fnZoneDelete () {
 
 	showLoading();
 	$.ajax({
-		url: 'http://172.16.150.14:8080/tacsm/v1/admin/zone/'+zoneId,
+		url: "<spring:eval expression="@property['Globals.api.url']"/>/zone/"+zoneId,
 		type: "DELETE",
 		success:function(result){
 			if(result.status == "200"){
