@@ -76,11 +76,16 @@ public class CommonController {
 		String intervalSecond = StringUtil.isNullToString(commandMap.get("intervalSecond")).matches("(^[0-9]+$)") ? StringUtil.isNullToString(commandMap.get("intervalSecond")) : "5";
 
 		HashMap<String, Object> result = new HashMap<String, Object>();
+		HashMap<String, Object> spotResult = new HashMap<String, Object>();
+		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
 		
 		String deviceUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT+"/tacsm/v1/admin/device?page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
 		
+		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT+"/tacsm/v1/admin/spot?page=0&pageSize=10";
+		
 		result = (ApiUtil.getApiReq(deviceUrl));
+		spotResult = (ApiUtil.getApiReq(spotUrl));
 		
 		List list = new ArrayList<>();
  		if(result.get("data") != null){
@@ -89,6 +94,23 @@ public class CommonController {
  			
 		}
  		
+// 		List spotList = new ArrayList<>();
+// 		String spotUuid = "";
+// 		if(spotResult.get("data") != null){
+// 			HashMap<String, Object> hash = (HashMap<String, Object>) spotResult.get("data");
+// 			list = (List) hash.get("content");
+// 			for (int i = 0; i<list.size(); i++){
+// 				HashMap<String, Object> table = new HashMap<String, Object>();
+// 				table = (HashMap<String, Object>) list.get(i);
+// 				spotUuid = table.get("spotUuid").toString(); 
+// 				
+// 				String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/"+spotUuid+"/device?page=0&pageSize=10";
+// 				System.out.println("### [main]spotdUrl:"+spotdUrl);
+// 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
+// 			
+// 			}
+// 		}
+// 		
 		model.addAttribute("reloadYn", reloadYn);
 		model.addAttribute("intervalSecond", intervalSecond);
 		model.addAttribute("deviceList", list);

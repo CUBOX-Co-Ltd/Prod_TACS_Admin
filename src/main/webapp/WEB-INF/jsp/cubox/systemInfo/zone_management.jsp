@@ -99,7 +99,8 @@ function fnZoneEdit () {
 			"id" : zoneId,
 			"zoneUuid": editUuid,
 			"zoneName": editName,
-			"zoneHost": editHost
+			"zoneHost": editHost,
+			"deleteYn" : "N"
 		}),
 		dataType:'json',
 		type: "POST",
