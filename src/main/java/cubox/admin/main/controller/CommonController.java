@@ -82,6 +82,7 @@ public class CommonController {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		HashMap<String, Object> spotResult = new HashMap<String, Object>();
 		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
+		HashMap<String, Object> spotdResult2 = new HashMap<String, Object>();
 	
 
 		String startDate = getYesterDt().replace(" ", "%20");
@@ -112,13 +113,16 @@ public class CommonController {
  		
  		if(spotResult.get("data") != null){
  			HashMap<String, Object> hash = (HashMap<String, Object>) spotResult.get("data");
- 			spotList = (List) hash.get("content");
- 			for (int i = 0; i<spotList.size(); i++){
- 				HashMap<String, Object> table = new HashMap<String, Object>();
- 				table = (HashMap<String, Object>) spotList.get(i);
- 				spotUuid = table.get("spotUuid").toString(); 
+ 			//spotList = (List) hash.get("content");
+ 			// for (int i = 0; i<spotList.size(); i++){
+// 				HashMap<String, Object> table = new HashMap<String, Object>();
+// 				table = (HashMap<String, Object>) spotList.get(i);
+// 				spotUuid = table.get("spotUuid").toString(); 
  				
- 				String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/"+spotUuid+"/device?page=0&pageSize=10";
+ 				String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/9bf5981f-f2b4-4646-9fec-451a61dce3d4/device?page=0&pageSize=10";
+ 				
+ 				
+ 				
  				System.out.println("### [main]spotdUrl:"+spotdUrl);
  				spotdResult= (ApiUtil.getApiReq(spotdUrl));
  				List spotImageResult = new ArrayList<>();
@@ -129,7 +133,20 @@ public class CommonController {
  		 			spotImageResult.addAll(listTemp);
  				}
  				spotImageList.add(spotImageResult);
- 			}
+ 				
+ 				String spotdUrl2 = "http://172.16.150.16:8080/tacsz/v1/admin/spot/aed7f216-d8d7-470c-aae8-18e60b4ead86/device?page=0&pageSize=10";
+ 				System.out.println("### [main]spotdUrl:"+spotdUrl2);
+ 				spotdResult2= (ApiUtil.getApiReq(spotdUrl2));
+ 				List spotImageResult2 = new ArrayList<>();
+ 				if(spotdResult.get("data") != null){
+ 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult2.get("data");
+ 		 			List listTemp = (List)hash2.get("content");
+ 		 			
+ 		 			spotImageResult2.addAll(listTemp);
+ 				}
+ 				spotImageList.add(spotImageResult2);
+ 				
+ 			//}
  		}
  		
  		model.addAttribute("deviceList", list);
