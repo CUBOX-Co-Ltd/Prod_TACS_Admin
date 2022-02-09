@@ -179,6 +179,12 @@ public class SystemInfoController {
 		int srchPage = String.valueOf(request.getParameter("srchPage")).matches("(^[0-9]*$)") ? Integer.valueOf(request.getParameter("srchPage")) : 1;
 		String srchRecPerPage = StringUtil.nvl(param.get("srchRecPerPage"), String.valueOf(srchCnt));
 		
+		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
+		String endDate = StringUtil.isNullToString(request.getParameter("expireDate"));
+
+		if(startDate.equals("")) startDate =  getYesterDt();
+		if(endDate.equals("")) endDate = getTodayDt();
+		
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
 	
@@ -191,7 +197,7 @@ public class SystemInfoController {
 		int page = pageVO.getCurPage()-1;
 		int pageSize = pageVO.getRecPerPage();
 
- 		String deviceUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/device?page="+page+"&pageSize="+pageSize;
+ 		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?registDtStart="+startDate.replace(" ", "%20")+"&registDtEnd="+endDate.replace(" ", "%20")+"&page="+page+"&pageSize="+pageSize;
  			   
 		System.out.println("deviceUrl >>>> "+deviceUrl);
 		
@@ -227,8 +233,8 @@ public class SystemInfoController {
 		model.addAttribute("pagination", pageVO);
 		model.addAttribute("deviceList", list);
 		model.addAttribute("imageList", imageList);
-		
-		
+		model.addAttribute("startDate", startDate);
+		model.addAttribute("endDate", endDate);
 
 		return "cubox/systemInfo/device_management";
 	}
@@ -242,7 +248,6 @@ public class SystemInfoController {
 		
 		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
 		String endDate = StringUtil.isNullToString(request.getParameter("expireDate"));
-	
 
 		
 		if(startDate.equals("")) startDate = getYesterDt();
@@ -325,7 +330,7 @@ public class SystemInfoController {
 	private String getTodayDt() {
 		// TODO Auto-generated method stub
 		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String today = sdf.format(date);
 
 		return today;
@@ -338,7 +343,7 @@ public class SystemInfoController {
 		// TODO Auto-generated method stub
 		Date dDate = new Date();
 		dDate = new Date(dDate.getTime()+(1000*60*60*24*-1));
-		SimpleDateFormat dSdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat dSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String yesterday = dSdf.format(dDate);
 
 		return yesterday;

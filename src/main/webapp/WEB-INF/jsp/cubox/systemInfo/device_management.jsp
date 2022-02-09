@@ -6,10 +6,26 @@
 <script type="text/javascript">
 $(function() {
 	$(".title_tx").html("등록현황");
+	
+	$('#startDate').datetimepicker({
+		timepicker:true,
+		format:'Y-m-d H:m:s'
+	});
+	
+	$('#endDate').datetimepicker({
+		timepicker:true,
+		format:'Y-m-d H:m:s'
+	});
+	
 });
 
 function pageSearch(page){
 	$("#srchPage").val(page);
+	f = document.frmSearch;
+	f.action = "/systemInfo/deviceMngmt.do";
+	f.submit();
+}
+function deviceSearch(){
 	f = document.frmSearch;
 	f.action = "/systemInfo/deviceMngmt.do";
 	f.submit();
@@ -22,14 +38,14 @@ function pageSearch(page){
 		<div class="search_in_bline">
 			<div class="comm_search  mr_5">
 				<label for="search-from-date" class="title">등록일</label>
-				<input type="text" class="input_datepicker w_200px  fl" autocomplete="off" name=" " id="startDatetimepicker" value="${srchCertificationDt_s}" placeholder="날짜,시간">
+				<input type="text" class="input_datepicker w_300px  fl" autocomplete="off" name="startDate" id="startDate" value="${startDate}" placeholder="날짜,시간">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
-				<input type="text" class="input_datepicker w_200px fl" name="srchExpireDate" id="endDatetimepicker" placeholder="날짜">
+				<input type="text" class="input_datepicker w_300px fl" name="endDate" id="endDate" value="${endDate}" placeholder="날짜">
 			</div>
 			
 			<div class="comm_search ml_60">
-				<div class="search_btn2" title="검색" onclick="userSearch()"></div>
+				<div class="search_btn2" title="검색" onclick="deviceSearch()"></div>
 			</div>
 			<div class="comm_search ml_65">
 				<button type="button" class="comm_btn" id="reset">초기화</button>

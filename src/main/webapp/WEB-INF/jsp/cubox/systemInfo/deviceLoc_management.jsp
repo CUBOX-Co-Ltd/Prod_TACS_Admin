@@ -7,27 +7,15 @@
 $(function() {
 	$(".title_tx").html("이동현황");
 	
-	//날짜, 시간
-	$.ajax({
-		type:"POST",
-		url:"<c:url value='/logInfo/getTime.do'/>",
-		dataType:'json',
-		success:function(returnData, status){
-				if(status == "success") {
-					if(returnData.fromTime != null && returnData.fromTime.length != 0 && returnData.toTime != null && returnData.toTime.length != 0 && returnData.ytDt != null && returnData.ytDt.length != 0 && returnData.tdDt != null && returnData.tdDt.length != 0){
-						$("#fromTime").val(returnData.fromTime);
-						$("#toTime").val(returnData.toTime);
-						$("#srchStartDate").val(returnData.ytDt);
-						$("#srchExpireDate").val(returnData.tdDt);
-					}
-
-				}else{
-					alert("ERROR!");
-					return;
-			}
-		}
+	$('#startDate').datetimepicker({
+		timepicker:true,
+		format:'Y-m-d H:m:s'
 	});
 	
+	$('#endDate').datetimepicker({
+		timepicker:true,
+		format:'Y-m-d H:m:s'
+	});
 });
 
 function pageSearch(page){
@@ -84,10 +72,10 @@ function resetSearch(){
 		<div class="search_in_bline">
 			<div class="comm_search  mr_5">
 				<label for="search-from-date" class="title">등록일</label>
-				<input type="text" class="input_datepicker w_150px fl" name="startDate" id="startDate" value="${startDate}" placeholder="날짜">
+				<input type="text" class="input_datepicker w_300px fl" name="startDate" id="startDate" value="${startDate}" placeholder="날짜">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
-				<input type="text" class="input_datepicker w_150px fl" name="expireDate" id="expireDate" value="${endDate}" placeholder="날짜">
+				<input type="text" class="input_datepicker w_300px fl" name="expireDate" id="expireDate" value="${endDate}" placeholder="날짜">
 			</div>
 			<div class="ch_box  mr_20">
 				<label for="srchSpotHost" class="ml_10"> zone</label>
@@ -162,7 +150,7 @@ function resetSearch(){
 						<c:forEach items="${deviceLocList}" var="result" varStatus="status">
 							<tr>
 								<td> ${result.id}</td>
-								<td> ${spotId}</td>
+								<td> ${result.spotName}</td>
 								<td> ${result.msDevice.deviceUuid}</td>
 								<td> 
 									<fmt:parseDate value="${fn:substringBefore(result.registDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>

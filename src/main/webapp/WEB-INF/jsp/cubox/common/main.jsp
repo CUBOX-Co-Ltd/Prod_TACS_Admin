@@ -57,6 +57,11 @@ function reload() {
            		 	</c:if>
            		 <c:set var="i" value="${i+1}" />
        		 </c:forEach>
+       		  <c:if test="${i > 0}">
+		       		 <c:forEach begin="1" end="${10-i}">
+		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
+		       		 </c:forEach>
+	       		 </c:if>
 			</tbody>
 		</table>
 	</div>

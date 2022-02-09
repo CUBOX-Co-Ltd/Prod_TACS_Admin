@@ -1,6 +1,8 @@
 package cubox.admin.main.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,8 @@ public class CommonController {
 	@Resource(name = "commonService")
 	private CommonService commonService;
 	
+
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CommonController.class);
 	
 	private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
@@ -79,7 +83,13 @@ public class CommonController {
 		HashMap<String, Object> spotResult = new HashMap<String, Object>();
 		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
 	
-		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?page=0&pageSize=10";
+
+		String startDate = getYesterDt().replace(" ", "%20");
+		String endDate = getTodayDt().replace(" ", "%20");
+	
+
+		
+		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?registDtStart="+startDate+"&registDtEnd="+endDate+"&page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
 		
 		String spotUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/spot?page=0&pageSize=10";
@@ -280,6 +290,29 @@ public class CommonController {
         responseHeaders.add("Content-Type", "text/plain; charset=utf-8");
         return new ResponseEntity<String>(obj.toString(), responseHeaders, HttpStatus.CREATED);
     }
+    
+    
+    private String getTodayDt() {
+		// TODO Auto-generated method stub
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String today = sdf.format(date);
+
+		return today;
+	}
+
+
+
+
+	private String getYesterDt() {
+		// TODO Auto-generated method stub
+		Date dDate = new Date();
+		dDate = new Date(dDate.getTime()+(1000*60*60*24*-1));
+		SimpleDateFormat dSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String yesterday = dSdf.format(dDate);
+
+		return yesterday;
+	}
     
     
 }
