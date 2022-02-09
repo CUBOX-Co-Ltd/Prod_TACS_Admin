@@ -89,7 +89,7 @@ public class CommonController {
 	
 
 		
-		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?registDtStart="+startDate+"&registDtEnd="+endDate+"&page=0&pageSize=10";
+		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?upDtSt="+startDate+"&upDtEd="+endDate+"&page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
 		
 		String spotUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/spot?page=0&pageSize=10";
