@@ -1,6 +1,8 @@
 package cubox.admin.main.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +111,11 @@ public class SystemInfoController {
 
 		int srchPage = String.valueOf(request.getParameter("srchPage")).matches("(^[0-9]*$)") ? Integer.valueOf(request.getParameter("srchPage")) : 1;
 		String srchRecPerPage = StringUtil.nvl(param.get("srchRecPerPage"), String.valueOf(srchCnt));
+		String srchZoneId = StringUtil.nvl(param.get("srchZone"));
+		String srchSpotName = StringUtil.nvl(param.get("srchCondName"));
+		String srchSpotHost = StringUtil.nvl(param.get("srchCondHost"));
+		
+		
 		
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
@@ -132,35 +139,35 @@ public class SystemInfoController {
 		int page = pageVO.getCurPage()-1;
 		int pageSize = pageVO.getRecPerPage();
 		
- 		if(!CommonUtils.empty(param)) {
-	 		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page="+page+"&pageSize="+pageSize;
-	 			   spotUrl += "&zoneId="+param.get("srchZone")+"&spotName="+param.get("srchCondName")+"&spotHost="+param.get("srchCondHost");
-			System.out.println("spotUrl >>>> "+spotUrl);
-			
-			//페이지에서 조회할 레코드 인덱스 생성
-			pageVO.calcRecordIndex();
+ 		
+ 		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page="+page+"&pageSize="+pageSize;
+ 			   spotUrl += "&zoneId=" + srchZoneId + "&spotName=" + srchSpotName + "&spotHost=" + srchSpotHost;
+		System.out.println("spotUrl >>>> "+spotUrl);
 		
-			HashMap<String, Object> result = new HashMap<String, Object>();
-			result = ApiUtil.getApiReq(spotUrl);
-			
-			int totalElements = 0;
-			
-			if(result.get("data") != null){
-				totalElements = (int) ((HashMap) result.get("data")).get("totalElements");
-				list = (List) ((HashMap) result.get("data")).get("content");
-				
-			}
-			pageVO.setTotRecord(totalElements);
-			pageVO.setUnitPage(curPageUnit);
-			pageVO.calcPageList();
+		//페이지에서 조회할 레코드 인덱스 생성
+		pageVO.calcRecordIndex();
+	
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		result = ApiUtil.getApiReq(spotUrl);
 		
+		int totalElements = 0;
+		
+		if(result.get("data") != null){
+			totalElements = (int) ((HashMap) result.get("data")).get("totalElements");
+			list = (List) ((HashMap) result.get("data")).get("content");
+			
 		}
+		pageVO.setTotRecord(totalElements);
+		pageVO.setUnitPage(curPageUnit);
+		pageVO.calcPageList();
+		
+		
 		model.addAttribute("zoneCombo",zoneCombo);
 		model.addAttribute("pagination", pageVO);
 		model.addAttribute("spotList", list);
-		model.addAttribute("zoneId", param.get("srchZone"));
-		model.addAttribute("srchCondName", param.get("srchCondName"));
-		model.addAttribute("srchCondHost", param.get("srchCondHost"));
+		model.addAttribute("zoneId", srchZoneId);
+		model.addAttribute("srchCondName", srchSpotName);
+		model.addAttribute("srchCondHost", srchSpotHost);
 		
 		return "cubox/systemInfo/spot_management";
 	}
@@ -175,8 +182,6 @@ public class SystemInfoController {
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
 	
-		
-
 		pageVO.setCurPage(srchPage);
 		pageVO.setRecPerPage(Integer.parseInt(srchRecPerPage));
 
@@ -229,11 +234,19 @@ public class SystemInfoController {
 	}
 	
 	
-	@RequestMapping(value="/systemInfo/beaconMngmt.do")
-	public String beaconMngmt(ModelMap model, HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
+	@RequestMapping(value="/systemInfo/deviceLocMngmt.do")
+	public String deviceLocMngmt(ModelMap model, HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
 		
 		int srchPage = String.valueOf(request.getParameter("srchPage")).matches("(^[0-9]*$)") ? Integer.valueOf(request.getParameter("srchPage")) : 1;
 		String srchRecPerPage = StringUtil.nvl(param.get("srchRecPerPage"), String.valueOf(srchCnt));
+		
+		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
+		String endDate = StringUtil.isNullToString(request.getParameter("expireDate"));
+	
+
+		
+		if(startDate.equals("")) startDate = getYesterDt();
+		if(endDate.equals("")) endDate = getTodayDt();
 		
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
@@ -272,15 +285,16 @@ public class SystemInfoController {
 				spotCombo = (List) ((HashMap) spotResult.get("data")).get("content");
 			}
 			
-	 		String beaconUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot/"+param.get("srchSpot")+"/beacon?page="+page+"&pageSize="+pageSize;
-	 			   beaconUrl+= "&majorNo="+param.get("srchBeacon");
-			System.out.println("beaconUrl >>>> "+beaconUrl);
+	 		String deviceLocUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/deviceLoc?";
+	 			deviceLocUrl += "zoneId="+param.get("srchZone")+"&spotId="+param.get("srchSpot")+"&page="+page+"&pageSize="+pageSize;
+	 			   
+			System.out.println("beaconUrl >>>> "+deviceLocUrl);
 			
 			//페이지에서 조회할 레코드 인덱스 생성
 			pageVO.calcRecordIndex();
 		
 			HashMap<String, Object> result = new HashMap<String, Object>();
-			result = ApiUtil.getApiReq(beaconUrl);
+			result = ApiUtil.getApiReq(deviceLocUrl);
 			
 			int totalElements = 0;
 			
@@ -295,18 +309,44 @@ public class SystemInfoController {
 		
 		}
 		model.addAttribute("pagination", pageVO);
-		model.addAttribute("beaconList", list);
+		model.addAttribute("deviceLocList", list);
 		model.addAttribute("spotId", param.get("srchSpot"));
 		model.addAttribute("zoneId", param.get("srchZone"));
-		model.addAttribute("srchBeacon", param.get("srchBeacon"));
 		model.addAttribute("zoneCombo", zoneCombo);
 		model.addAttribute("spotCombo", spotCombo);
+		model.addAttribute("startDate", startDate);
+		model.addAttribute("endDate", endDate);
 		
 		
-		return "cubox/systemInfo/beacon_management";
+		return "cubox/systemInfo/deviceLoc_management";
 	}
 	
 	
+	private String getTodayDt() {
+		// TODO Auto-generated method stub
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String today = sdf.format(date);
+
+		return today;
+	}
+
+
+
+
+	private String getYesterDt() {
+		// TODO Auto-generated method stub
+		Date dDate = new Date();
+		dDate = new Date(dDate.getTime()+(1000*60*60*24*-1));
+		SimpleDateFormat dSdf = new SimpleDateFormat("yyyy-MM-dd");
+		String yesterday = dSdf.format(dDate);
+
+		return yesterday;
+	}
+
+
+
+
 	@ResponseBody
 	@RequestMapping(value = "/systemInfo/getSpotCombo.do")
 	public ModelAndView getSpotCombo(HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {

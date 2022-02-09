@@ -78,11 +78,11 @@ public class CommonController {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		HashMap<String, Object> spotResult = new HashMap<String, Object>();
 		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
-		
-		String deviceUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT+"/tacsm/v1/admin/device?page=0&pageSize=10";
+	
+		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
 		
-		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT+"/tacsm/v1/admin/spot?page=0&pageSize=10";
+		String spotUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/spot?page=0&pageSize=10";
 		
 		result = (ApiUtil.getApiReq(deviceUrl));
 		spotResult = (ApiUtil.getApiReq(spotUrl));
@@ -91,29 +91,43 @@ public class CommonController {
  		if(result.get("data") != null){
  			HashMap<String, Object> hash = (HashMap<String, Object>) result.get("data");
  			list = (List) hash.get("content");
- 			
 		}
  		
-// 		List spotList = new ArrayList<>();
-// 		String spotUuid = "";
-// 		if(spotResult.get("data") != null){
-// 			HashMap<String, Object> hash = (HashMap<String, Object>) spotResult.get("data");
-// 			list = (List) hash.get("content");
-// 			for (int i = 0; i<list.size(); i++){
-// 				HashMap<String, Object> table = new HashMap<String, Object>();
-// 				table = (HashMap<String, Object>) list.get(i);
-// 				spotUuid = table.get("spotUuid").toString(); 
-// 				
-// 				String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/"+spotUuid+"/device?page=0&pageSize=10";
-// 				System.out.println("### [main]spotdUrl:"+spotdUrl);
-// 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
-// 			
-// 			}
-// 		}
-// 		
+ 		List spotList = new ArrayList<>();
+ 		List spotImageList = new ArrayList<>();
+ 		
+ 		HashMap<String, Object> temp = new HashMap<String, Object>();
+ 		
+ 		String spotUuid = "";
+ 		
+ 		if(spotResult.get("data") != null){
+ 			HashMap<String, Object> hash = (HashMap<String, Object>) spotResult.get("data");
+ 			spotList = (List) hash.get("content");
+ 			for (int i = 0; i<spotList.size(); i++){
+ 				HashMap<String, Object> table = new HashMap<String, Object>();
+ 				table = (HashMap<String, Object>) spotList.get(i);
+ 				spotUuid = table.get("spotUuid").toString(); 
+ 				
+ 				String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/"+spotUuid+"/device?page=0&pageSize=10";
+ 				System.out.println("### [main]spotdUrl:"+spotdUrl);
+ 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
+ 				List spotImageResult = new ArrayList<>();
+ 				if(spotdResult.get("data") != null){
+ 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
+ 		 			List listTemp = (List)hash2.get("content");
+ 		 			
+ 		 			spotImageResult.addAll(listTemp);
+ 				}
+ 				spotImageList.add(spotImageResult);
+ 			}
+ 		}
+ 		
+ 		model.addAttribute("deviceList", list);
+ 		model.addAttribute("spotImageList", spotImageList);
 		model.addAttribute("reloadYn", reloadYn);
 		model.addAttribute("intervalSecond", intervalSecond);
-		model.addAttribute("deviceList", list);
+		model.addAttribute("totalElements", spotImageList.size());
+		
 
 		return "cubox/common/main";
 	}	
@@ -266,4 +280,6 @@ public class CommonController {
         responseHeaders.add("Content-Type", "text/plain; charset=utf-8");
         return new ResponseEntity<String>(obj.toString(), responseHeaders, HttpStatus.CREATED);
     }
+    
+    
 }

@@ -24,6 +24,7 @@ function reload() {
 	f.submit();*/
 	
 	$('#deviceList').load(location.href+' #deviceList');
+	 $('#spotList').load(location.href+' #spotList');
 }
 	
 
@@ -37,20 +38,19 @@ function reload() {
 		<div class="r_btnbox  mb_10">
 		</div>
 	</div>
-	
 	<c:set var="i" value="0" />
 	<c:set var="j" value="10" />
-
-
 	<!--테이블 시작 -->
 	<div class="tb_outbox" id="deviceList">
 		<table class="tb_list">
 			<tbody>
-				<tr>
+				
 				<c:forEach items="${deviceList}" var="result" varStatus="status">
 					<c:if test="${i%j == 0 }">
 						<tr>
+						<td width="50px">전체</td>
             		</c:if>
+            			
                  		<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"><br>${result.deviceName}</td>
             		<c:if test="${i%j == j-1 }">
                 		</tr>
@@ -60,9 +60,40 @@ function reload() {
 			</tbody>
 		</table>
 	</div>
-	<!--------- //목록--------->
-
-</div>
-
+		
+	<div class="tb_outbox" id="spotList">
+	
+		<c:forEach items="${spotImageList}" var="list" varStatus="status2">
+		<c:set var="a" value="0" />
+		<c:set var="b" value="10" />
+			<table class="tb_list">
+				<tbody>
+					<tr>
+					<c:if test="${status2.index == 0}">
+						<td width="50px">쇼룸</td>
+					</c:if>
+					<c:if test="${status2.index == 1}">
+						<td width="50px">휴게실</td>
+					</c:if>
+					<c:if test="${fn:length(list) == 0}">
+					<c:forEach begin="1" end="10">
+		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
+		       		 </c:forEach>
+					</c:if>
+					<c:forEach items="${list}" var="result" varStatus="status">	
+	                 	<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"><br>${result.deviceName}</td>
+	           		 <c:set var="a" value="${a+1}" />
+	       		 	</c:forEach>
+	       		 <c:if test="${a > 0}">
+		       		 <c:forEach begin="1" end="${10-a}">
+		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
+		       		 </c:forEach>
+	       		 </c:if>
+	       		 </tr>
+				</tbody>
+			</table>
+		</c:forEach>
+		</div>
+	</div>
 </div>
 </form>

@@ -39,11 +39,7 @@ function fnSpotAddSave(){
 	var id = $("#srchAddZone").val();
 	
 	var txtName = $("#txtName").val();
-	var txtHost01 = $("#txtHost01").val();
-	var txtHost02 = $("#txtHost02").val();
-	var txtHost03 = $("#txtHost03").val();
-	var txtHost04 = $("#txtHost04").val();
-	var txtHost = txtHost01 + "." + txtHost02 + "." + txtHost03 + "." + txtHost04;
+	var txtHost = $("#txtHost").val();
 	
 	showLoading();
 	$.ajax({
@@ -82,13 +78,7 @@ function fnEditPop(id) {
 				$("#editName").val(result.data.spotName);
 				$("#hidSpotId").val(id);
 				var host = result.data.frsHost;
-				if(!fnIsEmpty(host)) {
-					var sHost = host.split('.');
-					$("#editHost01").val(sHost[0]);
-					$("#editHost02").val(sHost[1]);
-					$("#editHost03").val(sHost[2]);
-					$("#editHost04").val(sHost[3]);
-				}
+				$("#editHost").val(host);
 			} else {
 				alert(returnData.message);
 				hideLoading();
@@ -131,12 +121,8 @@ function fnSpotEditSave(){
 	var editUuid = $("#editUuid").val();
 	var editName = $("#editName").val();
 	
-	var editHost01 = $("#editHost01").val();
-	var editHost02 = $("#editHost02").val();
-	var editHost03 = $("#editHost03").val();
-	var editHost04 = $("#editHost04").val();
-	
-	var editHost = editHost01 + "." + editHost02 + "." + editHost03 + "." + editHost04;
+	var editHost = $("#editHost").val();
+
 	
 	$.ajax({
 		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
@@ -356,7 +342,7 @@ function resetSearch(){
 			</div>
 			<div class="comm_search mr_20">
 				<select name="srchZone" id="srchZone" size="1" class="w_100px input_com">
-				<option value=''>선택</option>
+				<option value=''>전체</option>
 					<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
 	                      	<option value='<c:out value="${zCombo.id}"/>' 
 	                      		<c:if test="${zCombo.id eq zoneId}">selected</c:if>>
@@ -420,7 +406,7 @@ function resetSearch(){
 						<c:forEach items="${spotList}" var="result" varStatus="status">
 							<tr>
 								<td> ${result.id}</td>
-								<td> ${zoneId}</td>
+								<td> ${result.msZone.zoneName}</td>
 								<td> <a class="nav-link" onclick="fnEditPop('${result.id}')">${result.spotUuid}</a></td>
 								<td> ${result.spotName}</td>
 								<td> ${result.frsHost}</td>
@@ -477,10 +463,7 @@ function resetSearch(){
 					<tr>
 						<th>FRS_HOST</th>
 						<td>
-							<input type="text" id="txtHost01" name="txtHost01" maxlength="3" class="w_70px input_com fl" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="txtHost02" name="txtHost02" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="txtHost03" name="txtHost03" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="txtHost04" name="txtHost04" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
+							<input type="text" id="txtHost" name="txtName" maxlength="20" class="w_190px input_com" check="text" checkName="Host"/>
 						</td>
 					</tr>
 				
@@ -532,10 +515,7 @@ function resetSearch(){
 					<tr>
 						<th>FRS_HOST</th>
 						<td>
-							<input type="text" id="editHost01" name="editHost01" maxlength="3" class="w_70px input_com fl" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="editHost02" name="editHost02" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="editHost03" name="editHost03" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="editHost04" name="editHost04" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
+							<input type="text" id="editHost" name="editHost" maxlength="20" class="w_190px input_com" check="text" check="text" checkName="Host"/>
 						</td>
 					</tr>
 					

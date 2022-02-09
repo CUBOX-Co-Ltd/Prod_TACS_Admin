@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%> 
 
 <script type="text/javascript">
 $(function() {
@@ -22,7 +22,7 @@ function pageSearch(page){
 		<div class="search_in_bline">
 			<div class="comm_search  mr_5">
 				<label for="search-from-date" class="title">등록일</label>
-				<input type="text" class="input_datepicker w_200px fl" name="srchStartDate" id="startDatetimepicker" placeholder="날짜">
+				<input type="text" class="input_datepicker w_200px  fl" autocomplete="off" name=" " id="startDatetimepicker" value="${srchCertificationDt_s}" placeholder="날짜,시간">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchExpireDate" id="endDatetimepicker" placeholder="날짜">
@@ -56,6 +56,7 @@ function pageSearch(page){
 			<thead>
 				<tr>
 					<th>일련번호</th>
+					<th>Uuid</th>
 					<th>이미지</th>
 					<th>이름</th>
 					<th>등록일</th>
@@ -72,6 +73,7 @@ function pageSearch(page){
 						<c:forEach items="${deviceList}" var="result" varStatus="status">
 							<tr>
 								<td> ${result.id}</td>
+								<td> ${result.deviceUuid}</td>
 								<td><img width="100px" src="data:image/jpeg;base64,${result.image}" ></td>
 								<td> ${result.deviceUuid}</td>
 								<td> 

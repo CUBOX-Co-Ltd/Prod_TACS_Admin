@@ -21,12 +21,9 @@ function fnZoneAdd () {
 	if(!fnFormValueCheck("frmAdd")) return;
 	
 	var txtName = $("#txtName").val();
-	var txtHost01 = $("#txtHost01").val();
-	var txtHost02 = $("#txtHost02").val();
-	var txtHost03 = $("#txtHost03").val();
-	var txtHost04 = $("#txtHost04").val();
+	var txtHost = $("#txtHost").val();
 	
-	var txtHost = txtHost01 + "." + txtHost02 + "." + txtHost03 + "." + txtHost04;
+	
 	
 	
 	showLoading();
@@ -56,14 +53,9 @@ function fnEditPop(id, uuid, name, host) {
 	$("#hiddenId").val(id);
 	$("#editUuid").val(uuid);
 	$("#editName").val(name);
+	$("#editHost").val(host);
 	
-	if(!fnIsEmpty(host)) {
-		var sHost = host.split('.');
-		$("#editHost01").val(sHost[0]);
-		$("#editHost02").val(sHost[1]);
-		$("#editHost03").val(sHost[2]);
-		$("#editHost04").val(sHost[3]);
-	}
+	
 }
 
 function fnZoneEdit () {
@@ -73,12 +65,8 @@ function fnZoneEdit () {
 	var editName = $("#editName").val();
 	
 	
-	var editHost01 = $("#editHost01").val();
-	var editHost02 = $("#editHost02").val();
-	var editHost03 = $("#editHost03").val();
-	var editHost04 = $("#editHost04").val();
+	var editHost = $("#editHost").val();
 	
-	var editHost = editHost01 + "." + editHost02 + "." + editHost03 + "." + editHost04;
 	
 	var zoneId = $("#hiddenId").val();
 	
@@ -278,10 +266,7 @@ function pageSearch(page){
 					<tr>
 						<th>HOST</th>
 						<td>
-							<input type="text" id="txtHost01" name="txtHost01" maxlength="3" class="w_70px input_com fl" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="txtHost02" name="txtHost02" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="txtHost03" name="txtHost03" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="txtHost04" name="txtHost04" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
+							<input type="text" id="txtHost" name="txtHost" maxlength="20" class="w_190px input_com" check="text" checkName="Host"/>
 						</td>
 					</tr>
 				</tbody>
@@ -299,9 +284,6 @@ function pageSearch(page){
 	</div>
 </form>
 </div>
-
-
-
 <!-- modal : 수정 -->
 <div id="edit-zone-modal" class="example_content">
 <form id="frmEdit" name="frmEdit" method="post">
@@ -328,10 +310,7 @@ function pageSearch(page){
 					<tr>
 						<th>HOST</th>
 						<td>
-							<input type="text" id="editHost01" name="editHost01" maxlength="3" class="w_70px input_com fl" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="editHost02" name="editHost02" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="editHost03" name="editHost03" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
-							<input type="text" id="editHost04" name="editHost04" maxlength="3" class="w_70px input_com fl ml_5" onkeyup="fnvalichk(event)" check="text" checkName="Host"/>
+							<input type="text" id="editHost" name="editHost" maxlength="20" class="w_190px input_com" check="text" checkName="Host"/>
 						</td>
 					</tr>
 				</tbody>
