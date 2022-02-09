@@ -137,7 +137,7 @@ function resetSearch(){
 					<th>SPOT</th>
 					<th>Uuid</th>
 					<th>기록일시</th>
-					<th>수정일시</th>
+					
 				</tr>
 			</thead>
 			<tbody>
@@ -153,10 +153,6 @@ function resetSearch(){
 								<td> ${result.id}</td>
 								<td> ${result.msSpot.spotName}</td>
 								<td> ${result.msDevice.deviceUuid}</td>
-								<td> 
-									<fmt:parseDate value="${fn:substringBefore(result.registDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
-									<fmt:formatDate value="${dateValue}" pattern="yyyy-MM-dd HH:mm:ss"/>
-								</td>
 								<td> 
 									<fmt:parseDate value="${fn:substringBefore(result.updtDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
 									<fmt:formatDate value="${dateValue}" pattern="yyyy-MM-dd HH:mm:ss"/>

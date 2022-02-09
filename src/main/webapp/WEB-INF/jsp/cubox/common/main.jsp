@@ -8,7 +8,7 @@
 
 $(function(){
 	
-	$(".title_tx").html("등록기기 목록");
+	$(".title_tx").html("기기등록 및 이동현황");
 	
 	setInterval(function(){ 
 		reload();
@@ -24,7 +24,7 @@ function reload() {
 	f.submit();*/
 	
 	$('#deviceList').load(location.href+' #deviceList');
-	 $('#spotList').load(location.href+' #spotList');
+	$('#spotList').load(location.href+' #spotList');
 }
 	
 
@@ -70,7 +70,6 @@ function reload() {
 	</div>
 		
 	<div class="tb_outbox" id="spotList">
-	
 		<c:forEach items="${spotImageList}" var="list" varStatus="status2">
 		<c:set var="a" value="0" />
 		<c:set var="b" value="10" />
