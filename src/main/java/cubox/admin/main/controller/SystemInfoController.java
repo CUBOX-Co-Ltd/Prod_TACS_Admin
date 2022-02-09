@@ -178,6 +178,7 @@ public class SystemInfoController {
 		
 		int srchPage = String.valueOf(request.getParameter("srchPage")).matches("(^[0-9]*$)") ? Integer.valueOf(request.getParameter("srchPage")) : 1;
 		String srchRecPerPage = StringUtil.nvl(param.get("srchRecPerPage"), String.valueOf(srchCnt));
+		String srchCondWord = StringUtil.nvl(param.get("srchCondWord"));
 		
 		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
 		String endDate = StringUtil.isNullToString(request.getParameter("expireDate"));
@@ -197,7 +198,9 @@ public class SystemInfoController {
 		int page = pageVO.getCurPage()-1;
 		int pageSize = pageVO.getRecPerPage();
 
- 		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?registDtStart="+startDate.replace(" ", "%20")+"&registDtEnd="+endDate.replace(" ", "%20")+"&page="+page+"&pageSize="+pageSize;
+ 		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?";
+ 				deviceUrl+="registDtStart="+startDate.replace(" ", "%20")+"&registDtEnd="+endDate.replace(" ", "%20")+"&deviceName="+srchCondWord;
+ 				deviceUrl+="&page="+page+"&pageSize="+pageSize;
  			   
 		System.out.println("deviceUrl >>>> "+deviceUrl);
 		

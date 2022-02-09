@@ -71,11 +71,11 @@ function resetSearch(){
 	<div class="search_box mb_20">
 		<div class="search_in_bline">
 			<div class="comm_search  mr_5">
-				<label for="search-from-date" class="title">등록일</label>
-				<input type="text" class="input_datepicker w_300px fl" name="startDate" id="startDate" value="${startDate}" placeholder="날짜">
+				<label for="search-from-date" class="title">기록일시</label>
+				<input type="text" class="input_datepicker w_200px fl" name="startDate" id="startDate" value="${startDate}" placeholder="날짜">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
-				<input type="text" class="input_datepicker w_300px fl" name="expireDate" id="expireDate" value="${endDate}" placeholder="날짜">
+				<input type="text" class="input_datepicker w_200px fl" name="expireDate" id="expireDate" value="${endDate}" placeholder="날짜">
 			</div>
 			<div class="ch_box  mr_20">
 				<label for="srchSpotHost" class="ml_10"> zone</label>
@@ -137,6 +137,7 @@ function resetSearch(){
 					<th>SPOT</th>
 					<th>Uuid</th>
 					<th>기록일시</th>
+					<th>수정일시</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -150,10 +151,14 @@ function resetSearch(){
 						<c:forEach items="${deviceLocList}" var="result" varStatus="status">
 							<tr>
 								<td> ${result.id}</td>
-								<td> ${result.spotName}</td>
+								<td> ${result.msSpot.spotName}</td>
 								<td> ${result.msDevice.deviceUuid}</td>
 								<td> 
 									<fmt:parseDate value="${fn:substringBefore(result.registDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
+									<fmt:formatDate value="${dateValue}" pattern="yyyy-MM-dd HH:mm:ss"/>
+								</td>
+								<td> 
+									<fmt:parseDate value="${fn:substringBefore(result.updtDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
 									<fmt:formatDate value="${dateValue}" pattern="yyyy-MM-dd HH:mm:ss"/>
 								</td>
 							</tr>
