@@ -199,7 +199,7 @@ public class SystemInfoController {
 		int pageSize = pageVO.getRecPerPage();
 
  		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?";
- 				deviceUrl+="registDtStart="+startDate.replace(" ", "%20")+"&registDtEnd="+endDate.replace(" ", "%20")+"&deviceName="+srchCondWord;
+ 				deviceUrl+="upDtSt="+startDate.replace(" ", "%20")+"&upDtEd="+endDate.replace(" ", "%20")+"&deviceName="+srchCondWord;
  				deviceUrl+="&page="+page+"&pageSize="+pageSize;
  			   
 		System.out.println("deviceUrl >>>> "+deviceUrl);
@@ -259,8 +259,6 @@ public class SystemInfoController {
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
 		
-		
-
 		pageVO.setCurPage(srchPage);
 		pageVO.setRecPerPage(Integer.parseInt(srchRecPerPage));
 
@@ -295,6 +293,7 @@ public class SystemInfoController {
 			
 	 		String deviceLocUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/deviceLoc?";
 	 			deviceLocUrl += "zoneId="+param.get("srchZone")+"&spotId="+param.get("srchSpot")+"&page="+page+"&pageSize="+pageSize;
+	 			deviceLocUrl += "&upDtSt="+startDate.replace(" ", "%20")+"&upDtEd="+endDate.replace(" ", "%20");
 	 			   
 			System.out.println("beaconUrl >>>> "+deviceLocUrl);
 			
