@@ -44,13 +44,16 @@ function reload() {
 	<div class="tb_outbox" id="deviceList">
 		<table class="tb_list">
 			<tbody>
-				
+			<td width="50px">전체</td>
+				<c:if test="${fn:length(deviceList) == 0}">
+					<c:forEach begin="1" end="10">
+		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
+		       		 </c:forEach>
+				</c:if>
 				<c:forEach items="${deviceList}" var="result" varStatus="status">
 					<c:if test="${i%j == 0 }">
 						<tr>
-						<td width="50px">전체</td>
             		</c:if>
-            			
                  		<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"><br>${result.deviceName}</td>
             		<c:if test="${i%j == j-1 }">
                 		</tr>
