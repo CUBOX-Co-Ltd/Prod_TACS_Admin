@@ -1,6 +1,6 @@
 package cubox.admin.main.controller;
 
-import java.text.SimpleDateFormat;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,13 +47,20 @@ public class SystemInfoController {
 	@Resource(name = "commonUtils")
 	protected CommonUtils commonUtils;
 
+	private static String GLOBAL_API_URL = CuboxProperties.getProperty("Globals.api.url");
 	private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
 	private static String GLOBAL_API_PORT = CuboxProperties.getProperty("Globals.api.port");
 	
 	private int srchCnt     = 10; //조회할 페이지 수
 	private int curPageUnit = 10; //한번에 표시할 페이지 번호 개수
 
-	
+	private String getTodayDt() {
+		return commonUtils.getToday("yyyy-MM-dd HH:mm");
+	}
+
+	private String getYesterDt() {
+		return commonUtils.getStringDate(DateUtils.addDays(new Date(), -1), "yyyy-MM-dd HH:mm");
+	}
 	
 	@RequestMapping(value="/systemInfo/zoneMngmt.do")
 	public String zoneMngmt(ModelMap model,  HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
@@ -70,9 +78,9 @@ public class SystemInfoController {
 		int page = pageVO.getCurPage()-1;
 		int pageSize = pageVO.getRecPerPage();
 		
- 		String zoneUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT+"/tacsm/v1/admin/zone?page="+page+"&pageSize="+pageSize;
+ 		String zoneUrl = GLOBAL_API_URL+"/zone?page="+page+"&pageSize="+pageSize;
 		if(srchCondWord!=null){
-			zoneUrl+="&zoneName="+srchCondWord;
+			zoneUrl+="&zoneName="+URLEncoder.encode(srchCondWord, "UTF-8");
 		}
 		
 		System.out.println("zoneUrl >>>> "+zoneUrl);
@@ -120,10 +128,9 @@ public class SystemInfoController {
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
 		
-		String zoneUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/zone?page=0&pageSize=20";
+		String zoneUrl = GLOBAL_API_URL+"/zone?page=0&pageSize=20";
 		HashMap<String, Object> zoneResult = new HashMap<String, Object>();
 		List zoneCombo = new ArrayList<>();
-		
 		zoneResult = ApiUtil.getApiReq(zoneUrl);
 		
 		if(zoneResult.get("data") != null){
@@ -140,10 +147,10 @@ public class SystemInfoController {
 		int pageSize = pageVO.getRecPerPage();
 		
  		
- 		String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page="+page+"&pageSize="+pageSize;
- 			   spotUrl += "&zoneId=" + srchZoneId + "&spotName=" + srchSpotName + "&spotHost=" + srchSpotHost;
+ 		String spotUrl = GLOBAL_API_URL+"/spot?page="+page+"&pageSize="+pageSize;
+ 			   spotUrl += "&zoneId=" + srchZoneId + "&spotName=" + URLEncoder.encode(srchSpotName, "UTF-8") + "&spotHost=" + srchSpotHost;
 		System.out.println("spotUrl >>>> "+spotUrl);
-		
+
 		//페이지에서 조회할 레코드 인덱스 생성
 		pageVO.calcRecordIndex();
 	
@@ -181,7 +188,7 @@ public class SystemInfoController {
 		String srchCondWord = StringUtil.nvl(param.get("srchCondWord"));
 		
 		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
-		String endDate = StringUtil.isNullToString(request.getParameter("expireDate"));
+		String endDate = StringUtil.isNullToString(request.getParameter("endDate"));
 
 		if(startDate.equals("")) startDate =  getYesterDt();
 		if(endDate.equals("")) endDate = getTodayDt();
@@ -198,8 +205,8 @@ public class SystemInfoController {
 		int page = pageVO.getCurPage()-1;
 		int pageSize = pageVO.getRecPerPage();
 
- 		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?";
- 				deviceUrl+="upDtSt="+startDate.replace(" ", "%20")+"&upDtEd="+endDate.replace(" ", "%20")+"&deviceName="+srchCondWord;
+ 		String deviceUrl = GLOBAL_API_URL+"/device?";
+ 				deviceUrl+="upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8")+"&deviceName="+URLEncoder.encode(srchCondWord, "UTF-8");
  				deviceUrl+="&page="+page+"&pageSize="+pageSize;
  			   
 		System.out.println("deviceUrl >>>> "+deviceUrl);
@@ -238,6 +245,7 @@ public class SystemInfoController {
 		model.addAttribute("imageList", imageList);
 		model.addAttribute("startDate", startDate);
 		model.addAttribute("endDate", endDate);
+		model.addAttribute("srchCondWord", srchCondWord);
 
 		return "cubox/systemInfo/device_management";
 	}
@@ -250,10 +258,9 @@ public class SystemInfoController {
 		String srchRecPerPage = StringUtil.nvl(param.get("srchRecPerPage"), String.valueOf(srchCnt));
 		
 		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
-		String endDate = StringUtil.isNullToString(request.getParameter("expireDate"));
-
+		String endDate = StringUtil.isNullToString(request.getParameter("endDate"));
 		
-		if(startDate.equals("")) startDate = getYesterDt();
+		if(startDate.equals("")) startDate =  getYesterDt();
 		if(endDate.equals("")) endDate = getTodayDt();
 		
 		PaginationVO pageVO = new PaginationVO();
@@ -269,7 +276,7 @@ public class SystemInfoController {
 		int pageSize = pageVO.getRecPerPage();
 		
 	
-		String zoneUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/zone?page=0&pageSize=20";
+		String zoneUrl = GLOBAL_API_URL+"/zone?page=0&pageSize=20";
 		
 		HashMap<String, Object> zoneResult = new HashMap<String, Object>();
 		HashMap<String, Object> spotResult = new HashMap<String, Object>();
@@ -284,18 +291,19 @@ public class SystemInfoController {
 		}
 	
 		if(!CommonUtils.empty(param)) {
-			String spotUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page=0&pageSize=20";
+			String spotUrl = GLOBAL_API_URL+"/spot?page=0&pageSize=20";
 			spotResult = ApiUtil.getApiReq(spotUrl);
 			System.out.println("spotUrl >>>> "+spotUrl);
 			if(spotResult.get("data") != null){
 				spotCombo = (List) ((HashMap) spotResult.get("data")).get("content");
 			}
 			
-	 		String deviceLocUrl = "http://" +GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/deviceLoc?";
+			
+	 		String deviceLocUrl = GLOBAL_API_URL+"/deviceLoc?";
 	 			deviceLocUrl += "zoneId="+param.get("srchZone")+"&spotId="+param.get("srchSpot")+"&page="+page+"&pageSize="+pageSize;
-	 			deviceLocUrl += "&upDtSt="+startDate.replace(" ", "%20")+"&upDtEd="+endDate.replace(" ", "%20");
+	 			deviceLocUrl += "&upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8");
 	 			   
-			System.out.println("beaconUrl >>>> "+deviceLocUrl);
+			System.out.println("deviceLocUrl >>>> "+deviceLocUrl);
 			
 			//페이지에서 조회할 레코드 인덱스 생성
 			pageVO.calcRecordIndex();
@@ -328,32 +336,6 @@ public class SystemInfoController {
 		return "cubox/systemInfo/deviceLoc_management";
 	}
 	
-	
-	private String getTodayDt() {
-		// TODO Auto-generated method stub
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String today = sdf.format(date);
-
-		return today;
-	}
-
-
-
-
-	private String getYesterDt() {
-		// TODO Auto-generated method stub
-		Date dDate = new Date();
-		dDate = new Date(dDate.getTime()+(1000*60*60*24*-1));
-		SimpleDateFormat dSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String yesterday = dSdf.format(dDate);
-
-		return yesterday;
-	}
-
-
-
-
 	@ResponseBody
 	@RequestMapping(value = "/systemInfo/getSpotCombo.do")
 	public ModelAndView getSpotCombo(HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
@@ -361,7 +343,7 @@ public class SystemInfoController {
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("jsonView");
 		
-		String spotUrl = "http://" + GLOBAL_API_IP + ":" + GLOBAL_API_PORT + "/tacsm/v1/admin/spot?page=0&pageSize=20&zoneId="+param.get("srchZone");
+		String spotUrl = GLOBAL_API_URL+"/spot?page=0&pageSize=20&zoneId="+param.get("srchZone");
 		   
 		System.out.println("spotUrl >>>> "+spotUrl);
 
@@ -379,6 +361,4 @@ public class SystemInfoController {
 		return modelAndView;
 	}	
 	
-
-
 }

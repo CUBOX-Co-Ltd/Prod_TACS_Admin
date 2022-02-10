@@ -577,7 +577,7 @@ border:0;
 background-color:transparent
 }
 .input_com[readonly], input_com1[disabled] .input_com {
-	background-color:#eee;
+	background-color:#eee !important;
 	opacity:1
 }
 .input_com[disabled] {

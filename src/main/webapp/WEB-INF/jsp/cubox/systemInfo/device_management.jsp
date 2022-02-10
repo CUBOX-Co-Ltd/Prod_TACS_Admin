@@ -5,18 +5,15 @@
 
 <script type="text/javascript">
 $(function() {
-	$(".title_tx").html("등록현황");
+	$(".title_tx").html("등록 현황");
 	
 	$('#startDate').datetimepicker({
-		timepicker:true,
-		format:'Y-m-d H:m:s'
+		format:'Y-m-d H:i'
 	});
 	
 	$('#endDate').datetimepicker({
-		timepicker:true,
-		format:'Y-m-d H:m:s'
+		format:'Y-m-d H:i'
 	});
-	
 });
 
 function pageSearch(page){
@@ -26,6 +23,7 @@ function pageSearch(page){
 	f.submit();
 }
 function deviceSearch(){
+	$("#srchPage").val("1");
 	f = document.frmSearch;
 	f.action = "/systemInfo/deviceMngmt.do";
 	f.submit();
@@ -44,7 +42,7 @@ function deviceSearch(){
 				<input type="text" class="input_datepicker w_200px fl" name="endDate" id="endDate" value="${endDate}" placeholder="날짜">
 			</div>
 			<div class="ch_box  mr_20">
-				<label for="srchFunm" class="ml_10"> 이름</label>
+				<label for="srchFunm" class="ml_10">이름</label>
 			</div>
 			<div class="comm_search mr_20">
 				<input type="text" class="w_200px input_com" id="srchCondWord" name="srchCondWord" value='<c:out value="${srchCondWord}"/>' />
@@ -68,18 +66,17 @@ function deviceSearch(){
 	<!--테이블 시작 -->
 	<div class="tb_outbox">
 		<table class="tb_list">
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			
+			<col width="10%" />
+			<col width="23%" />
+			<col width="15%" />
+			<col width="15%" />
+			<col width="15%" />
+			<col width="15%" />
+			<col width="7%" />
 			<thead>
 				<tr>
-					<th>일련번호</th>
-					<th>Uuid</th>
+					<th>순번</th>
+					<th>UUID</th>
 					<th>이미지</th>
 					<th>이름</th>
 					<th>등록일시</th>
@@ -91,15 +88,16 @@ function deviceSearch(){
 				<c:choose>
 					<c:when test="${deviceList == null || fn:length(deviceList) == 0}">
 						<tr>
-							<td class="h_35px" colspan="11">조회 목록이 없습니다.</td>
+							<td class="h_35px" colspan="7">조회 목록이 없습니다.</td>
 						</tr>
 					</c:when> 
 					<c:otherwise>
 						<c:forEach items="${deviceList}" var="result" varStatus="status">
 							<tr>
-								<td> ${result.id}</td>
+								<%-- <td> ${result.id}</td> --%>
+								<td>${(pagination.totRecord - (pagination.totRecord-status.index)+1)  + ( (pagination.curPage - 1)  *  pagination.recPerPage ) }</td>
 								<td> ${result.deviceUuid}</td>
-								<td><img width="100px" src="data:image/jpeg;base64,${result.image}" ></td>
+								<td><img src="data:image/jpeg;base64,${result.image}" style="width: 100px; object-fit: contain;"></td>
 								<td> ${result.deviceName}</td>
 								<td> 
 									<fmt:parseDate value="${fn:substringBefore(result.registDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>

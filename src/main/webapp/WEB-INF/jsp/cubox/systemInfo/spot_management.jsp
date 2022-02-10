@@ -7,7 +7,7 @@
 <script type="text/javascript">
 
 $(function() {
-	$(".title_tx").html("Spot 목록");
+	$(".title_tx").html("Spot 관리");
 	
 	$("#btnAddSpot").on("click", function(event){
         $("#add-spot-modal").PopupWindow("open");
@@ -30,7 +30,7 @@ $(function() {
     });
 	
 	modalPopup ("add-spot-modal", "Spot 추가", 550, 350);
-	modalPopup ("edit-spot-modal", "Spot 상세보기", 550, 600);
+	modalPopup ("edit-spot-modal", "Spot 상세보기", 650, 600);
 	modalPopup ("add-beacon-modal", "Beacon 추가", 550, 400);
 
 });
@@ -40,6 +40,18 @@ function fnSpotAddSave(){
 	
 	var txtName = $("#txtName").val();
 	var txtHost = $("#txtHost").val();
+	
+	if(fnIsEmpty(txtName)) {
+		alert("이름을 입력하세요.");
+		$("#txtName").focus();
+		return;
+	}
+	
+	if(fnIsEmpty(txtHost)) {
+		alert("FRS Host를 입력하세요.");
+		$("#txtHost").focus();
+		return;
+	}
 	
 	showLoading();
 	$.ajax({
@@ -65,7 +77,7 @@ function fnSpotAddSave(){
 
 function fnEditPop(id) {
 	$("#edit-spot-modal").PopupWindow("open");
-	
+
 	$.ajax({
 		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+id,
 		dataType:'json',
@@ -74,6 +86,7 @@ function fnEditPop(id) {
 		success:function(result){
 			if(result.status == "200"){
 				$("#editZone").val(result.data.msZone.id);
+				$("#editZoneName").val(result.data.msZone.zoneName);
 				$("#editUuid").val(result.data.spotUuid);
 				$("#editName").val(result.data.spotName);
 				$("#hidSpotId").val(id);
@@ -98,10 +111,10 @@ function fnEditPop(id) {
 				for(var i = 0; i<result.data.content.length; i++){
 					content = result.data.content[i];
 					innerHtml+= "<tr>";
-					innerHtml+= "<td><input type='text' class='w_200px input_com' id='editBeaconMajor' name='editBeaconMajor' value='"+content.majorNo+"'/></td>";
-					innerHtml+= "<td><input type='text' class='w_200px input_com' id='editBeaconMemo' name='editBeaconMemo' value='"+content.beaconMemo+"'/></td>";
-					innerHtml+= "<td><button type='button' class='comm_btn' onClick='fnBeaconSave("+content.id+","+id+")'>저장</button></td>";
-					innerHtml+= "<td><button type='button' class='comm_btn' onClick='fnBeaconDelete("+content.id+","+id+")'>삭제</button></td>";
+					innerHtml+= "<td><input type='text' class='w_90p input_com' name='editBeaconMajor' value='"+content.majorNo+"'/></td>";
+					innerHtml+= "<td><input type='text' class='w_90p input_com' name='editBeaconMemo' value='"+content.beaconMemo+"'/></td>";
+					innerHtml+= "<td><button type='button' class='btn_small color_basic' onClick='fnBeaconSave("+content.id+","+id+","+i+")'>저장</button></td>";
+					innerHtml+= "<td><button type='button' class='btn_small color_gray' onClick='fnBeaconDelete("+content.id+","+id+")'>삭제</button></td>";
 					innerHtml+= "</tr>";
 				}
 				$("#beconList").html(innerHtml);
@@ -123,7 +136,6 @@ function fnSpotEditSave(){
 	
 	var editHost = $("#editHost").val();
 
-	
 	$.ajax({
 		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
 		dataType:'json',
@@ -168,10 +180,11 @@ function fnSpotDelete(){
 	var spotId = $("#hidSpotId").val();
 	var editZone = $("#editZone").val();
 	showLoading();
+
 	$.ajax({
 		url: "<spring:eval expression="@property['Globals.api.url']"/>/spot/"+spotId,
 		dataType:'json',
-		type: "POST",
+		type: "DELETE",
 		data: JSON.stringify({
 			"id" : spotId,
 			"zoneId": editZone,
@@ -189,9 +202,9 @@ function fnSpotDelete(){
 	});
 }
 
-function fnBeaconSave(beaconId,spotId){
-	var beaconMemo = $("#editBeaconMemo").val();
-	var beaconMajor = $("#editBeaconMajor").val();
+function fnBeaconSave(beaconId,spotId,seq){
+	var beaconMemo = $("input[name=editBeaconMemo]").eq(seq).val();
+	var beaconMajor = $("input[name=editBeaconMajor]").eq(seq).val();
 
 	showLoading();
 	$.ajax({
@@ -332,16 +345,16 @@ function resetSearch(){
 				<input type="text" class="w_200px input_com" id="srchCondName" name="srchCondName" value="${srchCondName}"/>
 			</div>
 			<div class="ch_box  mr_20">
-				<label for="srchSpotHost" class="ml_10"> host</label>
+				<label for="srchSpotHost" class="ml_10"> Host</label>
 			</div>
 			<div class="comm_search mr_20">
 				<input type="text" class="w_200px input_com" id="srchCondHost" name="srchCondHost" value="${srchCondHost}" placeholder="127.0.0.1"/>
 			</div>
 			<div class="ch_box  mr_20">
-				<label for="srchSpotHost" class="ml_10"> zone</label>
+				<label for="srchSpotHost" class="ml_10"> Zone</label>
 			</div>
 			<div class="comm_search mr_20">
-				<select name="srchZone" id="srchZone" size="1" class="w_100px input_com">
+				<select name="srchZone" id="srchZone" size="1" class="w_120px input_com">
 				<option value=''>전체</option>
 					<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
 	                      	<option value='<c:out value="${zCombo.id}"/>' 
@@ -380,19 +393,19 @@ function resetSearch(){
 	<!--테이블 시작 -->
 	<div class="tb_outbox">
 		<table class="tb_list">
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
+			<col width="10%" />
+			<col width="20%" />
+			<col width="30%" />
+			<col width="20%" />
+			<col width="20%" />
 			
 			<thead>
 				<tr>
-					<th>일련번호</th>
-					<th>ZONE</th>
+					<th>순번</th>
+					<th>Zone</th>
 					<th>UUID</th>
 					<th>이름</th>
-					<th>FRS_HOST</th>
+					<th>FRS Host</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -405,7 +418,8 @@ function resetSearch(){
 					<c:otherwise>
 						<c:forEach items="${spotList}" var="result" varStatus="status">
 							<tr>
-								<td> ${result.id}</td>
+								<%-- <td> ${result.id}</td> --%>
+								<td>${(pagination.totRecord - (pagination.totRecord-status.index)+1)  + ( (pagination.curPage - 1)  *  pagination.recPerPage ) }</td>
 								<td> ${result.msZone.zoneName}</td>
 								<td> <a class="nav-link" onclick="fnEditPop('${result.id}')">${result.spotUuid}</a></td>
 								<td> ${result.spotName}</td>
@@ -436,9 +450,9 @@ function resetSearch(){
 				<col width="70%" />
 				<tbody>
 					<tr>
-						<th>ZONE</th>
+						<th>Zone</th>
 						<td>
-							<select name="srchAddZone" id="srchAddZone" size="1" class="w_100px input_com">
+							<select name="srchAddZone" id="srchAddZone" size="1" class="w_50p input_com">
 								<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
 	                      			<option value='<c:out value="${zCombo.id}"/>' 
 	                      				<c:if test="${zCombo.zoneName eq zCombo.zoneName}">selected</c:if>>
@@ -457,13 +471,13 @@ function resetSearch(){
 					<tr>
 						<th>이름</th>
 						<td>
-							<input type="text" id="txtName" name="txtName" maxlength="20" class="w_190px input_com" check="text" checkName="이름"/>
+							<input type="text" id="txtName" name="txtName" maxlength="20" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
 					</tr>
 					<tr>
-						<th>FRS_HOST</th>
+						<th>FRS Host</th>
 						<td>
-							<input type="text" id="txtHost" name="txtName" maxlength="20" class="w_190px input_com" check="text" checkName="Host"/>
+							<input type="text" id="txtHost" name="txtName" maxlength="20" class="w_100p input_com" check="text" checkName="FRS Host"/>
 						</td>
 					</tr>
 				
@@ -495,27 +509,28 @@ function resetSearch(){
 				<col width="70%" />
 				<tbody>
 					<tr>
-						<th>ZONE</th>
+						<th>Zone</th>
 						<td>
-							<input type="text" id="editZone" name="editZone" maxlength="20" class="w_190px input_com" check="text" checkName="" readOnly="readOnly"/>
+							<input type="hidden" id="editZone" name="editZone"/>
+							<input type="text" id="editZoneName" name="editZoneName" maxlength="50" class="w_100p input_com" check="text" checkName="" readOnly="readOnly"/>
 						</td>
 					</tr>
 					<tr>
 						<th>UUID</th>
 						<td>
-							<input type="text" id="editUuid" name="editUuid" maxlength="20" class="w_190px input_com" check="text" checkName="" readOnly="readOnly"/>
+							<input type="text" id="editUuid" name="editUuid" maxlength="50" class="w_100p input_com" check="text" checkName="" readOnly="readOnly"/>
 						</td>
 					</tr>
 					<tr>
 						<th>이름</th>
 						<td>
-							<input type="text" id="editName" name="editName" maxlength="20" class="w_190px input_com" check="text" checkName="이름"/>
+							<input type="text" id="editName" name="editName" maxlength="25" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
 					</tr>
 					<tr>
-						<th>FRS_HOST</th>
+						<th>FRS Host</th>
 						<td>
-							<input type="text" id="editHost" name="editHost" maxlength="20" class="w_190px input_com" check="text" check="text" checkName="Host"/>
+							<input type="text" id="editHost" name="editHost" maxlength="50" class="w_100p input_com" check="text" check="text" checkName="Host"/>
 						</td>
 					</tr>
 					
@@ -525,32 +540,26 @@ function resetSearch(){
 		<!--버튼 -->
 	   	<div class="r_btnbox">
 			<div style="display: inline-block;">
+				<button type="button" class="comm_btn mr_5" id="btnAddBeacon">비콘추가</button>
 				<button type="button" class="comm_btn mr_5" onclick="fnSpotEditSave();">수정</button>
 				<button type="button" class="comm_btn mr_5" onclick="fnSpotDelete();">삭제</button>
 				<button type="button" class="bk_color comm_btn mr_5" id="btnEditClose">취소</button>
-				
 			</div>
 		</div>
-		
-		<div class="r_btnbox mb_10">
-			<button type="button" class="comm_btn mr_5" id="btnAddBeacon">추가</button>
-		</div>
-		
-		
 		<!--//버튼  -->
 		<!--테이블 시작 -->
 		<div class="tb_outbox mt_12">
 		<table class="tb_list">
-			<col width="40%" />
-			<col width="40%" />
-			<col width="" />
-
+			<col width="30%" />
+			<col width="44%" />
+			<col width="13%" />
+			<col width="13%" />
 			<thead>
 				<tr>
-					<th>비콘MAJOR</th>
-					<th>비콘Memo</th>
-					<th></th>
-					<th></th>
+					<th>비콘 Major No</th>
+					<th>비콘 Memo</th>
+					<th>저장</th>
+					<th>삭제</th>
 				</tr>
 			</thead>
 			<tbody id="beconList">
@@ -575,15 +584,15 @@ function resetSearch(){
 				<col width="70%" />
 				<tbody>
 					<tr>
-						<th>비콘_Major</th>
+						<th>비콘 Major No</th>
 						<td>
-							<input type="text" id="txtMajorNo" name="txtMajorNo" maxlength="20" class="w_190px input_com" check="text" checkName="txtMajorNo" onKeyup="this.value=this.value.replace(/[^-0-9]/g,'');"/>
+							<input type="text" id="txtMajorNo" name="txtMajorNo" maxlength="11" class="w_100p input_com" check="text" checkName="비콘 Major No" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');"/>
 						</td>
 					</tr>
 					<tr>
-						<th>비콘_Memo</th>
+						<th>비콘 Memo</th>
 						<td>
-							<input type="text" id="txtbeaconMemo" name="txtbeaconMemo" maxlength="20" class="w_190px input_com" check="text" checkName="비콘Major" />
+							<input type="text" id="txtbeaconMemo" name="txtbeaconMemo" maxlength="100" class="w_100p input_com" check="text" checkName="비콘 Memo" />
 						</td>
 					</tr>
 				</tbody>

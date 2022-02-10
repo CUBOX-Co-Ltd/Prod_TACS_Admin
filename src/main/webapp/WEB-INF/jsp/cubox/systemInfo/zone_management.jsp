@@ -5,7 +5,7 @@
 
 <script type="text/javascript">
 $(function() {
-	$(".title_tx").html("Zone 목록");
+	$(".title_tx").html("Zone 관리");
 	
 
 	$("#btnAddZone").on("click", function(event){
@@ -203,31 +203,30 @@ function pageSearch(page){
 	<!--테이블 시작 -->
 	<div class="tb_outbox">
 		<table class="tb_list">
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			<col width="" />
-			
+			<col width="10%" />
+			<col width="40%" />
+			<col width="25%" />
+			<col width="25%" />
 			<thead>
 				<tr>
-					<th>일련번호</th>
+					<th>순번</th>
 					<th>UUID</th>
 					<th>이름</th>
-					<th>HOST</th>
+					<th>Host</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:choose>
 					<c:when test="${zoneList == null || fn:length(zoneList) == 0}">
 						<tr>
-							<td class="h_35px" colspan="11">조회 목록이 없습니다.</td>
+							<td class="h_35px" colspan="4">조회 목록이 없습니다.</td>
 						</tr>
 					</c:when> 
 					<c:otherwise>
 						<c:forEach items="${zoneList}" var="result" varStatus="status">
 							<tr>
-								<td> ${result.id}</td>
+								<%-- <td> ${result.id}</td> --%>
+								<td>${(pagination.totRecord - (pagination.totRecord-status.index)+1)  + ( (pagination.curPage - 1)  *  pagination.recPerPage ) }</td>
 								<td> <a class="nav-link" onclick="fnEditPop('${result.id}','${result.zoneUuid}','${result.zoneName}','${result.zoneHost}')">${result.zoneUuid}</a></td>
 								<td> ${result.zoneName}</td>
 								<td> ${result.zoneHost}</td>
@@ -260,13 +259,13 @@ function pageSearch(page){
 					<tr>
 						<th>이름</th>
 						<td>
-							<input type="text" id="txtName" name="txtName" maxlength="20" class="w_190px input_com" check="text" checkName="이름"/>
+							<input type="text" id="txtName" name="txtName" maxlength="25" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
 					</tr>
 					<tr>
-						<th>HOST</th>
+						<th>Host</th>
 						<td>
-							<input type="text" id="txtHost" name="txtHost" maxlength="20" class="w_190px input_com" check="text" checkName="Host"/>
+							<input type="text" id="txtHost" name="txtHost" maxlength="50" class="w_100p input_com" check="text" checkName="Host"/>
 						</td>
 					</tr>
 				</tbody>
@@ -298,19 +297,19 @@ function pageSearch(page){
 					<tr>
 						<th>UUID</th>
 						<td>
-							<input type="text" id="editUuid" name="editUuid" maxlength="20" class="w_190px input_com" check="text" readonly="readonly" />
+							<input type="text" id="editUuid" name="editUuid" maxlength="50" class="w_100p input_com" check="text" readonly="readonly" />
 						</td>
 					</tr>
 					<tr>
 						<th>이름</th>
 						<td>
-							<input type="text" id="editName" name="editName" maxlength="20" class="w_190px input_com" check="text" checkName="이름"/>
+							<input type="text" id="editName" name="editName" maxlength="25" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
 					</tr>
 					<tr>
-						<th>HOST</th>
+						<th>Host</th>
 						<td>
-							<input type="text" id="editHost" name="editHost" maxlength="20" class="w_190px input_com" check="text" checkName="Host"/>
+							<input type="text" id="editHost" name="editHost" maxlength="50" class="w_100p input_com" check="text" checkName="Host"/>
 						</td>
 					</tr>
 				</tbody>
