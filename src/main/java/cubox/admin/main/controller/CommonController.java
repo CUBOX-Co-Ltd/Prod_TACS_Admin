@@ -2,6 +2,7 @@ package cubox.admin.main.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,8 @@ public class CommonController {
 	private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
 	private static String GLOBAL_API_PORT = CuboxProperties.getProperty("Globals.api.port");
 	
+	private static String GLOBAL_API_URL = CuboxProperties.getProperty("Globals.api.url");
+	
 	@RequestMapping(value="/login.do")
 	public String login(ModelMap model, RedirectAttributes redirectAttributes) throws Exception {
 		LoginManager loginManager = LoginManager.getInstance();  //LoginManager
@@ -81,75 +84,82 @@ public class CommonController {
 
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		HashMap<String, Object> spotResult = new HashMap<String, Object>();
-		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
-		HashMap<String, Object> spotdResult2 = new HashMap<String, Object>();
+		HashMap<String, Object> zoneResult = new HashMap<String, Object>();
+ 		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
+ 		
+ 		List spotImageList = new ArrayList<>();
+ 		List zoneList = new ArrayList<>();
+ 		List spotList = new ArrayList<>();
+ 		List spotNameList = new ArrayList<>();
+		List deviceList = new ArrayList<>();
 	
 
-		String startDate = getYesterDt().replace(" ", "%20");
+		String startDate = getMonthDt().replace(" ", "%20");
 		String endDate = getTodayDt().replace(" ", "%20");
 	
 
-		
-		String deviceUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/device?upDtSt="+startDate+"&upDtEd="+endDate+"&page=0&pageSize=10";
+ 		String deviceUrl =  GLOBAL_API_URL + "/device?upDtSt="+startDate+"&upDtEd="+endDate+"&page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
 		
-		String spotUrl = "http://"+GLOBAL_API_IP+":"+GLOBAL_API_PORT+"/tacsm/v1/admin/spot?page=0&pageSize=10";
 		
-		result = (ApiUtil.getApiReq(deviceUrl));
-		spotResult = (ApiUtil.getApiReq(spotUrl));
+		String zoneUrl = GLOBAL_API_URL+"/zone?page=0&pageSize=10";
+		String spotUrl = "";
 		
-		List list = new ArrayList<>();
+		result = (ApiUtil.getApiReq(deviceUrl));		
+		zoneResult = (ApiUtil.getApiReq(zoneUrl));
+		
+
  		if(result.get("data") != null){
  			HashMap<String, Object> hash = (HashMap<String, Object>) result.get("data");
- 			list = (List) hash.get("content");
-		}
+ 			deviceList = (List) hash.get("content");
+		} // 전체 사진 가져오기
  		
- 		List spotList = new ArrayList<>();
- 		List spotImageList = new ArrayList<>();
- 		
- 		HashMap<String, Object> temp = new HashMap<String, Object>();
- 		
+
+ 		String zoneId = "";
+ 		String zoneHost = "";
  		String spotUuid = "";
- 		
- 		if(spotResult.get("data") != null){
- 			HashMap<String, Object> hash = (HashMap<String, Object>) spotResult.get("data");
- 			//spotList = (List) hash.get("content");
- 			// for (int i = 0; i<spotList.size(); i++){
-// 				HashMap<String, Object> table = new HashMap<String, Object>();
-// 				table = (HashMap<String, Object>) spotList.get(i);
-// 				spotUuid = table.get("spotUuid").toString(); 
+ 		 
+ 		if(zoneResult.get("data")!=null){
+ 			zoneList = (List)((HashMap) zoneResult.get("data")).get("content");
+ 
+ 			for (int i =0; i <zoneList.size(); i++){
+ 				HashMap<String, Object> table = new HashMap<String, Object>();
+ 				table = (HashMap<String, Object>) zoneList.get(i);
+ 				zoneId = table.get("id").toString();
+ 				zoneHost = table.get("zoneHost").toString();
+ 				spotUrl = GLOBAL_API_URL+"/spot?zoneId="+zoneId+"&page=0&pageSize=10";
+ 				spotResult = (ApiUtil.getApiReq(spotUrl));
+
+ 				if(spotResult.get("data") != null){
+ 					HashMap<String, Object> table2 = new HashMap<String, Object>();
+ 		 			spotList = (List)((HashMap) spotResult.get("data")).get("content");
+ 		 			table2 = (HashMap<String, Object>) spotList.get(0);
+ 		 			spotUuid = table2.get("spotUuid").toString();
+ 		 			spotNameList.add(table2.get("spotName").toString());
+
+	 				String spotdUrl = "http://"+zoneHost+"/tacsz/v1/admin/spot/"+spotUuid+"/device?page=0&pageSize=10";
+	 				
+	 				System.out.println("### [main]spotdUrl:"+spotdUrl);
+	 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
+	 				List spotImageResult = new ArrayList<>();
+	 				if(spotdResult.get("data") != null){
+	 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
+	 		 			List listTemp = (List)hash2.get("content");
+	 		 			
+	 		 			spotImageResult.addAll(listTemp);
+	 				}
+	 				spotImageList.add(spotImageResult);
+ 		 				
+ 		 		}
  				
- 				String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/9bf5981f-f2b4-4646-9fec-451a61dce3d4/device?page=0&pageSize=10";
- 				
- 				
- 				
- 				System.out.println("### [main]spotdUrl:"+spotdUrl);
- 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
- 				List spotImageResult = new ArrayList<>();
- 				if(spotdResult.get("data") != null){
- 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
- 		 			List listTemp = (List)hash2.get("content");
- 		 			
- 		 			spotImageResult.addAll(listTemp);
- 				}
- 				spotImageList.add(spotImageResult);
- 				
- 				String spotdUrl2 = "http://172.16.150.16:8080/tacsz/v1/admin/spot/aed7f216-d8d7-470c-aae8-18e60b4ead86/device?page=0&pageSize=10";
- 				System.out.println("### [main]spotdUrl:"+spotdUrl2);
- 				spotdResult2= (ApiUtil.getApiReq(spotdUrl2));
- 				List spotImageResult2 = new ArrayList<>();
- 				if(spotdResult.get("data") != null){
- 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult2.get("data");
- 		 			List listTemp = (List)hash2.get("content");
- 		 			
- 		 			spotImageResult2.addAll(listTemp);
- 				}
- 				spotImageList.add(spotImageResult2);
- 				
- 			//}
+
+ 			}
+ 			
+ 			
  		}
- 		
- 		model.addAttribute("deviceList", list);
+ 	
+ 		model.addAttribute("deviceList", deviceList);
+ 		model.addAttribute("spotNameList", spotNameList);
  		model.addAttribute("spotImageList", spotImageList);
 		model.addAttribute("reloadYn", reloadYn);
 		model.addAttribute("intervalSecond", intervalSecond);
@@ -158,6 +168,132 @@ public class CommonController {
 
 		return "cubox/common/main";
 	}	
+	
+	
+	
+//	@SuppressWarnings("serial")
+//	@RequestMapping(value="/main.do")
+//	public String main(ModelMap model, @RequestParam Map<String, Object> commandMap, RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
+//		//자동새로고침때문에 추가
+//		String reloadYn = StringUtil.isNullToString(commandMap.get("reloadYn")).matches("Y") ? StringUtil.isNullToString(commandMap.get("reloadYn")) : "N";
+//		String intervalSecond = StringUtil.isNullToString(commandMap.get("intervalSecond")).matches("(^[0-9]+$)") ? StringUtil.isNullToString(commandMap.get("intervalSecond")) : "5";
+//		
+//		HashMap<String, Object> result = new HashMap<String, Object>();
+//		HashMap<String, Object> spotResult = new HashMap<String, Object>();
+//		HashMap<String, Object> zoneResult = new HashMap<String, Object>();
+//		
+//		
+//		HashMap<String, Object> spotdResult = new HashMap<String, Object>();
+//		HashMap<String, Object> spotdResult2 = new HashMap<String, Object>();
+//		
+//		
+//		String startDate = getYesterDt().replace(" ", "%20");
+//		String endDate = getTodayDt().replace(" ", "%20");
+//		
+//		
+//		String deviceUrl =  GLOBAL_API_URL + "/device?upDtSt="+startDate+"&upDtEd="+endDate+"&page=0&pageSize=10";
+//		System.out.println("### [main]deviceUrl:"+deviceUrl);
+//		
+//		
+//		String zoneUrl = GLOBAL_API_URL+"/zone?page=0&pageSize=10";
+//		String spotUrl = "";
+//		
+//		result = (ApiUtil.getApiReq(deviceUrl));
+//		
+//		zoneResult = (ApiUtil.getApiReq(zoneUrl));
+//		
+//		
+//		List deviceList = new ArrayList<>();
+//		if(result.get("data") != null){
+//			HashMap<String, Object> hash = (HashMap<String, Object>) result.get("data");
+//			deviceList = (List) hash.get("content");
+//		} // 전체 사진 가져오기
+//		
+//		List spotList = new ArrayList<>();
+//		List spotImageList = new ArrayList<>();
+//		List zoneList = new ArrayList<>();
+//		
+//		HashMap<String, Object> temp = new HashMap<String, Object>();
+//		
+//		String spotUuid = "";
+//		
+//		String zoneId = "";
+//		String zoneHost = "";
+//		
+//		if(zoneResult.get("data")!=null){
+//			zoneList = (List)((HashMap) zoneResult.get("data")).get("content");
+//			
+//			for (int i =0; i <zoneList.size(); i++){
+//				HashMap<String, Object> table = new HashMap<String, Object>();
+//				table = (HashMap<String, Object>) zoneList.get(i);
+//				zoneId = table.get("id").toString();
+//				zoneHost = table.get("zoneHost").toString();
+//				spotUrl = GLOBAL_API_URL+"/spot?zoneId="+zoneId+"&page=0&pageSize=10";
+//				spotResult = (ApiUtil.getApiReq(spotUrl));
+//				
+//				if(spotResult.get("data") != null){
+//					HashMap<String, Object> hash = (HashMap<String, Object>) spotResult.get("data");
+//					//spotList = (List) hash.get("content");
+//					// for (int i = 0; i<spotList.size(); i++){
+//// 		 				HashMap<String, Object> table = new HashMap<String, Object>();
+//// 		 				table = (HashMap<String, Object>) spotList.get(i);
+//// 		 				spotUuid = table.get("spotUuid").toString(); 
+//					
+//					String spotdUrl = "http://172.16.150.15:8080/tacsz/v1/admin/spot/9bf5981f-f2b4-4646-9fec-451a61dce3d4/device?page=0&pageSize=10";
+//					
+//					System.out.println("### [main]spotdUrl:"+spotdUrl);
+//					spotdResult= (ApiUtil.getApiReq(spotdUrl));
+//					List spotImageResult = new ArrayList<>();
+//					if(spotdResult.get("data") != null){
+//						HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
+//						List listTemp = (List)hash2.get("content");
+//						
+//						spotImageResult.addAll(listTemp);
+//					}
+//					spotImageList.add(spotImageResult);
+//					
+//					String spotdUrl2 = "http://172.16.150.16:8080/tacsz/v1/admin/spot/aed7f216-d8d7-470c-aae8-18e60b4ead86/device?page=0&pageSize=10";
+//					
+//					
+//					
+//					System.out.println("### [main]spotdUrl:"+spotdUrl2);
+//					spotdResult2= (ApiUtil.getApiReq(spotdUrl2));
+//					List spotImageResult2 = new ArrayList<>();
+//					if(spotdResult.get("data") != null){
+//						HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult2.get("data");
+//						List listTemp = (List)hash2.get("content");
+//						
+//						spotImageResult2.addAll(listTemp);
+//					}
+//					spotImageList.add(spotImageResult2);
+//					
+//					//}
+//				}
+//				
+//				
+//			}
+//			
+//			
+//			
+//			
+//			
+//		}
+//		
+//		
+//		
+//		
+//		model.addAttribute("deviceList", deviceList);
+//		model.addAttribute("spotImageList", spotImageList);
+//		model.addAttribute("reloadYn", reloadYn);
+//		model.addAttribute("intervalSecond", intervalSecond);
+//		model.addAttribute("totalElements", spotImageList.size());
+//		
+//		
+//		return "cubox/common/main";
+//	}	
+	
+	
+	
 	
 	@ResponseBody
 	@RequestMapping(value="/main/selectMainStatInCnt.do")
@@ -318,17 +454,24 @@ public class CommonController {
 		return today;
 	}
 
-
-
-
 	private String getYesterDt() {
 		// TODO Auto-generated method stub
-		Date dDate = new Date();
-		dDate = new Date(dDate.getTime()+(1000*60*60*24*-1));
-		SimpleDateFormat dSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String yesterday = dSdf.format(dDate);
+		Calendar day = Calendar.getInstance();
+	    day.add(Calendar.DATE, -1);
+	    String yesterday = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getTime());
 
 		return yesterday;
+	}
+	private String getMonthDt() {
+		// TODO Auto-generated method stub
+
+	    Calendar day = Calendar.getInstance();
+	    day.add(Calendar.MONTH, -1);
+	    String beforeMonth = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getTime());
+	    
+	    
+	    return beforeMonth;
+
 	}
     
     
