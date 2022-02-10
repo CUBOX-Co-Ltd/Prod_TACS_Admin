@@ -41,8 +41,8 @@ function deviceSearch(){
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="endDate" id="endDate" value="${endDate}" placeholder="날짜">
 			</div>
-			<div class="ch_box  mr_20">
-				<label for="srchFunm" class="ml_10">이름</label>
+			<div class="comm_search  mr_20">
+				<label for="srchCondWord" class="ml_10">이름</label>
 			</div>
 			<div class="comm_search mr_20">
 				<input type="text" class="w_200px input_com" id="srchCondWord" name="srchCondWord" value='<c:out value="${srchCondWord}"/>' />
@@ -66,8 +66,8 @@ function deviceSearch(){
 	<!--테이블 시작 -->
 	<div class="tb_outbox">
 		<table class="tb_list">
-			<col width="10%" />
-			<col width="23%" />
+			<col width="7%" />
+			<col width="26%" />
 			<col width="15%" />
 			<col width="15%" />
 			<col width="15%" />
@@ -97,7 +97,7 @@ function deviceSearch(){
 								<%-- <td> ${result.id}</td> --%>
 								<td>${(pagination.totRecord - (pagination.totRecord-status.index)+1)  + ( (pagination.curPage - 1)  *  pagination.recPerPage ) }</td>
 								<td> ${result.deviceUuid}</td>
-								<td><img src="data:image/jpeg;base64,${result.image}" style="width: 100px; object-fit: contain;"></td>
+								<td><img src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'" style="width: 110px; object-fit: contain;"></td>
 								<td> ${result.deviceName}</td>
 								<td> 
 									<fmt:parseDate value="${fn:substringBefore(result.registDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>

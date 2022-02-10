@@ -86,7 +86,7 @@ function resetSearch(){
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="endDate" id="endDate" value="${endDate}" placeholder="날짜">
 			</div>
-			<div class="ch_box  mr_20">
+			<div class="comm_search  mr_20">
 				<label for="srchSpotHost" class="ml_20">Zone</label>
 			</div>
 			<div class="comm_search mr_20">
@@ -100,7 +100,7 @@ function resetSearch(){
 	                </c:forEach>
 				</select>
 			</div>
-			<div class="ch_box  mr_20">
+			<div class="comm_search  mr_20">
 				<label for="srchSpotHost" class="ml_20">Spot</label>
 			</div>
 			<div class="comm_search mr_20">
@@ -139,10 +139,10 @@ function resetSearch(){
 			<col width="5%" />
 			<col width="10%" />
 			<col width="10%" />
-			<col width="20%" />
+			<col width="23%" />
 			<col width="15%" />
 			<col width="10%" />
-			<col width="15%" />
+			<col width="12%" />
 			<thead>
 				<tr>
 					<th>순번</th>
@@ -168,7 +168,7 @@ function resetSearch(){
 								<td>${result.msSpot.msZone.zoneName}</td>
 								<td>${result.msSpot.spotName}</td>
 								<td>${result.msDevice.deviceUuid}</td>
-								<td><img src="data:image/jpeg;base64,${result.msDevice.image}" alt="" onerror="this.src='/images/empty_photo.png'" style="width: 100px; height: 125px; object-fit: contain; "></td>
+								<td><img src="data:image/jpeg;base64,${result.msDevice.image}" alt="" onerror="this.src='/img/photo_01_back.jpg'" style="width: 110px; object-fit: contain; "></td>
 								<td>${result.msDevice.deviceName}</td>
 								<td> 
 									<fmt:parseDate value="${fn:substringBefore(result.updtDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
