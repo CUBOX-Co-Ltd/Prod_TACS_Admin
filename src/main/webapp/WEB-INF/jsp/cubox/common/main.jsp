@@ -51,18 +51,23 @@ function reload() {
 		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
 		       		 </c:forEach>
 				</c:if>
+				
 				<c:forEach items="${deviceList}" var="result" varStatus="status">
-                 		<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"><br>${result.deviceName}</td>
+					
+                 	<td><img width="100px" src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'"><br>${result.deviceName}</td>
+                 	
             		<c:if test="${i%j == j-1 }">
                 		</tr>
            		 	</c:if>
            		 <c:set var="i" value="${i+1}" />
+           			 
        		 	</c:forEach>
-       		  <c:if test="${i > 0}">
+       		  	<c:if test="${i > 0}">
 		       		 <c:forEach begin="1" end="${10-i}">
 		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
 		       		 </c:forEach>
-	       		 </c:if>
+	       		</c:if>
+	       		
 			</tbody>
 		</table>
 	</div>
@@ -74,12 +79,11 @@ function reload() {
 			<table class="tb_list">
 				<tbody>
 					<tr>
-					<c:if test="${status2.index == 0}">
-						<td width="50px">쇼룸</td>
-					</c:if>
-					<c:if test="${status2.index == 1}">
-						<td width="50px">휴게실</td>
-					</c:if>
+					
+						<td width="50px">${spotNameList[status2.index]}</td>
+					
+					
+					
 					<c:if test="${fn:length(list) == 0}">
 					<c:forEach begin="1" end="10">
 		       		 	<td><img width="100px" src="/img/photo_01_back.jpg"></td>
