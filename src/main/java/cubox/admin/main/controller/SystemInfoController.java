@@ -61,7 +61,7 @@ public class SystemInfoController {
 	private String getYesterDt() {
 		return commonUtils.getStringDate(DateUtils.addDays(new Date(), -1), "yyyy-MM-dd HH:mm");
 	}
-	
+
 	@RequestMapping(value="/systemInfo/zoneMngmt.do")
 	public String zoneMngmt(ModelMap model,  HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
 
@@ -260,7 +260,7 @@ public class SystemInfoController {
 		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
 		String endDate = StringUtil.isNullToString(request.getParameter("endDate"));
 		
-		if(startDate.equals("")) startDate =  getYesterDt();
+		if(startDate.equals("")) startDate = commonUtils.getStringDate(DateUtils.addDays(new Date(), -7), "yyyy-MM-dd HH:mm");;
 		if(endDate.equals("")) endDate = getTodayDt();
 		
 		PaginationVO pageVO = new PaginationVO();
@@ -290,7 +290,7 @@ public class SystemInfoController {
 			zoneCombo = (List) ((HashMap) zoneResult.get("data")).get("content");
 		}
 	
-		if(!CommonUtils.empty(param)) {
+		//if(!CommonUtils.empty(param)) {
 			String spotUrl = GLOBAL_API_URL+"/spot?page=0&pageSize=20";
 			spotResult = ApiUtil.getApiReq(spotUrl);
 			System.out.println("spotUrl >>>> "+spotUrl);
@@ -300,7 +300,7 @@ public class SystemInfoController {
 			
 			
 	 		String deviceLocUrl = GLOBAL_API_URL+"/deviceLoc?";
-	 			deviceLocUrl += "zoneId="+param.get("srchZone")+"&spotId="+param.get("srchSpot")+"&page="+page+"&pageSize="+pageSize;
+	 			deviceLocUrl += "zoneId="+StringUtil.nvl(param.get("srchZone"))+"&spotId="+StringUtil.nvl(param.get("srchSpot"))+"&page="+page+"&pageSize="+pageSize;
 	 			deviceLocUrl += "&upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8");
 	 			   
 			System.out.println("deviceLocUrl >>>> "+deviceLocUrl);
@@ -322,7 +322,7 @@ public class SystemInfoController {
 			pageVO.setUnitPage(curPageUnit);
 			pageVO.calcPageList();
 		
-		}
+		//}
 		model.addAttribute("pagination", pageVO);
 		model.addAttribute("deviceLocList", list);
 		model.addAttribute("spotId", param.get("srchSpot"));

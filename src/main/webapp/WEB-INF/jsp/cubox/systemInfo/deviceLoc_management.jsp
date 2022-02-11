@@ -5,7 +5,7 @@
 
 <script type="text/javascript">
 $(function() {
-	$(".title_tx").html("이동 현황");
+	$(".title_tx").html("모바일기기 이동 현황");
 	
 	$('#startDate').datetimepicker({
 		format:'Y-m-d H:i'
@@ -26,7 +26,7 @@ function pageSearch(page){
 function fnGetSpot(obj) {
 	if(!obj.value) {
 		$("#srchSpot").find("option").remove();
-		$("#srchSpot").append("<option value=''>선택</option>");
+		$("#srchSpot").append("<option value=''>전체</option>");
 		return;
 	}
 	
@@ -39,7 +39,7 @@ function fnGetSpot(obj) {
 		dataType:"json",
 		success:function(result){
 			$("#srchSpot").find("option").remove();
-			$("#srchSpot").append("<option value=''>선택</option>");
+			$("#srchSpot").append("<option value=''>전체</option>");
 			
 			if(result != null){
 				$.each(result.spotCombo, function(i){
@@ -79,19 +79,17 @@ function resetSearch(){
 <input type="hidden" id="srchPage" name="srchPage" value="${pagination.curPage}"/>
 	<div class="search_box mb_20">
 		<div class="search_in_bline">
-			<div class="comm_search  mr_5">
-				<label for="search-from-date" class="title">기록일시</label>
+			<div class="comm_search  mr_20">
+				<div class="title">기록일시</div>
 				<input type="text" class="input_datepicker w_200px fl" name="startDate" id="startDate" value="${startDate}" placeholder="날짜">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="endDate" id="endDate" value="${endDate}" placeholder="날짜">
 			</div>
-			<div class="comm_search  mr_20">
-				<label for="srchSpotHost" class="ml_20">Zone</label>
-			</div>
 			<div class="comm_search mr_20">
+				<div class="title">Zone</div>
 				<select name="srchZone" id="srchZone" size="1" class="w_150px input_com" onchange="fnGetSpot(this);">
-				<option value=''>선택</option>
+				<option value=''>전체</option>
 					<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
 	                      	<option value='<c:out value="${zCombo.id}"/>' 
 	                      		<c:if test="${zCombo.id eq zoneId}">selected</c:if>>
@@ -100,12 +98,10 @@ function resetSearch(){
 	                </c:forEach>
 				</select>
 			</div>
-			<div class="comm_search  mr_20">
-				<label for="srchSpotHost" class="ml_20">Spot</label>
-			</div>
 			<div class="comm_search mr_20">
+				<div class="title">Spot</div>
 				<select name="srchSpot" id="srchSpot" size="1" class="w_150px input_com">
-				<option value=''>선택</option>
+				<option value=''>전체</option>
 					<c:forEach items="${spotCombo}" var="sCombo" varStatus="status">
                       	<option value='<c:out value="${sCombo.id}"/>' 
                       		<c:if test="${sCombo.id eq spotId}">selected</c:if>>
@@ -148,9 +144,9 @@ function resetSearch(){
 					<th>순번</th>
 					<th>Zone</th>
 					<th>Spot</th>
-					<th>UUID</th>
-					<th>이미지</th>
-					<th>이름</th>
+					<th>모바일기기 UUID</th>
+					<th>등록 이미지</th>
+					<th>모바일기기 이름</th>
 					<th>기록일시</th>
 				</tr>
 			</thead>

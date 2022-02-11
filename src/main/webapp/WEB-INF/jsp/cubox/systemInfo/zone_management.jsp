@@ -12,7 +12,7 @@ $(function() {
         $("#add-zone-modal").PopupWindow("open");
     });
 	
-	modalPopup ("add-zone-modal", "Zone 추가", 550, 300);
+	modalPopup ("add-zone-modal", "Zone 추가", 550, 330);
 	modalPopup ("edit-zone-modal", "Zone 상세보기", 550, 330);
 
 });
@@ -169,10 +169,8 @@ function pageSearch(page){
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchExpireDate" id="endDatetimepicker" value="${logInfoVO.srchExpireDate}" placeholder="날짜,시간">
 			</div> -->
-			<div class="ch_box  mr_20">
-				<label for="srchFunm" class="ml_10"> 이름</label>
-			</div>
 			<div class="comm_search mr_20">
+				<div class="title">이름</div>
 				<input type="text" class="w_200px input_com" id="srchCondWord" name="srchCondWord" value='<c:out value="${srchCondWord}"/>' />
 			</div>
 			<div class="comm_search ml_60">
@@ -210,9 +208,9 @@ function pageSearch(page){
 			<thead>
 				<tr>
 					<th>순번</th>
-					<th>UUID</th>
-					<th>이름</th>
-					<th>Host</th>
+					<th>Zone UUID</th>
+					<th>Zone 이름</th>
+					<th>Zone Host</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -227,9 +225,9 @@ function pageSearch(page){
 							<tr>
 								<%-- <td> ${result.id}</td> --%>
 								<td>${(pagination.totRecord - (pagination.totRecord-status.index)+1)  + ( (pagination.curPage - 1)  *  pagination.recPerPage ) }</td>
-								<td> <a class="nav-link" onclick="fnEditPop('${result.id}','${result.zoneUuid}','${result.zoneName}','${result.zoneHost}')">${result.zoneUuid}</a></td>
-								<td> ${result.zoneName}</td>
-								<td> ${result.zoneHost}</td>
+								<td><a class="nav-link" onclick="fnEditPop('${result.id}','${result.zoneUuid}','${result.zoneName}','${result.zoneHost}')">${result.zoneUuid}</a></td>
+								<td><a class="nav-link" onclick="fnEditPop('${result.id}','${result.zoneUuid}','${result.zoneName}','${result.zoneHost}')">${result.zoneName}</a></td>
+								<td>${result.zoneHost}</td>
 							</tr>
 						</c:forEach>
 					</c:otherwise>
@@ -248,7 +246,6 @@ function pageSearch(page){
 <!-- modal : 등록 -->
 <div id="add-zone-modal" class="example_content">
 <form id="frmAdd" name="frmAdd" method="post">
-
 	<div class="popup_box">
 		<!--테이블 시작 -->
 		<div class="tb_outbox mb_20">
@@ -257,13 +254,17 @@ function pageSearch(page){
 				<col width="70%" />
 				<tbody>
 					<tr>
-						<th>이름</th>
+						<th>Zone UUID</th>
+						<td>※ 자동생성</td>
+					</tr>
+					<tr>
+						<th>Zone 이름</th>
 						<td>
 							<input type="text" id="txtName" name="txtName" maxlength="25" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
 					</tr>
 					<tr>
-						<th>Host</th>
+						<th>Zone Host</th>
 						<td>
 							<input type="text" id="txtHost" name="txtHost" maxlength="50" class="w_100p input_com" check="text" checkName="Host"/>
 						</td>
@@ -295,19 +296,19 @@ function pageSearch(page){
 				<col width="70%" />
 				<tbody>
 					<tr>
-						<th>UUID</th>
+						<th>Zone UUID</th>
 						<td>
 							<input type="text" id="editUuid" name="editUuid" maxlength="50" class="w_100p input_com" check="text" readonly="readonly" />
 						</td>
 					</tr>
 					<tr>
-						<th>이름</th>
+						<th>Zone 이름</th>
 						<td>
 							<input type="text" id="editName" name="editName" maxlength="25" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
 					</tr>
 					<tr>
-						<th>Host</th>
+						<th>Zone Host</th>
 						<td>
 							<input type="text" id="editHost" name="editHost" maxlength="50" class="w_100p input_com" check="text" checkName="Host"/>
 						</td>

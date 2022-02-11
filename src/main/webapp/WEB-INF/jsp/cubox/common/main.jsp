@@ -5,11 +5,11 @@
 <jsp:include page="/WEB-INF/jsp/cubox/common/checkPasswd.jsp" flush="false"/>
 <script type="text/javascript">
 $(function(){
-	$(".title_tx").html("기기등록 및 이동현황");
+	$(".title_tx").html("모바일기기 등록 및 이동 현황");
 	
 	setInterval(function(){ 
 		reload();
-	 }, 3000);
+	 }, 4000);
 });
 
 //새로고침
@@ -61,7 +61,7 @@ function reload() {
 		<table class="tb_list">
 			<tbody>
 			<tr>
-				<td width="50px" rowspan="2">${spotNameList[status.index]}</td>
+				<td width="50px" style="word-break:break-all;" rowspan="2">${spotNameList[status.index]}</td>
 				<c:forEach items="${list}" var="result">
           		<td><img src="data:image/jpeg;base64,${result.image}" onerror="this.src='/img/photo_01_back.jpg'" style="width: 110px; object-fit: contain;"></td>
        		 	</c:forEach>

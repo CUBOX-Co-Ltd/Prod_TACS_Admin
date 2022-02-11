@@ -174,6 +174,9 @@ public class ApiUtil {
 	        while ((InputLine = in.readLine()) != null) {
 	        	responseBody += InputLine;
 	        }
+	        if(responseCode != 200){
+	        	System.out.println("### [api_error_responseBody]"+responseBody);
+	        }
 	        
 	        JSONParser parser = new JSONParser();
 			Object obj = parser.parse(responseBody);

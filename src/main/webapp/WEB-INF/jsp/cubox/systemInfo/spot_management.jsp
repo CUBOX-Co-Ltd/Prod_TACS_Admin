@@ -13,6 +13,12 @@ $(function() {
         $("#add-spot-modal").PopupWindow("open");
     });
 	
+	$("#btnCloseSpot").on("click", function(event){
+		$("#txtName").val("");
+		$("#txtHost").val("");
+        $("#add-spot-modal").PopupWindow("close");
+    });
+	
 	$("#btnEditSpot").on("click", function(event){
 		$("#edit-spot-modal").PopupWindow("open");
     });
@@ -29,9 +35,9 @@ $(function() {
 		$("#add-beacon-modal").PopupWindow("close");
     });
 	
-	modalPopup ("add-spot-modal", "Spot 추가", 550, 350);
-	modalPopup ("edit-spot-modal", "Spot 상세보기", 650, 600);
-	modalPopup ("add-beacon-modal", "Beacon 추가", 550, 400);
+	modalPopup ("add-spot-modal", "Spot 추가", 550, 370);
+	modalPopup ("edit-spot-modal", "Spot 상세보기", 650, 650);
+	modalPopup ("add-beacon-modal", "Beacon 추가", 550, 300);
 
 });
 
@@ -338,22 +344,8 @@ function resetSearch(){
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="srchExpireDate" id="endDatetimepicker" placeholder="날짜">
 			</div> -->
-			<div class="ch_box  mr_20">
-				<label for="srchSpotName" class="ml_10"> 이름</label>
-			</div>
 			<div class="comm_search mr_20">
-				<input type="text" class="w_200px input_com" id="srchCondName" name="srchCondName" value="${srchCondName}"/>
-			</div>
-			<div class="ch_box  mr_20">
-				<label for="srchSpotHost" class="ml_10"> Host</label>
-			</div>
-			<div class="comm_search mr_20">
-				<input type="text" class="w_200px input_com" id="srchCondHost" name="srchCondHost" value="${srchCondHost}" placeholder="127.0.0.1"/>
-			</div>
-			<div class="ch_box  mr_20">
-				<label for="srchSpotHost" class="ml_10"> Zone</label>
-			</div>
-			<div class="comm_search mr_20">
+				<div class="title">Zone</div>
 				<select name="srchZone" id="srchZone" size="1" class="w_120px input_com">
 				<option value=''>전체</option>
 					<c:forEach items="${zoneCombo}" var="zCombo" varStatus="status">
@@ -364,6 +356,14 @@ function resetSearch(){
 	                </c:forEach>
 				</select>
 			</div>
+			<div class="comm_search mr_20">
+				<div class="title">Spot 이름</div>
+				<input type="text" class="w_200px input_com" id="srchCondName" name="srchCondName" value="${srchCondName}"/>
+			</div>
+			<div class="comm_search mr_20">
+				<div class="title">FRS Host</div>
+				<input type="text" class="w_200px input_com" id="srchCondHost" name="srchCondHost" value="${srchCondHost}" placeholder="127.0.0.1"/>
+			</div>
 			<div class="comm_search ml_60">
 				<div class="search_btn2" title="검색" onclick="spotSearch()"></div>
 			</div>
@@ -371,13 +371,9 @@ function resetSearch(){
 				<button type="button" class="comm_btn" id="reset" onclick="resetSearch();">초기화</button>
 			</div>
 		</div>
-		
-		
 	</div>
 </form>
 <!--//검색박스 -->
-
-
 <!--------- 목록--------->
 <div class="com_box ">
 	<div class="totalbox" style="width: 50%;">
@@ -388,7 +384,6 @@ function resetSearch(){
 		<button type="button" class="btn_middle color_basic" id="btnAddSpot">추가</button>
 	</div>
 	<!--버튼 -->
-
 	<!--//버튼  -->
 	<!--테이블 시작 -->
 	<div class="tb_outbox">
@@ -398,13 +393,12 @@ function resetSearch(){
 			<col width="30%" />
 			<col width="20%" />
 			<col width="20%" />
-			
 			<thead>
 				<tr>
 					<th>순번</th>
 					<th>Zone</th>
-					<th>UUID</th>
-					<th>이름</th>
+					<th>Spot UUID</th>
+					<th>Spot 이름</th>
 					<th>FRS Host</th>
 				</tr>
 			</thead>
@@ -422,7 +416,7 @@ function resetSearch(){
 								<td>${(pagination.totRecord - (pagination.totRecord-status.index)+1)  + ( (pagination.curPage - 1)  *  pagination.recPerPage ) }</td>
 								<td> ${result.msZone.zoneName}</td>
 								<td> <a class="nav-link" onclick="fnEditPop('${result.id}')">${result.spotUuid}</a></td>
-								<td> ${result.spotName}</td>
+								<td> <a class="nav-link" onclick="fnEditPop('${result.id}')">${result.spotName}</a></td>
 								<td> ${result.frsHost}</td>
 							</tr>
 						</c:forEach>
@@ -462,14 +456,12 @@ function resetSearch(){
 							</select>
 						</td>
 					</tr>
-					<!--<tr>
-						<th>UUID</th>
-						<td>
-							<input type="text" id="txtUuid" name="txtUuid" maxlength="20" class="w_190px input_com" check="text" checkName="UUID" readOnly="readOnly"/>
-						</td>
-					</tr> -->
 					<tr>
-						<th>이름</th>
+						<th>Spot UUID</th>
+						<td>※ 자동생성</td>
+					</tr>
+					<tr>
+						<th>Spot 이름</th>
 						<td>
 							<input type="text" id="txtName" name="txtName" maxlength="20" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
@@ -480,7 +472,6 @@ function resetSearch(){
 							<input type="text" id="txtHost" name="txtName" maxlength="20" class="w_100p input_com" check="text" checkName="FRS Host"/>
 						</td>
 					</tr>
-				
 				</tbody>
 			</table>
 		</div>
@@ -488,7 +479,7 @@ function resetSearch(){
 	   	<div class="r_btnbox">
 			<div style="display: inline-block;">
 				<button type="button" class="comm_btn mr_5" onclick="fnSpotAddSave();">저장</button>
-				<button type="button" class="bk_color comm_btn mr_5" id="btnAddClose">취소</button>
+				<button type="button" class="bk_color comm_btn mr_5" id="btnCloseSpot">취소</button>
 			</div>
 		</div>
 		<!--//버튼  -->
@@ -503,7 +494,7 @@ function resetSearch(){
 <input type="hidden" id="hidSpotId" name="hidSpotId"/>
 	<div class="popup_box">
 		<!--테이블 시작 -->
-		<div class="tb_outbox mb_20">
+		<div class="tb_outbox mb_10">
 			<table class="tb_write_02 tb_write_p1">
 				<col width="30%" />
 				<col width="70%" />
@@ -516,13 +507,13 @@ function resetSearch(){
 						</td>
 					</tr>
 					<tr>
-						<th>UUID</th>
+						<th>Spot UUID</th>
 						<td>
 							<input type="text" id="editUuid" name="editUuid" maxlength="50" class="w_100p input_com" check="text" checkName="" readOnly="readOnly"/>
 						</td>
 					</tr>
 					<tr>
-						<th>이름</th>
+						<th>Spot 이름</th>
 						<td>
 							<input type="text" id="editName" name="editName" maxlength="25" class="w_100p input_com" check="text" checkName="이름"/>
 						</td>
@@ -547,8 +538,11 @@ function resetSearch(){
 			</div>
 		</div>
 		<!--//버튼  -->
+		<div class="com_box title mb_10">
+		◆ 등록된 비콘 목록
+		</div>
 		<!--테이블 시작 -->
-		<div class="tb_outbox mt_12">
+		<div class="tb_outbox">
 		<table class="tb_list">
 			<col width="30%" />
 			<col width="44%" />

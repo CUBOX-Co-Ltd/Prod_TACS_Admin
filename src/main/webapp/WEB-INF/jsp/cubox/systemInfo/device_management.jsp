@@ -5,7 +5,7 @@
 
 <script type="text/javascript">
 $(function() {
-	$(".title_tx").html("등록 현황");
+	$(".title_tx").html("모바일기기 등록 현황");
 	
 	$('#startDate').datetimepicker({
 		format:'Y-m-d H:i'
@@ -34,17 +34,15 @@ function deviceSearch(){
 <input type="hidden" id="srchPage" name="srchPage" value="${pagination.curPage}"/>
 	<div class="search_box mb_20">
 		<div class="search_in_bline">
-			<div class="comm_search  mr_5">
+			<div class="comm_search  mr_20">
 				<label for="search-from-date" class="title">수정일시</label>
 				<input type="text" class="input_datepicker w_200px  fl" autocomplete="off" name="startDate" id="startDate" value="${startDate}" placeholder="날짜,시간">
 				<div class="sp_tx fl">~</div>
 				<label for="search-to-date"></label>
 				<input type="text" class="input_datepicker w_200px fl" name="endDate" id="endDate" value="${endDate}" placeholder="날짜">
 			</div>
-			<div class="comm_search  mr_20">
-				<label for="srchCondWord" class="ml_10">이름</label>
-			</div>
 			<div class="comm_search mr_20">
+				<div class="title">모바일기기 이름</div>
 				<input type="text" class="w_200px input_com" id="srchCondWord" name="srchCondWord" value='<c:out value="${srchCondWord}"/>' />
 			</div>
 			<div class="comm_search ml_60">
@@ -76,9 +74,9 @@ function deviceSearch(){
 			<thead>
 				<tr>
 					<th>순번</th>
-					<th>UUID</th>
-					<th>이미지</th>
-					<th>이름</th>
+					<th>모바일기기 UUID</th>
+					<th>등록 이미지</th>
+					<th>모바일기기 이름</th>
 					<th>등록일시</th>
 					<th>수정일시</th>
 					<th>삭제여부</th>
