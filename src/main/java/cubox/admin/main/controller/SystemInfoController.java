@@ -2,6 +2,7 @@ package cubox.admin.main.controller;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,11 @@ public class SystemInfoController {
 	private String getYesterDt() {
 		return commonUtils.getStringDate(DateUtils.addDays(new Date(), -1), "yyyy-MM-dd HH:mm");
 	}
+	private String getTomorrowDt() {
+		return commonUtils.getStringDate(DateUtils.addDays(new Date(), 1), "yyyy-MM-dd HH:mm");
+	}
+	
+	
 
 	@RequestMapping(value="/systemInfo/zoneMngmt.do")
 	public String zoneMngmt(ModelMap model,  HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
@@ -122,8 +128,6 @@ public class SystemInfoController {
 		String srchZoneId = StringUtil.nvl(param.get("srchZone"));
 		String srchSpotName = StringUtil.nvl(param.get("srchCondName"));
 		String srchSpotHost = StringUtil.nvl(param.get("srchCondHost"));
-		
-		
 		
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
@@ -261,7 +265,7 @@ public class SystemInfoController {
 		String endDate = StringUtil.isNullToString(request.getParameter("endDate"));
 		
 		if(startDate.equals("")) startDate = commonUtils.getStringDate(DateUtils.addDays(new Date(), -7), "yyyy-MM-dd HH:mm");;
-		if(endDate.equals("")) endDate = getTodayDt();
+		if(endDate.equals("")) endDate = getTomorrowDt();
 		
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();
@@ -300,8 +304,8 @@ public class SystemInfoController {
 			
 			
 	 		String deviceLocUrl = GLOBAL_API_URL+"/deviceLoc?";
-	 			deviceLocUrl += "zoneId="+StringUtil.nvl(param.get("srchZone"))+"&spotId="+StringUtil.nvl(param.get("srchSpot"))+"&page="+page+"&pageSize="+pageSize;
-	 			deviceLocUrl += "&upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8");
+	 			  deviceLocUrl += "zoneId="+StringUtil.nvl(param.get("srchZone"))+"&spotId="+StringUtil.nvl(param.get("srchSpot"))+"&page="+page+"&pageSize="+pageSize;
+	 			  deviceLocUrl += "&upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8");
 	 			   
 			System.out.println("deviceLocUrl >>>> "+deviceLocUrl);
 			

@@ -1,5 +1,6 @@
 package cubox.admin.main.controller;
 
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,6 +58,9 @@ public class CommonController {
 	
 	private static String GLOBAL_API_URL = CuboxProperties.getProperty("Globals.api.url");
 	
+	private static int page = 0;
+	private static int pageSize = 10;
+	
 	@RequestMapping(value="/login.do")
 	public String login(ModelMap model, RedirectAttributes redirectAttributes) throws Exception {
 		LoginManager loginManager = LoginManager.getInstance();  //LoginManager
@@ -93,28 +97,24 @@ public class CommonController {
  		List spotNameList = new ArrayList<>();
 		List deviceList = new ArrayList<>();
 	
+		String startDate = getMonthDt();
+		String endDate = getTodayDt();
 
-		String startDate = getMonthDt().replace(" ", "%20");
-		String endDate = getTodayDt().replace(" ", "%20");
-	
-
- 		String deviceUrl =  GLOBAL_API_URL + "/device?upDtSt="+startDate+"&upDtEd="+endDate+"&page=0&pageSize=10";
+ 		String deviceUrl =  GLOBAL_API_URL + "/device?upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8")+"&page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
 		
 		
-		String zoneUrl = GLOBAL_API_URL+"/zone?page=0&pageSize=10";
+		String zoneUrl = GLOBAL_API_URL+"/zone?page="+page+"&pageSize="+pageSize;
 		String spotUrl = "";
 		
 		result = (ApiUtil.getApiReq(deviceUrl));		
 		zoneResult = (ApiUtil.getApiReq(zoneUrl));
-		
 
  		if(result.get("data") != null){
  			HashMap<String, Object> hash = (HashMap<String, Object>) result.get("data");
  			deviceList = (List) hash.get("content");
 		} // 전체 사진 가져오기
  		
-
  		String zoneId = "";
  		String zoneHost = "";
  		String spotUuid = "";
@@ -127,7 +127,7 @@ public class CommonController {
  				table = (HashMap<String, Object>) zoneList.get(i);
  				zoneId = table.get("id").toString();
  				zoneHost = table.get("zoneHost").toString();
- 				spotUrl = GLOBAL_API_URL+"/spot?zoneId="+zoneId+"&page=0&pageSize=10";
+ 				spotUrl = GLOBAL_API_URL+"/spot?zoneId="+zoneId+"&page="+page+"&pageSize="+pageSize;
  				spotResult = (ApiUtil.getApiReq(spotUrl));
 
  				if(spotResult.get("data") != null){
@@ -137,7 +137,7 @@ public class CommonController {
  		 			spotUuid = table2.get("spotUuid").toString();
  		 			spotNameList.add(table2.get("spotName").toString());
 
-	 				String spotdUrl = "http://"+zoneHost+"/tacsz/v1/admin/spot/"+spotUuid+"/device?page=0&pageSize=10";
+	 				String spotdUrl = "http://"+zoneHost+"/tacsz/v1/admin/spot/"+spotUuid+"/device?page="+page+"&pageSize="+pageSize;
 	 				
 	 				System.out.println("### [main]spotdUrl:"+spotdUrl);
 	 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
@@ -145,17 +145,11 @@ public class CommonController {
 	 				if(spotdResult.get("data") != null){
 	 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
 	 		 			List listTemp = (List)hash2.get("content");
-	 		 			
 	 		 			spotImageResult.addAll(listTemp);
 	 				}
 	 				spotImageList.add(spotImageResult);
- 		 				
  		 		}
- 				
-
  			}
- 			
- 			
  		}
  	
  		model.addAttribute("deviceList", deviceList);
@@ -164,7 +158,6 @@ public class CommonController {
 		model.addAttribute("reloadYn", reloadYn);
 		model.addAttribute("intervalSecond", intervalSecond);
 		model.addAttribute("totalElements", spotImageList.size());
-		
 
 		return "cubox/common/main";
 	}	
@@ -462,6 +455,8 @@ public class CommonController {
 
 		return yesterday;
 	}
+	
+	
 	private String getMonthDt() {
 		// TODO Auto-generated method stub
 
