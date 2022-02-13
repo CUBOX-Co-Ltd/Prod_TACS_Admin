@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%> 
 <jsp:include page="/WEB-INF/jsp/cubox/common/checkPasswd.jsp" flush="false"/>
 <script type="text/javascript">
 $(function(){
@@ -71,11 +72,7 @@ function reload() {
             </tr>
             <tr>
 				<c:forEach items="${list}" var="result">
-          		<td>${result.deviceName}
-          		<fmt:parseDate value="${fn:substringBefore(result.updtDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
-				<fmt:formatDate value="${dateValue}" pattern="mm:ss"/>
-          		
-          		</td>
+          		<td>${result.deviceName}</td>
        		 	</c:forEach>
        		 	<c:forEach begin="${fn:length(list)}" end="9">
        		 	<td>&nbsp;</td>
