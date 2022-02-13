@@ -71,7 +71,11 @@ function reload() {
             </tr>
             <tr>
 				<c:forEach items="${list}" var="result">
-          		<td>${result.deviceName}</td>
+          		<td>${result.deviceName}
+          		<fmt:parseDate value="${fn:substringBefore(result.updtDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
+				<fmt:formatDate value="${dateValue}" pattern="mm:ss"/>
+          		
+          		</td>
        		 	</c:forEach>
        		 	<c:forEach begin="${fn:length(list)}" end="9">
        		 	<td>&nbsp;</td>
