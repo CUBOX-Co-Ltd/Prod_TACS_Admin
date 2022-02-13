@@ -9,7 +9,7 @@ $(function(){
 	
 	setInterval(function(){ 
 		reload();
-	 }, 4000);
+	 }, 1000);
 });
 
 //새로고침

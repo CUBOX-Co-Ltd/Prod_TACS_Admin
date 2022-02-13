@@ -464,7 +464,6 @@ public class CommonController {
 	    day.add(Calendar.MONTH, -1);
 	    String beforeMonth = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getTime());
 	    
-	    
 	    return beforeMonth;
 
 	}

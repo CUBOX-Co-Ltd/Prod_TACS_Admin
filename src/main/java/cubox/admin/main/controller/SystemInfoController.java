@@ -289,7 +289,6 @@ public class SystemInfoController {
 		
 		zoneResult = ApiUtil.getApiReq(zoneUrl);
 		
-		
 		if(zoneResult.get("data") != null){
 			zoneCombo = (List) ((HashMap) zoneResult.get("data")).get("content");
 		}
