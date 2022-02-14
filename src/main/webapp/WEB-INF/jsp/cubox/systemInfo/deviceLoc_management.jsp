@@ -52,15 +52,6 @@ function fnGetSpot(obj) {
 }
 
 function deviceLocSearch(){
-	if(fnIsEmpty($("#srchZone").val())){
-		alert('Zone을 선택해 주세요');
-		return;
-	}
-	
-	if(fnIsEmpty($("#srchSpot").val())){
-		alert('Spot을 선택해 주세요');
-		return;
-	}
 	
 	$("#srchPage").val("1");
 	frmSearch.action = "/systemInfo/deviceLocMngmt.do";
