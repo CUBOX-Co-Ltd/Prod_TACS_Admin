@@ -98,7 +98,11 @@ public class CommonController {
 		List deviceList = new ArrayList<>();
 	
 		String startDate = getMonthDt();
+		////////////////////////////////
+		startDate = "2022-01-01 01:01";
+		////////////////////////////////
 		String endDate = getTodayDt();
+
 
  		String deviceUrl =  GLOBAL_API_URL + "/device?upDtSt="+URLEncoder.encode(startDate+":00", "UTF-8")+"&upDtEd="+URLEncoder.encode(endDate+":59", "UTF-8")+"&page=0&pageSize=10";
 		System.out.println("### [main]deviceUrl:"+deviceUrl);
