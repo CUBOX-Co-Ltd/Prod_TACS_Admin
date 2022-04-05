@@ -49,24 +49,20 @@ public class SystemInfoController {
 	protected CommonUtils commonUtils;
 
 	private static String GLOBAL_API_URL = CuboxProperties.getProperty("Globals.api.url");
-	private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
-	private static String GLOBAL_API_PORT = CuboxProperties.getProperty("Globals.api.port");
+	//private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
+	//private static String GLOBAL_API_PORT = CuboxProperties.getProperty("Globals.api.port");
 	
 	private int srchCnt     = 10; //조회할 페이지 수
 	private int curPageUnit = 10; //한번에 표시할 페이지 번호 개수
 
 	private String getTodayDt() {
-		return commonUtils.getToday("yyyy-MM-dd HH:mm");
+		return commonUtils.getToday("yyyy-MM-dd") + " 23:59";
 	}
 
 	private String getYesterDt() {
-		return commonUtils.getStringDate(DateUtils.addDays(new Date(), -1), "yyyy-MM-dd HH:mm");
+		return commonUtils.getStringDate(DateUtils.addDays(new Date(), -7), "yyyy-MM-dd") + " 00:00";
 	}
-	private String getTomorrowDt() {
-		return commonUtils.getStringDate(DateUtils.addDays(new Date(), 1), "yyyy-MM-dd HH:mm");
-	}
-	
-	
+		
 
 	@RequestMapping(value="/systemInfo/zoneMngmt.do")
 	public String zoneMngmt(ModelMap model,  HttpServletRequest request, @RequestParam Map<String, Object> param) throws Exception {
@@ -264,8 +260,8 @@ public class SystemInfoController {
 		String startDate = StringUtil.isNullToString(request.getParameter("startDate"));
 		String endDate = StringUtil.isNullToString(request.getParameter("endDate"));
 		
-		if(startDate.equals("")) startDate = commonUtils.getStringDate(DateUtils.addDays(new Date(), -7), "yyyy-MM-dd HH:mm");;
-		if(endDate.equals("")) endDate = getTomorrowDt();
+		if(startDate.equals("")) startDate = getYesterDt();
+		if(endDate.equals("")) endDate = getTodayDt();
 		
 		PaginationVO pageVO = new PaginationVO();
 		List list = new ArrayList<>();

@@ -202,22 +202,24 @@ function pageSearch(page){
 	<div class="tb_outbox">
 		<table class="tb_list">
 			<col width="10%" />
-			<col width="40%" />
+			<col width="35%" />
+			<col width="20%" />
 			<col width="25%" />
-			<col width="25%" />
+			<col width="10%" />
 			<thead>
 				<tr>
 					<th>순번</th>
 					<th>Zone UUID</th>
 					<th>Zone 이름</th>
 					<th>Zone Host</th>
+					<th>삭제 여부</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:choose>
 					<c:when test="${zoneList == null || fn:length(zoneList) == 0}">
 						<tr>
-							<td class="h_35px" colspan="4">조회 목록이 없습니다.</td>
+							<td class="h_35px" colspan="5">조회 목록이 없습니다.</td>
 						</tr>
 					</c:when> 
 					<c:otherwise>
@@ -228,6 +230,7 @@ function pageSearch(page){
 								<td><a class="nav-link" onclick="fnEditPop('${result.id}','${result.zoneUuid}','${result.zoneName}','${result.zoneHost}')">${result.zoneUuid}</a></td>
 								<td><a class="nav-link" onclick="fnEditPop('${result.id}','${result.zoneUuid}','${result.zoneName}','${result.zoneHost}')">${result.zoneName}</a></td>
 								<td>${result.zoneHost}</td>
+								<td>${result.deleteYn}</td>
 							</tr>
 						</c:forEach>
 					</c:otherwise>

@@ -157,10 +157,11 @@ function resetSearch(){
 								<td>${result.msDevice.deviceUuid}</td>
 								<td><img src="data:image/jpeg;base64,${result.msDevice.image}" alt="" onerror="this.src='/img/photo_01_back.jpg'" style="width: 110px; object-fit: contain; "></td>
 								<td>${result.msDevice.deviceName}</td>
-								<td> 
+								<td>${result.msDevice.updtDt}</td>
+								<%-- <td> 
 									<fmt:parseDate value="${fn:substringBefore(result.updtDt, '+')}" var="dateValue" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS"/>
 									<fmt:formatDate value="${dateValue}" pattern="yyyy-MM-dd HH:mm:ss"/>
-								</td>
+								</td> --%>
 							</tr>
 						</c:forEach>
 					</c:otherwise>

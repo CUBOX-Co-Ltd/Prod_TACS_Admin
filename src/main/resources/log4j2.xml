@@ -7,7 +7,7 @@
 		<Console name="console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d %5p [%c] %m%n" />
 		</Console>
-		<RollingFile name="RollingfileRoot" fileName="D:/log/logs_${site}/console.log" filePattern="D:/log/logs_${site}/console-%d{yyyy-MM-dd}-%i.log">
+		<RollingFile name="RollingfileRoot" fileName="${sys:catalina.base}/logs/console.log" filePattern="${sys:catalina.base}/logs/console-%d{yyyy-MM-dd}-%i.log">
 			<PatternLayout>
 				<pattern>%d %5p [%c] %m%n"</pattern>
 			</PatternLayout>

@@ -389,10 +389,11 @@ function resetSearch(){
 	<div class="tb_outbox">
 		<table class="tb_list">
 			<col width="10%" />
+			<col width="15%" />
 			<col width="20%" />
-			<col width="30%" />
 			<col width="20%" />
 			<col width="20%" />
+			<col width="10%" />
 			<thead>
 				<tr>
 					<th>순번</th>
@@ -400,13 +401,14 @@ function resetSearch(){
 					<th>Spot UUID</th>
 					<th>Spot 이름</th>
 					<th>FRS Host</th>
+					<th>삭제 여부</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:choose>
 					<c:when test="${spotList == null || fn:length(spotList) == 0}">
 						<tr>
-							<td class="h_35px" colspan="11">조회 목록이 없습니다.</td>
+							<td class="h_35px" colspan="6">조회 목록이 없습니다.</td>
 						</tr>
 					</c:when> 
 					<c:otherwise>
@@ -418,6 +420,7 @@ function resetSearch(){
 								<td> <a class="nav-link" onclick="fnEditPop('${result.id}')">${result.spotUuid}</a></td>
 								<td> <a class="nav-link" onclick="fnEditPop('${result.id}')">${result.spotName}</a></td>
 								<td> ${result.frsHost}</td>
+								<td> ${result.deleteYn}</td>
 							</tr>
 						</c:forEach>
 					</c:otherwise>

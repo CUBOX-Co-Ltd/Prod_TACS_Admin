@@ -53,8 +53,8 @@ public class CommonController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CommonController.class);
 	
-	private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
-	private static String GLOBAL_API_PORT = CuboxProperties.getProperty("Globals.api.port");
+	//private static String GLOBAL_API_IP = CuboxProperties.getProperty("Globals.api.ip");
+	//private static String GLOBAL_API_PORT = CuboxProperties.getProperty("Globals.api.port");
 	
 	private static String GLOBAL_API_URL = CuboxProperties.getProperty("Globals.api.url");
 	
@@ -123,35 +123,42 @@ public class CommonController {
  		String zoneHost = "";
  		String spotUuid = "";
  		 
- 		if(zoneResult.get("data")!=null){
+ 		if(zoneResult.get("data") != null){
  			zoneList = (List)((HashMap) zoneResult.get("data")).get("content");
  
- 			for (int i =0; i <zoneList.size(); i++){
+ 			for (int i = 0 ; i < zoneList.size() ; i++){
  				HashMap<String, Object> table = new HashMap<String, Object>();
  				table = (HashMap<String, Object>) zoneList.get(i);
  				zoneId = table.get("id").toString();
  				zoneHost = table.get("zoneHost").toString();
  				spotUrl = GLOBAL_API_URL+"/spot?zoneId="+zoneId+"&page="+page+"&pageSize="+pageSize;
  				spotResult = (ApiUtil.getApiReq(spotUrl));
+ 				
+ 				System.out.println("### zoneInfo : "+table);
 
  				if(spotResult.get("data") != null){
  					HashMap<String, Object> table2 = new HashMap<String, Object>();
  		 			spotList = (List)((HashMap) spotResult.get("data")).get("content");
  		 			table2 = (HashMap<String, Object>) spotList.get(0);
- 		 			spotUuid = table2.get("spotUuid").toString();
- 		 			spotNameList.add(table2.get("spotName").toString());
-
-	 				String spotdUrl = "http://"+zoneHost+"/tacsz/v1/admin/spot/"+spotUuid+"/device?page="+page+"&pageSize="+pageSize;
-	 				
-	 				System.out.println("### [main]spotdUrl:"+spotdUrl);
-	 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
-	 				List spotImageResult = new ArrayList<>();
-	 				if(spotdResult.get("data") != null){
-	 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
-	 		 			List listTemp = (List)hash2.get("content");
-	 		 			spotImageResult.addAll(listTemp);
-	 				}
+ 		 			
+ 		 			System.out.println("### spotInfo : "+table2);
+ 		 			
+ 		 			if(StringUtil.nvl(table2.get("deleteYn"), "N").equals("N")) {
+ 		 				spotUuid = table2.get("spotUuid").toString();
+ 		 				spotNameList.add(table2.get("spotName").toString());
+ 		 			
+		 				String spotdUrl = "http://"+zoneHost+"/tacsz/v1/admin/spot/"+spotUuid+"/device?page="+page+"&pageSize="+pageSize;
+		 				
+		 				System.out.println("### [main]spotdUrl:"+spotdUrl);
+		 				spotdResult= (ApiUtil.getApiReq(spotdUrl));
+		 				List spotImageResult = new ArrayList<>();
+		 				if(spotdResult.get("data") != null){
+		 		 			HashMap<String, Object> hash2 = (HashMap<String, Object>) spotdResult.get("data");
+		 		 			List listTemp = (List)hash2.get("content");
+		 		 			spotImageResult.addAll(listTemp);
+		 				}
 	 				spotImageList.add(spotImageResult);
+ 		 			}
  		 		}
  			}
  		}
